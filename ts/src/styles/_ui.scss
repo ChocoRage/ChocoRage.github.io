@@ -1,0 +1,17 @@
+@import "_variables.scss";
+
+.button {
+    background: none;
+    border: none;
+    outline: none;
+    color: $color-highlight;
+    
+    &:not([disabled]) {
+        cursor: pointer;
+
+        &:hover {
+            background-color: $color-highlight;
+            color: $color-base;
+        }
+    }
+}

@@ -1,3 +1,17 @@
+@import "_variables.scss";
+@import "_ui.scss";
+
 body {
-    background-color: #ddd;
+    margin: 0;
+    background-color: $background-color;
+    color: $color-highlight;
+    height: 100vh;
+    width: 100vw;
 }
+
+#app,
+#app-container {
+    width: 100%;
+    height: 100%;
+}
+

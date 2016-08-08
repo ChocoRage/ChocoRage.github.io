@@ -48,7 +48,7 @@
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(2);
 	var App_1 = __webpack_require__(3);
-	__webpack_require__(4);
+	__webpack_require__(6);
 	ReactDOM.render(React.createElement(App_1.App, null), document.getElementById("app"));
 
 
@@ -75,13 +75,22 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var React = __webpack_require__(1);
+	var LayoutView_1 = __webpack_require__(4);
+	var LayoutModel_1 = __webpack_require__(5);
+	var UI_1 = __webpack_require__(10);
 	var App = (function (_super) {
 	    __extends(App, _super);
-	    function App() {
-	        _super.apply(this, arguments);
+	    function App(props) {
+	        _super.call(this, props);
+	        this.handleStartClick = function () {
+	            alert("ok");
+	        };
+	        this.state = {
+	            layout: new LayoutModel_1.MainMenuLayout()
+	        };
 	    }
 	    App.prototype.render = function () {
-	        return React.createElement("div", null);
+	        return (React.createElement("div", {id: "app-container"}, React.createElement(LayoutView_1.LayoutView, {layout: this.state.layout}, React.createElement(UI_1.Button, {text: "Start", onClick: this.handleStartClick.bind(this)}))));
 	    };
 	    return App;
 	}(React.Component));
@@ -92,13 +101,54 @@
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var React = __webpack_require__(1);
+	var LayoutView = (function (_super) {
+	    __extends(LayoutView, _super);
+	    function LayoutView() {
+	        _super.apply(this, arguments);
+	    }
+	    LayoutView.prototype.render = function () {
+	        return (React.createElement("div", {id: "layout"}, this.props.layout.getLayout()));
+	    };
+	    return LayoutView;
+	}(React.Component));
+	exports.LayoutView = LayoutView;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var React = __webpack_require__(1);
+	var MainMenuLayout = (function () {
+	    function MainMenuLayout() {
+	    }
+	    MainMenuLayout.prototype.getLayout = function () {
+	        return (React.createElement("div", null, "Main Menu"));
+	    };
+	    return MainMenuLayout;
+	}());
+	exports.MainMenuLayout = MainMenuLayout;
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(5);
+	var content = __webpack_require__(7);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(7)(content, {});
+	var update = __webpack_require__(9)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -115,21 +165,21 @@
 	}
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(6)();
+	exports = module.exports = __webpack_require__(8)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, "body {\n  background-color: #ddd; }\n", ""]);
+	exports.push([module.id, "body {\n  background-color: #333;\n  color: #ddd; }\n", ""]);
 	
 	// exports
 
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports) {
 
 	/*
@@ -185,7 +235,7 @@
 
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -434,6 +484,30 @@
 		if(oldSrc)
 			URL.revokeObjectURL(oldSrc);
 	}
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var React = __webpack_require__(1);
+	var Button = (function (_super) {
+	    __extends(Button, _super);
+	    function Button(props) {
+	        _super.call(this, props);
+	    }
+	    Button.prototype.render = function () {
+	        return (React.createElement("button", {className: "button", onClick: this.props.onClick.bind(this)}, this.props.text));
+	    };
+	    return Button;
+	}(React.Component));
+	exports.Button = Button;
 
 
 /***/ }
