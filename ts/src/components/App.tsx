@@ -1,29 +1,34 @@
+/// <reference path="../../typings/index.d.ts" />
 import * as React from "react";
-import {LayoutModel, MainMenuLayout} from "./models/LayoutModel";
-import {Layout} from "./views/Layout";
-import {Button} from "./views/UI"
+import {MainMenu} from "./views/MainMenu";
+import {View} from "./models/View"
 
-export class App extends React.Component<{}, {
-        layout: LayoutModel
+export class App extends React.Component<{
+    }, {
+        view: View
     }> {
 
     constructor(props: any) {
         super(props)
+        
         this.state = {
-            layout: new MainMenuLayout()
+            view: new View(MainMenu)
         }
     }
 
-    handleStartClick = () => {
-        alert("ok")
+    changeView(newView: View) {
+        this.setState({
+            view: newView
+        })
     }
 
     render() {
+        var View = this.state.view.view
         return  (
             <div id="app-container">
-                <Layout layout={this.state.layout}>
-                    <Button text="Start" onClick={this.handleStartClick.bind(this)}></Button>
-                </Layout>
+                <div id="view-container">
+                    <View changeView={this.changeView.bind(this)}></View>
+                </div>
             </div>
         )
     }
