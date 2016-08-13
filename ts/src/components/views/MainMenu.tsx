@@ -2,7 +2,7 @@
 import * as React from "react";
 import {Button} from "./UI"
 import {View} from "../models/View"
-import {Board} from "./Board"
+import {BoardView} from "./BoardView"
 
 export class MainMenu extends React.Component<{
         changeView: (newVew: View)=>void
@@ -10,7 +10,7 @@ export class MainMenu extends React.Component<{
     }> {
 
     handleStartClick = () => {
-        {this.props.changeView(new View(Board))}
+        {this.props.changeView(new View(BoardView))}
     }
 
     render() {
