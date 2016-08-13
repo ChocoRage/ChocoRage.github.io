@@ -1,0 +1,21 @@
+@import "_variables.scss";
+
+#board {
+    width: 100%;
+    height: 100%;
+}
+
+#board-main-menu-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    z-index: 1;
+}
+
+#board-svg path:hover {
+    fill: white;
+}
+
+.tile-anchor {
+    pointer-events: all;
+}

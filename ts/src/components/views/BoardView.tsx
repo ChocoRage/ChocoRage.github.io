@@ -11,10 +11,10 @@ export class BoardView extends React.Component<{
         board: Board
     }> {
     
-    constructor(props) {
-        super(props)
+    constructor() {
+        super()
         this.state = {
-            board: new Board(1, 1, 300, 20)
+            board: new Board(11, 11, 100, 2)
         }
     }
 
@@ -22,17 +22,21 @@ export class BoardView extends React.Component<{
         {this.props.changeView(new View(MainMenu))}
     }
 
+    handleTileClick(e: any) {
+        console.log(e.target)
+    }
+
     render() {
         var tiles = this.state.board.tiles
         return (
             <div id="view-board" className="view">
-                <Button text="Main Menu" onClick={this.handleMenuClick.bind(this)}></Button>
+                <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
                 <div id="board">
-                    <svg width="1000" height="600">
+                    <svg id="board-svg" width="100%" height="100%">
                         <g >
                             {tiles.map(tilesX => 
                                 tilesX.map(tile =>
-                                    <path d={"M " + tile.path.top.x + "," + tile.path.top.y
+                                    <path onClick={this.handleTileClick.bind(this)} className="tile-anchor" d={"M " + tile.path.top.x + "," + tile.path.top.y
                                         + " l " + tile.path.topRight.x + "," + tile.path.topRight.y
                                         + " l " + tile.path.bottomRight.x + "," + tile.path.bottomRight.y
                                         + " l " + tile.path.bottom.x + "," + tile.path.bottom.y
