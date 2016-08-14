@@ -1,6 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 import * as React from "react";
 import {MainMenu} from "./views/MainMenu";
+import {BoardView} from "./views/BoardView";
 import {View} from "./models/View"
 
 export class App extends React.Component<{
@@ -12,7 +13,7 @@ export class App extends React.Component<{
         super(props)
         
         this.state = {
-            view: new View(MainMenu)
+            view: new View(BoardView)
         }
     }
 

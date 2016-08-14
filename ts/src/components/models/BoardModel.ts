@@ -1,31 +1,26 @@
 import {Tile, TileType, getTileTypes} from './TileModel'
 
 export class Board {
-    w: number
-    h: number
-    tileHeight: number
-    tiles: Tile[][]
-    tileSpacing: number
+    tiles: {[x: string]: {[y: string]: Tile}}
 
-    constructor(boardWidth: number, boardHeight: number, tileHeight: number, tileSpacing: number) {
-        this.w = boardWidth
-        this.h = boardHeight
-        this.tileHeight = tileHeight
-        this.tileSpacing = tileSpacing
-
-        var cos30deg = Math.cos(Math.PI/6);
-        var tileWidth = Math.ceil(cos30deg * tileHeight);
-        var oddRowOffsetX = (tileWidth + tileSpacing)/2
-        var offsetY = tileHeight/4
-
-        this.tiles = []
-
-        for(var i = 0; i < boardWidth; i++) {
-            this.tiles[i] = []
-            for(var j = 0; j < boardHeight; j++) {
-                var offsetX = i%2 == 0 ? 0 : oddRowOffsetX
-                this.tiles[i][j] = new Tile(getTileTypes().grass, j * (tileWidth + tileSpacing) - offsetX, i * (tileHeight + tileSpacing - offsetY), tileHeight)
-            }
+    constructor(tileHeight: number, tileSpacing: number, json?: string) {
+        this.tiles = {
+            "0": {}
         }
+        this.tiles["0"]["0"] =  new Tile(getTileTypes().grass, 0, 0)
+    }
+
+    addRandomTile() {
+        this.getAvailableSpaces()
+    }
+
+    getAvailableSpaces() {
+        var tiles = this.tiles
+        var availables: {[x: string]: {[y: string]: Tile}}
+        var adjacents: {[x: string]: {[y: string]: Tile}}
+        Object.keys(tiles).map(xIndex => {
+            Object.keys(tiles[+xIndex]).map(yIndex => {
+            })
+        })
     }
 }
