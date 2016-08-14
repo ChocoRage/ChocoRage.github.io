@@ -1,12 +1,8 @@
 export class Tile {
     type: TileType
-    x: number
-    y: number
 
-    constructor(type: TileType, x: number, y: number) {
+    constructor(type?: TileType) {
         this.type = type
-        this.x = x
-        this.y = y
     }
 }
 

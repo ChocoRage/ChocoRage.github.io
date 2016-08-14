@@ -4,6 +4,7 @@ import {Button} from "./UI"
 import {View} from "../models/View"
 import {MainMenu} from "./MainMenu"
 import {Board} from "../models/BoardModel"
+import {Tile} from "../models/TileModel"
 
 export class BoardView extends React.Component<{
         changeView: (newVew: View)=>void
@@ -17,7 +18,7 @@ export class BoardView extends React.Component<{
     constructor() {
         super()
         
-        var tileHeight = 200
+        var tileHeight = 100
         var cos30deg = Math.cos(Math.PI/6)
         var tileWidth = Math.ceil(cos30deg * tileHeight)
 
@@ -25,7 +26,7 @@ export class BoardView extends React.Component<{
             board: new Board(1, 1),
             tileHeight: tileHeight,
             tileWidth: tileWidth,
-            tileSpacing: 5
+            tileSpacing: 3
         }
     }
 
@@ -34,11 +35,10 @@ export class BoardView extends React.Component<{
         var tileWidth = this.state.tileWidth
         var tileSpacing = this.state.tileSpacing
 
-        var oddRowOffsetX = (tileWidth + tileSpacing)/2
+        var offsetX = (tileWidth + tileSpacing)/2
         var offsetY = tileHeight/4
-        var offsetX = y%2 == 0 ? 0 : oddRowOffsetX
 
-        var absoluteX = originLeft + x * (tileWidth + tileSpacing) + offsetX
+        var absoluteX = originLeft + x * (tileWidth + tileSpacing) + Math.abs(y) * offsetX
         var absoluteY = originTop + y * (tileHeight + tileSpacing - offsetY)
 
         return {
@@ -51,16 +51,15 @@ export class BoardView extends React.Component<{
         }
     }
 
-    getBoardPxWidth() {
+    getBoardPxWidth(tiles: {[x: string]: {[y: string]: Tile}}) {
         var widthMax = 0
         var widthMin = 0
         var heightMax = 0
         var heightMin = 0
-        var tiles = this.state.board.tiles
         Object.keys(tiles).map(xIndex => {
             Object.keys(tiles[+xIndex]).map(yIndex => {
-                widthMax = Math.max(widthMax, Math.max(+xIndex, +xIndex + Math.abs(+yIndex)/2))
-                widthMin = Math.min(widthMin, +xIndex - +yIndex/2)
+                widthMax = Math.max(widthMax, +xIndex + Math.abs(+yIndex)/2)
+                widthMin = Math.min(widthMin, +xIndex + Math.abs(+yIndex)/2)
                 heightMax = Math.max(heightMax, +yIndex)
                 heightMin = Math.min(heightMin, +yIndex)
             })
@@ -91,17 +90,27 @@ export class BoardView extends React.Component<{
         console.log(e.target)
     }
 
+    handleAdjacentTileClick(e: any) {
+        var x = e.target.attributes["data-x"].nodeValue
+        var y = e.target.attributes["data-y"].nodeValue
+        this.state.board.addTile(x, y)
+        this.setState(this.state)
+    }
+
     handleNewTileClick() {
-        
+        this.state.board.addRandomTile()
+        this.setState(this.state)
     }
 
     render() {
         var tiles = this.state.board.tiles
-        var boardSize = this.getBoardPxWidth()
+        var adjacents = this.state.board.adjacents
+        // var boardSize = this.getBoardPxWidth(tiles)
+        var adjacentsSize = this.getBoardPxWidth(adjacents)
         var paths: any[] = []
         Object.keys(tiles).map(xIndex => {
             Object.keys(tiles[+xIndex]).map(yIndex => {
-                var path = this.getTilePath(+xIndex, +yIndex, boardSize.originLeft, boardSize.originTop)
+                var path = this.getTilePath(+xIndex, +yIndex, adjacentsSize.originLeft, adjacentsSize.originTop)
                 var d = "M " + path.top.x + "," + path.top.y
                     + " l " + path.topRight.x + "," + path.topRight.y
                     + " l " + path.bottomRight.x + "," + path.bottomRight.y
@@ -109,13 +118,35 @@ export class BoardView extends React.Component<{
                     + " l " + path.bottomleft.x + "," + path.bottomleft.y
                     + " l " + path.topLeft.x + "," + path.topLeft.y
                 paths.push(
-                    <path
+                    <TileView
                         onClick={this.handleTileClick.bind(this)}
-                        className={"tile-anchor" + (+xIndex == 0 && +yIndex == 0 ? " start" : "")}
+                        className={"tile" + (+xIndex == 0 && +yIndex == 0 ? " start" : "")}
                         d={d}
-                        key={xIndex + "_" + yIndex}>
-                        {xIndex + ":" + yIndex}
-                    </path>
+                        key={xIndex + "_" + yIndex}
+                        x={xIndex}
+                        y={yIndex}>
+                    </TileView>
+                )
+            })
+        })
+        Object.keys(adjacents).map(xIndex => {
+            Object.keys(adjacents[+xIndex]).map(yIndex => {
+                var path = this.getTilePath(+xIndex, +yIndex, adjacentsSize.originLeft, adjacentsSize.originTop)
+                var d = "M " + path.top.x + "," + path.top.y
+                    + " l " + path.topRight.x + "," + path.topRight.y
+                    + " l " + path.bottomRight.x + "," + path.bottomRight.y
+                    + " l " + path.bottom.x + "," + path.bottom.y
+                    + " l " + path.bottomleft.x + "," + path.bottomleft.y
+                    + " l " + path.topLeft.x + "," + path.topLeft.y
+                paths.push(
+                    <TileView
+                        onClick={this.handleAdjacentTileClick.bind(this)}
+                        className={"tile adjacent" + (+xIndex == 0 && +yIndex == 0 ? " start" : "")}
+                        d={d}
+                        key={"a" + xIndex + "_" + yIndex}
+                        x={xIndex}
+                        y={yIndex}>
+                    </TileView>
                 )
             })
         })
@@ -124,7 +155,7 @@ export class BoardView extends React.Component<{
             <div id="view-board" className="view">
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
                 <Button text="New Tile" id="board-new-tile-button" onClick={this.handleNewTileClick.bind(this)}></Button>
-                <div id="board" style={{width: boardSize.width, height: boardSize.height}}>
+                <div id="board" style={{width: adjacentsSize.width, height: adjacentsSize.height}}>
                     <svg id="board-svg" width="100%" height="100%">
                         <g id="board-g">
                             {paths.map(path =>
@@ -134,6 +165,40 @@ export class BoardView extends React.Component<{
                     </svg>
                 </div>
             </div>
+        )
+    }
+}
+
+export class TileView extends React.Component<{
+        onClick?: ()=>void,
+        className?: string,
+        d: string,
+        x: string,
+        y: string
+    }, {
+    }> {
+    
+    constructor() {
+        super()
+    }
+
+    // componentDidMount() {
+    //     var path: any = this.refs["path"]
+    //     window.setTimeout(function() {
+    //             path.className.baseVal += " mounted"
+    //     }, 200)
+    // }
+
+    render() {
+        return (
+            <path
+                ref="path"
+                onClick={this.props.onClick.bind(this)}
+                className={this.props.className}
+                d={this.props.d}
+                data-x={this.props.x}
+                data-y={this.props.y}>
+            </path>
         )
     }
 }

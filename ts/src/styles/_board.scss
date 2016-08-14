@@ -6,7 +6,6 @@
     left: 50%;
     transform: translate(-50%,-50%);
     display: inline-block;
-    transition: all 0.2s ease-in;
 }
 
 #board-main-menu-button {
@@ -23,19 +22,25 @@
     z-index: 1;
 }
 
-#board-svg path {
-    color: #fff;
-
-    &:hover {
-        fill: white;
-        cursor: pointer;
-    }
-}
-
-.tile-anchor {
+.tile {
     pointer-events: all;
+    cursor: pointer;
+    transition: all 0.1s ease-in;
+    fill: #000;
 
     &.start {
         fill: #a33;
+    }
+
+    &:hover {
+        fill: #fff;
+    }
+
+    &.adjacent {
+        fill: #777;
+
+        &:hover {
+            fill: #666;
+        }
     }
 }
