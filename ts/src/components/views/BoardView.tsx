@@ -1,5 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
+declare var require: any
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 import {Button} from "./UI"
 import {View} from "../models/View"
 import {MainMenu} from "./MainMenu"
@@ -103,6 +105,7 @@ export class BoardView extends React.Component<{
     }
 
     render() {
+        
         var tiles = this.state.board.tiles
         var adjacents = this.state.board.adjacents
         // var boardSize = this.getBoardPxWidth(tiles)
@@ -155,8 +158,19 @@ export class BoardView extends React.Component<{
             <div id="view-board" className="view">
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
                 <Button text="New Tile" id="board-new-tile-button" onClick={this.handleNewTileClick.bind(this)}></Button>
+                <svg width="660" height="220">
+                    <defs>
+                        <linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%"   stop-color="#05a"/>
+                        <stop offset="100%" stop-color="#0a5"/>
+                        </linearGradient>
+                    </defs>
+
+                    <rect x="10" y="10" width="600" height="200" fill="url(#linear)" />
+                </svg>
                 <div id="board" style={{width: adjacentsSize.width, height: adjacentsSize.height}}>
                     <svg id="board-svg" width="100%" height="100%">
+                        
                         <g id="board-g">
                             {paths.map(path =>
                                 path
@@ -182,14 +196,8 @@ export class TileView extends React.Component<{
         super()
     }
 
-    // componentDidMount() {
-    //     var path: any = this.refs["path"]
-    //     window.setTimeout(function() {
-    //             path.className.baseVal += " mounted"
-    //     }, 200)
-    // }
-
     render() {
+
         return (
             <path
                 ref="path"

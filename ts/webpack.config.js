@@ -1,5 +1,8 @@
 module.exports = {
-    entry: "./src/index.tsx",
+    entry: [
+        "./src/index.tsx",
+        "./assets/images/grass.png"
+    ],
     output: {
         filename: "./dist/bundle.js",
     },
@@ -19,6 +22,10 @@ module.exports = {
             { 
                 test: /\.scss$/,
                 loaders: ["style", "css?sourcemaps", "sass?sourcemaps"]
+            },
+            { 
+                test: /\.(jpe?g|png|gif|svg)$/i,
+                loader: "url-loader?mimetype=image/png"
             }
         ],
 
