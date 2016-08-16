@@ -29,11 +29,12 @@
     fill: #000;
 
     &.start {
-        fill: #a33;
+        stroke: #a33;
+        fill: transparent;
     }
 
     &:hover {
-        fill: #fff;
+        fill: rgba(255, 255, 255, 0.2);
     }
 
     &.adjacent {
@@ -42,5 +43,10 @@
         &:hover {
             fill: #666;
         }
+    }
+
+    &-image {
+        pointer-events: none;
+        transform: translateX(-50%);
     }
 }

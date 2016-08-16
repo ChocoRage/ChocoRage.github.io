@@ -25,7 +25,7 @@ module.exports = {
             },
             { 
                 test: /\.(jpe?g|png|gif|svg)$/i,
-                loader: "url-loader?mimetype=image/png"
+                loader: "file?name=[path][name].[hash].[ext]"
             }
         ],
 

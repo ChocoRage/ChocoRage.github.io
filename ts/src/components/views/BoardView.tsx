@@ -8,6 +8,7 @@ import {MainMenu} from "./MainMenu"
 import {Board} from "../models/BoardModel"
 import {Tile} from "../models/TileModel"
 
+
 export class BoardView extends React.Component<{
         changeView: (newVew: View)=>void
     }, {
@@ -114,17 +115,12 @@ export class BoardView extends React.Component<{
         Object.keys(tiles).map(xIndex => {
             Object.keys(tiles[+xIndex]).map(yIndex => {
                 var path = this.getTilePath(+xIndex, +yIndex, adjacentsSize.originLeft, adjacentsSize.originTop)
-                var d = "M " + path.top.x + "," + path.top.y
-                    + " l " + path.topRight.x + "," + path.topRight.y
-                    + " l " + path.bottomRight.x + "," + path.bottomRight.y
-                    + " l " + path.bottom.x + "," + path.bottom.y
-                    + " l " + path.bottomleft.x + "," + path.bottomleft.y
-                    + " l " + path.topLeft.x + "," + path.topLeft.y
                 paths.push(
                     <TileView
+                        tile={tiles[xIndex][yIndex]}
                         onClick={this.handleTileClick.bind(this)}
-                        className={"tile" + (+xIndex == 0 && +yIndex == 0 ? " start" : "")}
-                        d={d}
+                        className={+xIndex == 0 && +yIndex == 0 ? "start" : ""}
+                        path={path}
                         key={xIndex + "_" + yIndex}
                         x={xIndex}
                         y={yIndex}>
@@ -135,17 +131,12 @@ export class BoardView extends React.Component<{
         Object.keys(adjacents).map(xIndex => {
             Object.keys(adjacents[+xIndex]).map(yIndex => {
                 var path = this.getTilePath(+xIndex, +yIndex, adjacentsSize.originLeft, adjacentsSize.originTop)
-                var d = "M " + path.top.x + "," + path.top.y
-                    + " l " + path.topRight.x + "," + path.topRight.y
-                    + " l " + path.bottomRight.x + "," + path.bottomRight.y
-                    + " l " + path.bottom.x + "," + path.bottom.y
-                    + " l " + path.bottomleft.x + "," + path.bottomleft.y
-                    + " l " + path.topLeft.x + "," + path.topLeft.y
                 paths.push(
                     <TileView
+                        tile={adjacents[xIndex][yIndex]}
                         onClick={this.handleAdjacentTileClick.bind(this)}
                         className={"tile adjacent" + (+xIndex == 0 && +yIndex == 0 ? " start" : "")}
-                        d={d}
+                        path={path}
                         key={"a" + xIndex + "_" + yIndex}
                         x={xIndex}
                         y={yIndex}>
@@ -158,19 +149,8 @@ export class BoardView extends React.Component<{
             <div id="view-board" className="view">
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
                 <Button text="New Tile" id="board-new-tile-button" onClick={this.handleNewTileClick.bind(this)}></Button>
-                <svg width="660" height="220">
-                    <defs>
-                        <linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%"   stop-color="#05a"/>
-                        <stop offset="100%" stop-color="#0a5"/>
-                        </linearGradient>
-                    </defs>
-
-                    <rect x="10" y="10" width="600" height="200" fill="url(#linear)" />
-                </svg>
                 <div id="board" style={{width: adjacentsSize.width, height: adjacentsSize.height}}>
                     <svg id="board-svg" width="100%" height="100%">
-                        
                         <g id="board-g">
                             {paths.map(path =>
                                 path
@@ -184,9 +164,17 @@ export class BoardView extends React.Component<{
 }
 
 export class TileView extends React.Component<{
+        tile: Tile,
         onClick?: ()=>void,
         className?: string,
-        d: string,
+        path: {
+            top: {x: number, y: number},
+            topRight: {x: number, y: number},
+            bottomRight: {x: number, y: number},
+            bottom: {x: number, y: number},
+            bottomleft: {x: number, y: number},
+            topLeft: {x: number, y: number}
+        },
         x: string,
         y: string
     }, {
@@ -197,16 +185,38 @@ export class TileView extends React.Component<{
     }
 
     render() {
-
+        var img: any
+        if (this.props.tile && this.props.tile.type) {
+            img = require('../../../assets/images/' + this.props.tile.type.imgName)
+        }
+        var path = this.props.path
+        var d = "M " + path.top.x + "," + path.top.y
+            + " l " + path.topRight.x + "," + path.topRight.y
+            + " l " + path.bottomRight.x + "," + path.bottomRight.y
+            + " l " + path.bottom.x + "," + path.bottom.y
+            + " l " + path.bottomleft.x + "," + path.bottomleft.y
+            + " l " + path.topLeft.x + "," + path.topLeft.y
         return (
-            <path
-                ref="path"
-                onClick={this.props.onClick.bind(this)}
-                className={this.props.className}
-                d={this.props.d}
-                data-x={this.props.x}
-                data-y={this.props.y}>
-            </path>
+            <g >
+                {this.props.tile && this.props.tile.type ? 
+                    <image
+                        className={"tile-image" + (this.props.className ? " " + this.props.className : "")}
+                        xlinkHref={img}
+                        x={path.top.x}
+                        y={path.top.y}
+                        height="100px"
+                        width="100px">
+                    </image> : null
+                }
+                <path
+                    ref="path"
+                    onClick={this.props.onClick.bind(this)}
+                    className={"tile" + (this.props.className ? " " + this.props.className : "")}
+                    d={d}
+                    data-x={this.props.x}
+                    data-y={this.props.y}>
+                </path>
+            </g>
         )
     }
 }
