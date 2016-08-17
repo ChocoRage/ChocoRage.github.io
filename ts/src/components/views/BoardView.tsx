@@ -21,7 +21,7 @@ export class BoardView extends React.Component<{
     constructor() {
         super()
         
-        var tileHeight = 100
+        var tileHeight = 200
         var cos30deg = Math.cos(Math.PI/6)
         var tileWidth = Math.ceil(cos30deg * tileHeight)
 
@@ -29,7 +29,7 @@ export class BoardView extends React.Component<{
             board: new Board(1, 1),
             tileHeight: tileHeight,
             tileWidth: tileWidth,
-            tileSpacing: 3
+            tileSpacing: 0
         }
     }
 
@@ -123,7 +123,9 @@ export class BoardView extends React.Component<{
                         path={path}
                         key={xIndex + "_" + yIndex}
                         x={xIndex}
-                        y={yIndex}>
+                        y={yIndex}
+                        width={this.state.tileWidth}
+                        height={this.state.tileHeight}>
                     </TileView>
                 )
             })
@@ -139,18 +141,23 @@ export class BoardView extends React.Component<{
                         path={path}
                         key={"a" + xIndex + "_" + yIndex}
                         x={xIndex}
-                        y={yIndex}>
+                        y={yIndex}
+                        width={this.state.tileWidth}
+                        height={this.state.tileHeight}>
                     </TileView>
                 )
             })
         })
 
+        var svgTop = -(adjacentsSize.originTop + this.state.tileHeight / 2) + window.innerHeight / 2;
+        var svgLeft = (-adjacentsSize.originLeft) + window.innerWidth / 2;
+
         return (
             <div id="view-board" className="view">
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
                 <Button text="New Tile" id="board-new-tile-button" onClick={this.handleNewTileClick.bind(this)}></Button>
-                <div id="board" style={{width: adjacentsSize.width, height: adjacentsSize.height}}>
-                    <svg id="board-svg" width="100%" height="100%">
+                <div id="board">
+                    <svg id="board-svg" width={adjacentsSize.width} height={adjacentsSize.height} style={{top: svgTop, left: svgLeft}}>
                         <g id="board-g">
                             {paths.map(path =>
                                 path
@@ -176,7 +183,9 @@ export class TileView extends React.Component<{
             topLeft: {x: number, y: number}
         },
         x: string,
-        y: string
+        y: string,
+        height: number,
+        width: number
     }, {
     }> {
     
@@ -187,7 +196,7 @@ export class TileView extends React.Component<{
     render() {
         var img: any
         if (this.props.tile && this.props.tile.type) {
-            img = require('../../../assets/images/' + this.props.tile.type.imgName)
+            img = require('../../../assets/images/' + this.props.tile.type.imgName + this.props.tile.textureVariant + ".png")
         }
         var path = this.props.path
         var d = "M " + path.top.x + "," + path.top.y
@@ -204,8 +213,8 @@ export class TileView extends React.Component<{
                         xlinkHref={img}
                         x={path.top.x}
                         y={path.top.y}
-                        height="100px"
-                        width="100px">
+                        height={this.props.height}
+                        width={this.props.width}>
                     </image> : null
                 }
                 <path

@@ -1,14 +1,17 @@
 export class Tile {
     type: TileType
+    textureVariant: number
 
     constructor(type?: TileType) {
         this.type = type
+        this.textureVariant = type ? Math.floor(Math.random()*this.type.imgVariants + 1) : 0
     }
 }
 
 export class TileType {
     name: string
     description: string
+    imgVariants: number
     imgName: string
 }
 
@@ -22,6 +25,7 @@ function GRASS() {
     var grass = new TileType()
     grass.name = "Grass"
     grass.description = "Green and fluffy"
-    grass.imgName = "grass_hex.png"
+    grass.imgVariants = 4
+    grass.imgName = "grass_hex"
     return grass
 }
