@@ -41,7 +41,7 @@ export class BoardView extends React.Component<{
         var offsetX = (tileWidth + tileSpacing)/2
         var offsetY = tileHeight/4
 
-        var absoluteX = originLeft + x * (tileWidth + tileSpacing) + Math.abs(y) * offsetX
+        var absoluteX = originLeft + x * (tileWidth + tileSpacing) + y * offsetX
         var absoluteY = originTop + y * (tileHeight + tileSpacing - offsetY)
 
         return {
@@ -61,8 +61,8 @@ export class BoardView extends React.Component<{
         var heightMin = 0
         Object.keys(tiles).map(xIndex => {
             Object.keys(tiles[+xIndex]).map(yIndex => {
-                widthMax = Math.max(widthMax, +xIndex + Math.abs(+yIndex)/2)
-                widthMin = Math.min(widthMin, +xIndex + Math.abs(+yIndex)/2)
+                widthMax = Math.max(widthMax, +xIndex + +yIndex/2)
+                widthMin = Math.min(widthMin, +xIndex + +yIndex/2)
                 heightMax = Math.max(heightMax, +yIndex)
                 heightMin = Math.min(heightMin, +yIndex)
             })

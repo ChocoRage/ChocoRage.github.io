@@ -103,28 +103,6 @@ export class Board {
             var xBottomRight: string
             var xTopRight: string
             var xTopLeft: string
-            switch(Math.sign(+y)) {
-                case 0:
-                    xBottomLeft = xMinusOne
-                    xBottomRight = x
-                    xTopLeft = xMinusOne
-                    xTopRight = x
-                    break;
-                case 1:
-                    xBottomLeft = xMinusOne
-                    xBottomRight = x
-                    xTopLeft = x
-                    xTopRight = xPlusOne
-                    break;
-                case -1:
-                    xBottomLeft = x
-                    xBottomRight = xPlusOne
-                    xTopLeft = xMinusOne
-                    xTopRight = x
-                    break;
-                default:
-                    break;
-            }
 
             // tile on the right
             if(!tiles[xPlusOne] || !tiles[xPlusOne][y]) {
@@ -134,18 +112,18 @@ export class Board {
                 availables[xPlusOne][y] = new Tile()
             }
             // tile on the bottom right
-            if(!tiles[xBottomRight] || !tiles[xBottomRight][yPlusOne]) {
-                if(!availables[xBottomRight]) {
-                    availables[xBottomRight] = {}
+            if(!tiles[x] || !tiles[x][yPlusOne]) {
+                if(!availables[x]) {
+                    availables[x] = {}
                 }
-                availables[xBottomRight][yPlusOne] = new Tile()
+                availables[x][yPlusOne] = new Tile()
             }
             // tile on the bottom left 
-            if(!tiles[xBottomLeft] || !tiles[xBottomLeft][yPlusOne]) {
-                if(!availables[xBottomLeft]) {
-                    availables[xBottomLeft] = {}
+            if(!tiles[xMinusOne] || !tiles[xMinusOne][yPlusOne]) {
+                if(!availables[xMinusOne]) {
+                    availables[xMinusOne] = {}
                 }
-                availables[xBottomLeft][yPlusOne] = new Tile()
+                availables[xMinusOne][yPlusOne] = new Tile()
             }
             // tile on the left 
             if(!tiles[xMinusOne] || !tiles[xMinusOne][y]) {
@@ -155,18 +133,18 @@ export class Board {
                 availables[xMinusOne][y] = new Tile()
             }
             // tile on the top left 
-            if(!tiles[xTopLeft] || !tiles[xTopLeft][yMinusOne]) {
-                if(!availables[xTopLeft]) {
-                    availables[xTopLeft] = {}
+            if(!tiles[x] || !tiles[x][yMinusOne]) {
+                if(!availables[x]) {
+                    availables[x] = {}
                 }
-                availables[xTopLeft][yMinusOne] = new Tile()
+                availables[x][yMinusOne] = new Tile()
             }
             // tile on the top right
-            if(!tiles[xTopRight] || !tiles[xTopRight][yMinusOne]) {
-                if(!availables[xTopRight]) {
-                    availables[xTopRight] = {}
+            if(!tiles[xPlusOne] || !tiles[xPlusOne][yMinusOne]) {
+                if(!availables[xPlusOne]) {
+                    availables[xPlusOne] = {}
                 }
-                availables[xTopRight][yMinusOne] = new Tile()
+                availables[xPlusOne][yMinusOne] = new Tile()
             }
         } else {
             return null
