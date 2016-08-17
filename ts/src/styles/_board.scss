@@ -26,10 +26,11 @@
     pointer-events: all;
     cursor: pointer;
     transition: all 0.1s ease-in;
-    fill: #000;
+    fill: transparent;
 
     &.start {
         stroke: #a33;
+        stroke-width: 3px;
         fill: transparent;
     }
 

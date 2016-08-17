@@ -195,7 +195,7 @@ export class TileView extends React.Component<{
             + " l " + path.bottomRight.x + "," + path.bottomRight.y
             + " l " + path.bottom.x + "," + path.bottom.y
             + " l " + path.bottomleft.x + "," + path.bottomleft.y
-            + " l " + path.topLeft.x + "," + path.topLeft.y
+            + " l " + path.topLeft.x + "," + path.topLeft.y + "z"
         return (
             <g >
                 {this.props.tile && this.props.tile.type ? 
