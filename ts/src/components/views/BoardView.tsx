@@ -21,7 +21,7 @@ export class BoardView extends React.Component<{
     constructor() {
         super()
         
-        var tileHeight = 200
+        var tileHeight = 300
         var cos30deg = Math.cos(Math.PI/6)
         var tileWidth = Math.ceil(cos30deg * tileHeight)
 

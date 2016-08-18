@@ -5,9 +5,11 @@
     width: 100%;
     height: 100%;
     display: inline-block;
+    perspective: 1000px;
 
     &-svg {
         position: relative;
+        transform: rotateX(40deg);
     }
 }
 
