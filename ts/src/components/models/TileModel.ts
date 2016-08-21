@@ -25,7 +25,7 @@ function GRASS() {
     var grass = new TileType()
     grass.name = "Grass"
     grass.description = "Green and fluffy"
-    grass.imgVariants = 4
+    grass.imgVariants = 1
     grass.imgName = "grass_hex"
     return grass
 }
