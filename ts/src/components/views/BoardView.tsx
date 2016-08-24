@@ -14,8 +14,9 @@ export class BoardView extends React.Component<{
     }, {
         board: Board,
         tileHeight: number,
-        tileWidth: number
-        tileSpacing: number
+        tileWidth: number,
+        tileSpacing: number,
+        selectedTile: {x: number, y: number}
     }> {
     
     constructor() {
@@ -29,7 +30,8 @@ export class BoardView extends React.Component<{
             board: new Board(1, 1),
             tileHeight: tileHeight,
             tileWidth: tileWidth,
-            tileSpacing: 0
+            tileSpacing: 5,
+            selectedTile: null
         }
     }
 
@@ -74,8 +76,8 @@ export class BoardView extends React.Component<{
         var originLeft = Math.abs((tileWidth + tileSpacing) * Math.abs(widthMin) + tileWidth/2)
         var originTop = Math.abs(heightMin * tileHeight * 3/4 + heightMin * tileSpacing)
 
-        var width = tileWidth * (widthMax + Math.abs(widthMin) + 1) + tileSpacing * (widthMax + Math.abs(widthMin)) 
-        var height = tileHeight + tileHeight * 3 * (heightMax + Math.abs(heightMin))/4 + (heightMax + Math.abs(heightMin)) * tileSpacing
+        var width = tileWidth * (Math.max(widthMax, Math.abs(widthMin))*2 + 1) + tileSpacing * (Math.max(widthMax, Math.abs(widthMin))*2) 
+        var height = tileHeight + tileHeight * 3 * (Math.max(heightMax, Math.abs(heightMin))*2)/4 + (Math.max(heightMax, Math.abs(heightMin))*2) * tileSpacing
 
         return {
             originLeft: originLeft,
@@ -85,12 +87,19 @@ export class BoardView extends React.Component<{
         }
     }
 
-    handleMenuClick = () => {
+    handleMenuClick() {
         {this.props.changeView(new View(MainMenu))}
     }
 
     handleTileClick(e: any) {
-        console.log(e.target)
+        var xClicked = e.target.getAttribute("data-x")
+        var yClicked = e.target.getAttribute("data-y")
+        if(this.state.selectedTile && this.state.selectedTile.x == xClicked && this.state.selectedTile.y == yClicked) {
+            this.state.selectedTile = null
+        } else {
+            this.state.selectedTile = {x: xClicked, y: yClicked}
+        }
+        this.setState(this.state)
     }
 
     handleAdjacentTileClick(e: any) {
@@ -100,7 +109,7 @@ export class BoardView extends React.Component<{
         this.setState(this.state)
     }
 
-    handleNewTileClick() {
+    handleAddNewTileClick() {
         this.state.board.addRandomTile()
         this.setState(this.state)
     }
@@ -115,11 +124,13 @@ export class BoardView extends React.Component<{
         Object.keys(tiles).map(xIndex => {
             Object.keys(tiles[+xIndex]).map(yIndex => {
                 var path = this.getTilePath(+xIndex, +yIndex, adjacentsSize.originLeft, adjacentsSize.originTop)
+                var classNameStart = (+xIndex == 0 && +yIndex == 0 ? "start" : "")
+                var classNameSelected = (this.state.selectedTile && +xIndex == this.state.selectedTile.x && +yIndex == this.state.selectedTile.y ? " selected" : "")
                 paths.push(
                     <TileView
                         tile={tiles[xIndex][yIndex]}
                         onClick={this.handleTileClick.bind(this)}
-                        className={+xIndex == 0 && +yIndex == 0 ? "start" : ""}
+                        className={classNameStart + classNameSelected}
                         path={path}
                         key={xIndex + "_" + yIndex}
                         x={xIndex}
@@ -155,7 +166,7 @@ export class BoardView extends React.Component<{
         return (
             <div id="view-board" className="view">
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
-                <Button text="New Tile" id="board-new-tile-button" onClick={this.handleNewTileClick.bind(this)}></Button>
+                <Button text="New Tile" id="board-new-tile-button" onClick={this.handleAddNewTileClick.bind(this)}></Button>
                 <div id="board">
                     <svg id="board-svg" width={adjacentsSize.width} height={adjacentsSize.height} style={{top: svgTop, left: svgLeft}}>
                         <g id="board-g">
@@ -196,7 +207,7 @@ export class TileView extends React.Component<{
     render() {
         var img: any
         if (this.props.tile && this.props.tile.type) {
-            img = require('../../../assets/images/' + this.props.tile.type.imgName + this.props.tile.textureVariant + ".png")
+            img = require('../../../assets/images/' + this.props.tile.type.textureName + this.props.tile.textureVariant + ".png")
         }
         var path = this.props.path
         var d = "M " + path.top.x + "," + path.top.y

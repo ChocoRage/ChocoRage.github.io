@@ -4,15 +4,15 @@ export class Tile {
 
     constructor(type?: TileType) {
         this.type = type
-        this.textureVariant = type ? Math.floor(Math.random()*this.type.imgVariants + 1) : 0
+        this.textureVariant = type ? Math.floor(Math.random()*this.type.textureVariants + 1) : 0
     }
 }
 
 export class TileType {
     name: string
     description: string
-    imgVariants: number
-    imgName: string
+    textureVariants: number
+    textureName: string
 }
 
 export function getTileTypes() {
@@ -21,11 +21,21 @@ export function getTileTypes() {
     }
 }
 
+export function getTileType(type?: string) {
+    var allTypes: any = getTileTypes()
+    for(var i = 0; i < Object.keys(allTypes).length; i++) {
+        var currentType: any = Object.keys(allTypes)[i]
+        if(allTypes[currentType].name == type) {
+            return allTypes[currentType]
+        }
+    }
+}
+
 function GRASS() {
     var grass = new TileType()
     grass.name = "Grass"
     grass.description = "Green and fluffy"
-    grass.imgVariants = 1
-    grass.imgName = "grass_hex"
+    grass.textureVariants = 5
+    grass.textureName = "grass"
     return grass
 }

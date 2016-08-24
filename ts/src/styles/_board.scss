@@ -1,15 +1,17 @@
 @import "_variables.scss";
+@import "_animations.scss";
 
 #board {
     position: relative;
     width: 100%;
     height: 100%;
     display: inline-block;
-    perspective: 1000px;
+    perspective: 1500px;
+    perspective-origin: top;
 
     &-svg {
         position: relative;
-        transform: rotateX(40deg);
+        transform: rotateX(60deg);
     }
 }
 
@@ -32,11 +34,22 @@
     cursor: pointer;
     transition: all 0.1s ease-in;
     fill: transparent;
+    stroke-width: 0;
+    stroke-dasharray: 20;
+    stroke-linecap: round;
+    stroke-opacity: 0.5;
 
     &.start {
-        stroke: #a33;
-        stroke-width: 3px;
-        fill: transparent;
+        stroke: #55a;
+        stroke-dasharray: 0;
+        stroke-width: 10px;
+    }
+
+    &.selected {
+        stroke: #eee;
+        stroke-dasharray: 20;
+        stroke-width: 5px;
+        animation: tileSelected 1s linear infinite;
     }
 
     &:hover {

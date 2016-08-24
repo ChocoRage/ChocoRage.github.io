@@ -1,7 +1,6 @@
 module.exports = {
     entry: [
-        "./src/index.tsx",
-        "./assets/images/grass.png"
+        "./src/index.tsx"
     ],
     output: {
         filename: "./dist/bundle.js",
