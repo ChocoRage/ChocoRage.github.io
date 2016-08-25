@@ -6,12 +6,10 @@
     width: 100%;
     height: 100%;
     display: inline-block;
-    perspective: 1500px;
-    perspective-origin: top;
+    transition: all 0.1s ease-in;
 
     &-svg {
         position: relative;
-        transform: rotateX(60deg);
     }
 }
 
@@ -53,7 +51,7 @@
     }
 
     &:hover {
-        fill: rgba(255, 255, 255, 0.2);
+        fill: rgba(255, 255, 255, 0.05);
     }
 
     &.adjacent {

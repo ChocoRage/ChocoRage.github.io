@@ -13,6 +13,9 @@ export class Board {
         // <REMOVE ME>
             this.tiles["0"]["0"] =  new Tile(getTileTypes().grass)
             this.adjacents = this.getAdjacentsForTile("0", "0")
+            for(var i = 0; i < 10; i++) {
+                this.addRandomTile()
+            }
         // </REMOVE ME>
     }
 

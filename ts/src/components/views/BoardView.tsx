@@ -16,7 +16,8 @@ export class BoardView extends React.Component<{
         tileHeight: number,
         tileWidth: number,
         tileSpacing: number,
-        selectedTile: {x: number, y: number}
+        selectedTile: {x: number, y: number},
+        zoom: number
     }> {
     
     constructor() {
@@ -31,7 +32,8 @@ export class BoardView extends React.Component<{
             tileHeight: tileHeight,
             tileWidth: tileWidth,
             tileSpacing: 5,
-            selectedTile: null
+            selectedTile: null,
+            zoom: 1
         }
     }
 
@@ -114,6 +116,12 @@ export class BoardView extends React.Component<{
         this.setState(this.state)
     }
 
+    handleOnWheel(e: React.WheelEvent) {
+        var sign = e.deltaY / Math.abs(e.deltaY)
+        this.state.zoom = Math.max(0.2, Math.min(this.state.zoom - (sign * 0.1), 2.5))
+        this.setState(this.state)
+    }
+
     render() {
         
         var tiles = this.state.board.tiles
@@ -164,10 +172,10 @@ export class BoardView extends React.Component<{
         var svgLeft = (-adjacentsSize.originLeft) + window.innerWidth / 2;
 
         return (
-            <div id="view-board" className="view">
+            <div id="view-board" className="view" onWheel={this.handleOnWheel.bind(this)}>
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
                 <Button text="New Tile" id="board-new-tile-button" onClick={this.handleAddNewTileClick.bind(this)}></Button>
-                <div id="board">
+                <div id="board" style={{transform: "scale(" + this.state.zoom + ")"}}>
                     <svg id="board-svg" width={adjacentsSize.width} height={adjacentsSize.height} style={{top: svgTop, left: svgLeft}}>
                         <g id="board-g">
                             {paths.map(path =>
