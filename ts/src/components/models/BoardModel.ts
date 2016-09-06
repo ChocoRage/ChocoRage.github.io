@@ -3,6 +3,7 @@ import {Tile, TileType, getTileTypes} from './TileModel'
 export class Board {
     tiles: {[x: string]: {[y: string]: Tile}}
     adjacents: {[x: string]: {[y: string]: Tile}}
+    bounds: {widthMin: number, widthMax: number, heightMin: number, heightMax: number}
 
     constructor(tileHeight: number, tileSpacing: number, json?: string) {
         // TODO create tiles from json
@@ -13,10 +14,38 @@ export class Board {
         // <REMOVE ME>
             this.tiles["0"]["0"] =  new Tile(getTileTypes().grass)
             this.adjacents = this.getAdjacentsForTile("0", "0")
-            for(var i = 0; i < 10; i++) {
-                this.addRandomTile()
-            }
+            this.addTile("1", "0")
+            this.addTile("0", "1")
+            this.addTile("-1", "1")
+            this.addTile("-1", "0")
+            this.addTile("0", "-1")
+            this.addTile("1", "-1")
+            this.bounds = this.getBounds()
         // </REMOVE ME>
+    }
+
+    getBounds() {
+        var widthMax = 0
+        var widthMin = 0
+        var heightMax = 0
+        var heightMin = 0
+        Object.keys(this.adjacents).map(xIndex => {
+            Object.keys(this.adjacents[+xIndex]).map(yIndex => {
+                widthMax = Math.max(widthMax, +xIndex + +yIndex/2)
+                widthMin = Math.min(widthMin, +xIndex + +yIndex/2)
+                heightMax = Math.max(heightMax, +yIndex)
+                heightMin = Math.min(heightMin, +yIndex)
+            })
+        })
+
+        // var height = tileHeight/4 + tileHeight * ((Math.abs(heightMin) + Math.abs(heightMax) + 1) * 3/4) + tileSpacing * (Math.abs(heightMin) + Math.abs(heightMax)) 
+
+        return {
+            widthMin: widthMin,
+            widthMax: widthMax,
+            heightMin: heightMin,
+            heightMax: heightMax
+        }
     }
 
     addTile(x: string, y: string) {
@@ -24,39 +53,39 @@ export class Board {
             console.error("Cannot create new tile: coordinates are taken")
         } else if(!this.adjacents[x] || !this.adjacents[x][y]) {
             console.error("Cannot create new tile: coordinates are unreachable")
-        } else {
-            // TODO get tile from json
-            if(!this.tiles[x]) {
-                 this.tiles[x] = {}
-            }
-
-            delete this.adjacents[x][y]
-            if(Object.keys(this.adjacents[x]).length == 0) {
-                delete this.adjacents[x]
-            }
-
-            // <REMOVE ME>
-                this.tiles[x][y] = new Tile(getTileTypes().grass)
-            // </REMOVE ME>
-
-            this.adjacents = this.mergeBoards(this.adjacents, this.getAdjacentsForTile(x, y))
         }
+        // TODO get tile from json
+        if(!this.tiles[x]) {
+                this.tiles[x] = {}
+        }
+
+        delete this.adjacents[x][y]
+        if(Object.keys(this.adjacents[x]).length == 0) {
+            delete this.adjacents[x]
+        }
+
+        // <REMOVE ME>
+            this.tiles[x][y] = new Tile(getTileTypes().grass)
+        // </REMOVE ME>
+
+        this.adjacents = this.mergeBoards(this.adjacents, this.getAdjacentsForTile(x, y))
+        this.bounds = this.getBounds()
     }
 
-    addRandomTile() {
-        var availables = this.adjacents
-        var randomX = Object.keys(availables)[Math.floor(Math.random() * Object.keys(availables).length)]
-        var randomY = Object.keys(availables[randomX])[Math.floor(Math.random() * Object.keys(availables[randomX]).length)]
-        if(this.tiles[randomX] && this.tiles[randomX][randomY]) {
-            console.error("Cannot create new tile: coordinates are taken")
-        } else {
-            if(!this.tiles[randomX]) {
-                this.tiles[randomX] = {}
-            }
-            this.tiles[randomX][randomY] = new Tile(getTileTypes().grass)
-        }
-       this.adjacents = this.getAdjacents()
-    }
+    // addRandomTile() {
+    //     var availables = this.adjacents
+    //     var randomX = Object.keys(availables)[Math.floor(Math.random() * Object.keys(availables).length)]
+    //     var randomY = Object.keys(availables[randomX])[Math.floor(Math.random() * Object.keys(availables[randomX]).length)]
+    //     if(this.tiles[randomX] && this.tiles[randomX][randomY]) {
+    //         console.error("Cannot create new tile: coordinates are taken")
+    //     } else {
+    //         if(!this.tiles[randomX]) {
+    //             this.tiles[randomX] = {}
+    //         }
+    //         this.tiles[randomX][randomY] = new Tile(getTileTypes().grass)
+    //     }
+    //    this.adjacents = this.getAdjacents()
+    // }
 
     /**
      * Returns a board-like object that is a merge of the two board-like objects from the parameters. Board1 is being prioritized on common coordinates.

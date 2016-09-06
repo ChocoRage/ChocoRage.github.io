@@ -2,29 +2,46 @@
 @import "_animations.scss";
 
 #board {
-    position: relative;
-    width: 100%;
+    text-align: center;
     height: 100%;
-    display: inline-block;
-    transition: all 0.1s ease-in;
+
+    &-center {
+        position: relative;
+        display: inline-block;
+        top: 50%;
+        width: 10px;
+        height: 10px;
+    }
 
     &-svg {
         position: relative;
     }
 }
 
-#board-main-menu-button {
+#board-main-menu-button,
+#board-new-tile-button,
+#board-center-button {
     position: absolute;
-    top: 25px;
     left: 25px;
     z-index: 1;
 }
 
+#board-main-menu-button {
+    top: 25px;
+}
+
 #board-new-tile-button {
-    position: absolute;
     top: 75px;
-    left: 25px;
-    z-index: 1;
+}
+
+#board-center-button {
+    top: 125px;
+}
+
+#board-g {
+    g {
+        font-size: 10px;
+    }
 }
 
 .tile {
@@ -32,22 +49,22 @@
     cursor: pointer;
     transition: all 0.1s ease-in;
     fill: transparent;
+    stroke: transparent;
     stroke-width: 0;
-    stroke-dasharray: 20;
     stroke-linecap: round;
     stroke-opacity: 0.5;
 
     &.start {
-        stroke: #55a;
+        stroke: $color-start-tile;
         stroke-dasharray: 0;
+        stroke-opacity: 1;
         stroke-width: 10px;
     }
 
     &.selected {
         stroke: #eee;
-        stroke-dasharray: 20;
         stroke-width: 5px;
-        animation: tileSelected 1s linear infinite;
+        animation: tileSelected 10s linear infinite;
     }
 
     &:hover {

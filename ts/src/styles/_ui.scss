@@ -5,6 +5,8 @@
     border: none;
     outline: none;
     color: $color-highlight;
+    background-color: $color-base;
+    padding: 0.5em;
     
     &:not([disabled]) {
         cursor: pointer;
