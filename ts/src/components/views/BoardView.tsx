@@ -72,11 +72,11 @@ export class BoardView extends React.Component<{
     getBoardPxSize() {
         var bounds = this.state.board.bounds
 
-        var widthMin = (this.tileWidth + this.tileSpacing) * Math.abs(bounds.widthMin)
-        var widthMax = (this.tileWidth + this.tileSpacing) * Math.abs(bounds.widthMax)
+        var widthMin = (this.tileWidth + this.tileSpacing) * (Math.abs(bounds.widthMin) + 1/2)
+        var widthMax = (this.tileWidth + this.tileSpacing) * (Math.abs(bounds.widthMax) + 1/2)
 
-        var heightMin = this.tileHeight/4 + this.tileHeight * (Math.abs(bounds.heightMin) * 3/4) + this.tileSpacing * Math.abs(bounds.heightMin)
-        var heightMax = this.tileHeight/4 + this.tileHeight * (Math.abs(bounds.heightMax) * 3/4) + this.tileSpacing * Math.abs(bounds.heightMax)
+        var heightMin = (this.tileHeight + this.tileSpacing) * (Math.abs(bounds.heightMin) * 3/4)
+        var heightMax = (this.tileHeight + this.tileSpacing) * (Math.abs(bounds.heightMax) * 3/4 + 1)
 
         return {
             widthMin: widthMin,
