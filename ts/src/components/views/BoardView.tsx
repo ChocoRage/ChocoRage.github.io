@@ -114,9 +114,23 @@ export class BoardView extends React.Component<{
         if(this.state.dragging) {
             return
         }
+
+        var boundsBefore = this.getBoardPxSize()
+
         var x = e.target.attributes["data-x"].nodeValue
         var y = e.target.attributes["data-y"].nodeValue
+
         this.state.board.addTile(x, y)
+
+        var boundsAfter = this.getBoardPxSize()
+
+        if(boundsAfter.widthMin > boundsBefore.widthMin) {
+            this.state.scrollX = this.state.scrollX - Math.abs(boundsAfter.widthMin - boundsBefore.widthMin)
+        }
+        if(boundsAfter.heightMin > boundsBefore.heightMin) {
+            this.state.scrollY = this.state.scrollY - Math.abs(boundsAfter.heightMin - boundsBefore.heightMin)
+        }
+
         this.setState(this.state)
     }
 
@@ -156,6 +170,11 @@ export class BoardView extends React.Component<{
 
     handleCenterBoardClick() {
         this.centerBoard()
+    }
+
+    handleResetZoomClick() {
+        this.state.zoom = 1
+        this.setState(this.state)
     }
 
     render() {
@@ -212,7 +231,8 @@ export class BoardView extends React.Component<{
         return (
             <div id="view-board" className="view">
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
-                <Button text="Center Board" id="board-center-button" onClick={this.handleCenterBoardClick.bind(this)}></Button>
+                <Button text="Reset zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomClick.bind(this)}></Button>
+                <Button text="Reset board position" id="board-reset-position-button" onClick={this.handleCenterBoardClick.bind(this)}></Button>
                 <div
                     id="board"
                     onMouseDown={this.startDrag.bind(this)}
