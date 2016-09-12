@@ -18,7 +18,8 @@ export class BoardView extends React.Component<{
         scrollX: number,
         scrollY: number,
         dragging: boolean,
-        dragPosition: {x: number, y: number}
+        dragPosition: {x: number, y: number},
+        showGrid: boolean
     }> {
 
     private tileHeight: number
@@ -31,7 +32,7 @@ export class BoardView extends React.Component<{
         this.tileHeight = 300
         var cos30deg = Math.cos(Math.PI/6)
         this.tileWidth = Math.ceil(cos30deg * this.tileHeight)
-        this.tileSpacing = 5
+        this.tileSpacing = 0
 
         this.state = {
             board: new Board(1, 1),
@@ -40,7 +41,8 @@ export class BoardView extends React.Component<{
             scrollY: 0,
             zoom: 1,
             dragging: false,
-            dragPosition: null
+            dragPosition: null,
+            showGrid: true
         }
     }
 
@@ -177,6 +179,11 @@ export class BoardView extends React.Component<{
         this.setState(this.state)
     }
 
+    handleToggleGrid() {
+        this.state.showGrid = !this.state.showGrid
+        this.setState(this.state)
+    }
+
     render() {
         var tiles = this.state.board.tiles
         var adjacents = this.state.board.adjacents
@@ -197,7 +204,8 @@ export class BoardView extends React.Component<{
                         x={xIndex}
                         y={yIndex}
                         width={this.tileWidth}
-                        height={this.tileHeight}>
+                        height={this.tileHeight}
+                        showGrid={this.state.showGrid}>
                     </TileView>
                 )
             })
@@ -216,7 +224,8 @@ export class BoardView extends React.Component<{
                         x={xIndex}
                         y={yIndex}
                         width={this.tileWidth}
-                        height={this.tileHeight}>
+                        height={this.tileHeight}
+                        showGrid={this.state.showGrid}>
                     </TileView>
                 )
             })
@@ -224,17 +233,23 @@ export class BoardView extends React.Component<{
 
         var svgTranslate = this.state.scrollX && this.state.scrollY ? ("translate(" + this.state.scrollX + "px," + this.state.scrollY + "px) ") : ""
         var svgTransform: string = svgTranslate
+
+        var boardPerspective = (400 + 600 * 1/this.state.zoom) + "px"
+
         var boardZoom = "scale(" + this.state.zoom + ") "
         var boardCenter = "translate(-50%, -50%)"
-        var boardTransform = boardZoom + boardCenter
+        var boardRotate = " rotateX(40deg)"
+        var boardTransform = boardZoom + boardCenter + boardRotate
 
         return (
             <div id="view-board" className="view">
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
-                <Button text="Reset zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomClick.bind(this)}></Button>
-                <Button text="Reset board position" id="board-reset-position-button" onClick={this.handleCenterBoardClick.bind(this)}></Button>
+                <Button text="Reset Zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomClick.bind(this)}></Button>
+                <Button text="Reset Board Position" id="board-reset-position-button" onClick={this.handleCenterBoardClick.bind(this)}></Button>
+                <Button text="Toggle Grid" id="board-toggle-grid" onClick={this.handleToggleGrid.bind(this)}></Button>
                 <div
                     id="board"
+                    style={{perspective: boardPerspective}}
                     onMouseDown={this.startDrag.bind(this)}
                     onMouseMove={this.handleDrag.bind(this)}
                     onMouseUp={this.endDrag.bind(this)}
@@ -274,6 +289,7 @@ export class TileView extends React.Component<{
         y: string,
         height: number,
         width: number,
+        showGrid: boolean
     }, {
     }> {
     
@@ -311,7 +327,7 @@ export class TileView extends React.Component<{
             + " l " + path.bottomleft.x + "," + path.bottomleft.y
             + " l " + path.topLeft.x + "," + path.topLeft.y + "z"
 
-        var className = "tile" + (this.props.className ? " " + this.props.className : "")
+        var className = "tile" + (this.props.className ? " " + this.props.className : "") + (this.props.showGrid ? " tile-grid" : "")
 
         return (
             <g >

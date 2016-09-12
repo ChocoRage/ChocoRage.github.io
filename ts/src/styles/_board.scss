@@ -20,7 +20,8 @@
 
 #board-main-menu-button,
 #board-reset-zoom-button,
-#board-reset-position-button {
+#board-reset-position-button,
+#board-toggle-grid {
     position: absolute;
     left: 25px;
     z-index: 1;
@@ -31,11 +32,15 @@
 }
 
 #board-reset-zoom-button {
-    top: 75px;
+    top: 65px;
 }
 
 #board-reset-position-button {
-    top: 125px;
+    top: 105px;
+}
+
+#board-toggle-grid {
+    top: 145px;
 }
 
 #board-g {
@@ -53,6 +58,15 @@
     stroke-width: 0;
     stroke-linecap: round;
     stroke-opacity: 0.5;
+    position: relative;
+    z-index: 1;
+
+    &-grid {
+        stroke-width: 3px;
+        stroke: #333;
+        stroke-dasharray: 0;
+        stroke-opacity: 1;
+    }
 
     &.start {
         stroke: $color-start-tile;
@@ -65,6 +79,7 @@
         stroke: #eee;
         stroke-width: 5px;
         animation: tileSelected 10s linear infinite;
+        z-index: 2;
     }
 
     &:hover {
@@ -72,7 +87,7 @@
     }
 
     &.adjacent {
-        fill: #777;
+        fill: $color-board-bgr - #111;
 
         &:hover {
             fill: #666;
