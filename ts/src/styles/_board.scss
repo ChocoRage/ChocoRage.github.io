@@ -25,6 +25,7 @@
     position: absolute;
     left: 25px;
     z-index: 1;
+    user-select: none;
 }
 
 #board-main-menu-button {
@@ -64,15 +65,21 @@
     &-grid {
         stroke-width: 3px;
         stroke: #333;
-        stroke-dasharray: 0;
         stroke-opacity: 1;
+
+        &:not(.selected) {
+            stroke-dasharray: 0 !important;
+        }
     }
 
     &.start {
         stroke: $color-start-tile;
-        stroke-dasharray: 0;
         stroke-opacity: 1;
         stroke-width: 10px;
+
+        &:not(.selected) {
+            stroke-dasharray: 0 !important;
+        }
     }
 
     &.selected {

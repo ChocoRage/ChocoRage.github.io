@@ -1,3 +1,5 @@
+var autoprefixer = require('autoprefixer');
+
 module.exports = {
     entry: [
         "./src/index.tsx"
@@ -20,7 +22,7 @@ module.exports = {
             },
             { 
                 test: /\.scss$/,
-                loaders: ["style", "css?sourcemaps", "sass?sourcemaps"]
+                loaders: ["style", "css?sourcemaps", "postcss-loader", "sass?sourcemaps"]
             },
             { 
                 test: /\.(jpe?g|png|gif|svg)$/i,
@@ -32,6 +34,8 @@ module.exports = {
             { test: /\.js$/, loader: "source-map-loader" }
         ]
     },
+
+    postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ],
 
     externals: {
         "react": "React",

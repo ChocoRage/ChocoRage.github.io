@@ -19,7 +19,7 @@ export class BoardView extends React.Component<{
         scrollY: number,
         dragging: boolean,
         dragPosition: {x: number, y: number},
-        showGrid: boolean
+        showGrid: boolean,
     }> {
 
     private tileHeight: number
@@ -189,6 +189,14 @@ export class BoardView extends React.Component<{
         var adjacents = this.state.board.adjacents
         var paths: any[] = []
         var boardSize = this.getBoardPxSize()
+        
+        var selectedTileX = ""
+        var selectedTileY = ""
+        if(this.state.selectedTile) {
+            selectedTileX = "" + this.state.selectedTile.x
+            selectedTileY = "" + this.state.selectedTile.y
+        }
+
         Object.keys(tiles).map(xIndex => {
             Object.keys(tiles[+xIndex]).map(yIndex => {
                 var path = this.getTilePath(+xIndex, +yIndex, boardSize.widthMin, boardSize.heightMin)
@@ -196,6 +204,7 @@ export class BoardView extends React.Component<{
                 var classNameSelected = (this.state.selectedTile && +xIndex == this.state.selectedTile.x && +yIndex == this.state.selectedTile.y ? " selected" : "")
                 paths.push(
                     <TileView
+                        id={"x" + xIndex + "y" + yIndex}
                         tile={tiles[xIndex][yIndex]}
                         onClick={this.handleTileClick.bind(this)}
                         className={classNameStart + classNameSelected}
@@ -264,6 +273,12 @@ export class BoardView extends React.Component<{
                                 {paths.map(path =>
                                     path
                                 )}
+                                <use
+                                    xlinkHref={"#x" + selectedTileX + "y" + selectedTileY}
+                                    style={{pointerEvents: "none"}}
+                                    onClick={this.handleTileClick.bind(this)}
+                                    data-x={selectedTileX}
+                                    data-y={selectedTileY}/>
                             </g>
                         </svg>
                     </div>
@@ -275,6 +290,7 @@ export class BoardView extends React.Component<{
 
 export class TileView extends React.Component<{
         tile: Tile,
+        id?: string,
         onClick?: (e: React.MouseEvent | React.TouchEvent)=>void,
         className?: string,
         path: {
@@ -298,9 +314,9 @@ export class TileView extends React.Component<{
     }
 
     componentDidMount () {
-        if(this.props.x == "0" && this.props.y == "0") {
-            return
-        }
+        // if(this.props.x == "0" && this.props.y == "0") {
+        //     return
+        // }
         var path = (this.refs as any).path
         if(path) {
             var pathLength = path.getTotalLength()
@@ -342,6 +358,7 @@ export class TileView extends React.Component<{
                     </image> : null
                 }
                 <path
+                    id={this.props.id}
                     ref="path"
                     onClick={this.handlePathClick.bind(this)}
                     className={className}
