@@ -1,8 +1,19 @@
+$stroke-width: 15px;
+
 @keyframes tileSelected {
-    from {
-        stroke-dashoffset: 0
+    0% {
+        stroke: #aeb;
+        stroke-opacity: .7;
+        stroke-width: 15px;
     }
-    to {
-        stroke-dashoffset: 36em
+    50% {
+        stroke: #8b9;
+        stroke-opacity: .5;
+        stroke-width: 10px;
+    }
+    100% {
+        stroke: #aeb;
+        stroke-opacity: .7;
+        stroke-width: 15px;
     }
 }

@@ -313,16 +313,13 @@ export class TileView extends React.Component<{
         super()
     }
 
-    componentDidMount () {
-        // if(this.props.x == "0" && this.props.y == "0") {
-        //     return
-        // }
-        var path = (this.refs as any).path
-        if(path) {
-            var pathLength = path.getTotalLength()
-            path.style = "stroke-dasharray: " + (pathLength / 500) + "em"
-        }
-    }
+    // componentDidMount () {
+    //     var path = (this.refs as any).path
+    //     if(path) {
+    //         var pathLength = path.getTotalLength()
+    //         path.style = "stroke-dasharray: " + (pathLength / 500) + "em"
+    //     }
+    // }
 
     handlePathClick (e: React.MouseEvent | React.TouchEvent) {
         if(this.props.onClick instanceof Function) {

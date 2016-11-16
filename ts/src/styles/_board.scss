@@ -73,9 +73,9 @@
     }
 
     &.start {
-        stroke: $color-start-tile;
+        /*stroke: $color-start-tile;
         stroke-opacity: 1;
-        stroke-width: 10px;
+        stroke-width: 10px;*/
 
         &:not(.selected) {
             stroke-dasharray: 0 !important;
@@ -83,9 +83,8 @@
     }
 
     &.selected {
-        stroke: #eee;
         stroke-width: 5px;
-        animation: tileSelected 10s linear infinite;
+        animation: tileSelected 2s linear infinite;
         z-index: 2;
     }
 
