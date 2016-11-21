@@ -5,21 +5,26 @@ import * as ReactDOM from "react-dom";
 import {Button} from "./UI"
 import {View} from "../models/View"
 import {MainMenu} from "./MainMenu"
-import {Board} from "../models/BoardModel"
-import {Tile} from "../models/TileModel"
+import {BoardModel} from "../models/BoardModel"
+import {Tile, TileType} from "../models/TileModel"
+import {Entity} from "../models/EntityModel"
+import {BoardManager} from "../managers/BoardManager"
+import {TileTypes} from "../managers/TileManager"
+import {App} from "../App"
 
 
 export class BoardView extends React.Component<{
-        changeView: (newVew: View)=>void
+        changeView: (newVew: View)=>void,
+        board: BoardModel,
+        entities: Entity[]
     }, {
-        board: Board,
         selectedTile: {x: number, y: number},
         zoom: number,
         scrollX: number,
         scrollY: number,
         dragging: boolean,
         dragPosition: {x: number, y: number},
-        showGrid: boolean,
+        showGrid: boolean
     }> {
 
     private tileHeight: number
@@ -29,13 +34,11 @@ export class BoardView extends React.Component<{
     constructor() {
         super()
         
-        this.tileHeight = 300
-        var cos30deg = Math.cos(Math.PI/6)
-        this.tileWidth = Math.ceil(cos30deg * this.tileHeight)
-        this.tileSpacing = 0
+        this.tileHeight = App.tileHeight
+        this.tileSpacing = App.tileSpacing
+        this.tileWidth = App.tileWidth
 
         this.state = {
-            board: new Board(1, 1),
             selectedTile: null,
             scrollX: 0,
             scrollY: 0,
@@ -72,7 +75,7 @@ export class BoardView extends React.Component<{
     }
 
     getBoardPxSize() {
-        var bounds = this.state.board.bounds
+        var bounds = this.props.board.bounds
 
         var widthMin = (this.tileWidth + this.tileSpacing) * (Math.abs(bounds.widthMin) + 1/2)
         var widthMax = (this.tileWidth + this.tileSpacing) * (Math.abs(bounds.widthMax) + 1/2)
@@ -122,7 +125,7 @@ export class BoardView extends React.Component<{
         var x = e.target.attributes["data-x"].nodeValue
         var y = e.target.attributes["data-y"].nodeValue
 
-        this.state.board.addTile(x, y)
+        BoardManager.addTile(x, y, TileTypes.grass)
 
         var boundsAfter = this.getBoardPxSize()
 
@@ -184,9 +187,13 @@ export class BoardView extends React.Component<{
         this.setState(this.state)
     }
 
+    handleStartGame() {
+
+    }
+
     render() {
-        var tiles = this.state.board.tiles
-        var adjacents = this.state.board.adjacents
+        var tiles = this.props.board.tiles
+        var adjacents = this.props.board.adjacents
         var paths: any[] = []
         var boardSize = this.getBoardPxSize()
         
@@ -256,6 +263,7 @@ export class BoardView extends React.Component<{
                 <Button text="Reset Zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomClick.bind(this)}></Button>
                 <Button text="Reset Board Position" id="board-reset-position-button" onClick={this.handleCenterBoardClick.bind(this)}></Button>
                 <Button text="Toggle Grid" id="board-toggle-grid" onClick={this.handleToggleGrid.bind(this)}></Button>
+                <Button text="Start Game" id="board-start-game" onClick={this.handleStartGame.bind(this)}></Button>
                 <div
                     id="board"
                     style={{perspective: boardPerspective}}
@@ -281,6 +289,11 @@ export class BoardView extends React.Component<{
                                     data-y={selectedTileY}/>
                             </g>
                         </svg>
+                        <div id="entities">
+                            {this.props.entities.map((entity, index) =>
+                                {/* add entities to the board */}
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

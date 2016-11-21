@@ -1,13 +1,21 @@
+import {EntityAspect} from "../managers/EntityManager"
 
-export class Entity {
-    aspects: EntityAspect[]
+export class EntityModel {
+    entities: Entity[]
 
-    constructor() {
-        this.aspects = []
+    constructor(entities?: Entity[]) {
+        this.entities = entities || []
     }
 }
 
-export class EntityAspect {
-    static MOVEABLE
-    static ATTACKABLE
+export class Entity {
+    ownerId: number
+    skinUrl: string
+    aspects: EntityAspect[]
+
+    constructor(ownerId: number, skinUrl: string, aspects?: EntityAspect[]) {
+        this.ownerId = ownerId
+        this.skinUrl = skinUrl
+        this.aspects = aspects || []
+    }
 }

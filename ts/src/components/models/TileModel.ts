@@ -13,29 +13,11 @@ export class TileType {
     description: string
     textureVariants: number
     textureName: string
-}
 
-export function getTileTypes() {
-    return {
-        grass: GRASS()
+    constructor(name: string, description: string, textureVariants: number, textureName: string) {
+        this.name = name
+        this.description = description
+        this.textureName = textureName
+        this.textureVariants = textureVariants
     }
-}
-
-export function getTileType(type?: string) {
-    var allTypes: any = getTileTypes()
-    for(var i = 0; i < Object.keys(allTypes).length; i++) {
-        var currentType: any = Object.keys(allTypes)[i]
-        if(allTypes[currentType].name == type) {
-            return allTypes[currentType]
-        }
-    }
-}
-
-function GRASS() {
-    var grass = new TileType()
-    grass.name = "Grass"
-    grass.description = "Green and fluffy"
-    grass.textureVariants = 5
-    grass.textureName = "grass"
-    return grass
 }
