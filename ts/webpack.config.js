@@ -5,7 +5,7 @@ module.exports = {
         "./src/index.tsx"
     ],
     output: {
-        filename: "./dist/bundle.js",
+        filename: "./dist/bundle.js"
     },
 
     devtool: "source-map",
@@ -22,7 +22,7 @@ module.exports = {
             },
             { 
                 test: /\.scss$/,
-                loaders: ["style", "css?sourcemaps", "postcss-loader", "sass?sourcemaps"]
+                loaders: ["style-loader", "css-loader?sourcemaps", "postcss-loader", "sass-loader?sourcemaps"]
             },
             { 
                 test: /\.(jpe?g|png|gif|svg)$/i,

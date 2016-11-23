@@ -21,7 +21,8 @@
 #board-main-menu-button,
 #board-reset-zoom-button,
 #board-reset-position-button,
-#board-toggle-grid {
+#board-toggle-grid-button,
+#board-start-game-button {
     position: absolute;
     left: 25px;
     z-index: 1;
@@ -40,8 +41,12 @@
     top: 105px;
 }
 
-#board-toggle-grid {
+#board-toggle-grid-button {
     top: 145px;
+}
+
+#board-start-game-button {
+    top: 185px;
 }
 
 #board-g {
@@ -53,7 +58,6 @@
 .tile {
     pointer-events: all;
     cursor: pointer;
-    // transition: all 0.1s ease-in;
     fill: transparent;
     stroke: transparent;
     stroke-width: 0;
@@ -73,10 +77,6 @@
     }
 
     &.start {
-        /*stroke: $color-start-tile;
-        stroke-opacity: 1;
-        stroke-width: 10px;*/
-
         &:not(.selected) {
             stroke-dasharray: 0 !important;
         }

@@ -1,5 +1,4 @@
-export class EntityManager {
-
+export class EntityManager { 
 }
 
 export interface EntityAspect {

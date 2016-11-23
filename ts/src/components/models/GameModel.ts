@@ -1,5 +1,7 @@
+import {EventType} from "../managers/GameManager"
+
 export class GameModel {
-    listeners: ((gameAction: string, targets: any)=>{})[]
+    listeners: ((eventType: EventType)=>void)[]
 
     constructor() {
         this.listeners = []

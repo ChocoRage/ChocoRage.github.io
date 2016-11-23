@@ -1,10 +1,14 @@
-export class Tile {
+export class TileModel {
     type: TileType
     textureVariant: number
+    x: string
+    y: string
 
-    constructor(type?: TileType) {
+    constructor(x: string, y: string, type?: TileType, textureVariant?: number) {
+        this.x = x
+        this.y = y
         this.type = type
-        this.textureVariant = type ? Math.floor(Math.random()*this.type.textureVariants + 1) : 0
+        this.textureVariant = textureVariant || type ? Math.floor(Math.random()*this.type.textureVariants + 1) : 0
     }
 }
 

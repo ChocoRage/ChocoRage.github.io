@@ -5,5 +5,5 @@ export class TileManager {
 }
 
 export class TileTypes {
-    static grass = new TileType("grass", "Green and fluffy", 5, "grass")
+    static grass = new TileType("grass", "Green and fluffy", 3, "grass")
 }

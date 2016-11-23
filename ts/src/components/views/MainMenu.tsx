@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 import * as React from "react";
 import {Button} from "./UI"
-import {View} from "../models/View"
+import {View} from "../models/ViewModel"
 import {BoardView} from "./BoardView"
 
 export class MainMenu extends React.Component<{

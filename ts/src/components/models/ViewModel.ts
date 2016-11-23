@@ -1,3 +1,7 @@
+export class ViewModel {
+    views: View[]
+}
+
 export class View {
     view: any
 

@@ -1,5 +1,6 @@
-import {Entity} from "../models/EntityModel.ts"
+import {Entity} from "../models/EntityModel"
 import {App} from "../App"
+import {TileModel} from "../models/TileModel"
 
 export class GameManager {
     createPlayerHero(ownerId: number, skinUrl: string, aspects: string[]) {
@@ -8,59 +9,88 @@ export class GameManager {
 }
 
 export class EventBus {
-    static notify(gameAction: string, targets: {}[]) {
-        App.gameModel.listeners.map((cb, index) => {
-            cb(gameAction, targets)
+    static notify(eventType: EventType) {
+        App.gameModel.listeners.map(cb => {
+            cb(eventType)
         })
     }
 
-    static subscribe(cb: (gameAction: string, targets: {}[])=>{}) {
+    static subscribe(cb: (eventType: EventType)=>void) {
         App.gameModel.listeners.push(cb)
     }
 
-    static unsubscribe(cb: (gameAction: string, targets: {}[])=>{}) {
+    static unsubscribe(cb: (eventType: EventType)=>void) {
         var idx = App.gameModel.listeners.indexOf(cb)
         App.gameModel.listeners.splice(idx, 1)
     }
 }
 
-export interface Event {
+export interface EventType {
     name: string
-    targets?: {}[]
+    targets: any
 }
 
-export class AttackedEvent implements Event{
+export class AttackedEvent implements EventType {
     name: "attacked"
+    targets: {}[] = []
 }
 
-export class AttackingEvent implements Event{
+export class AttackingEvent implements EventType {
     name: "attacking"
+    targets: {}[] = []
 }
 
-export class DamageDealtEvent implements Event{
+export class DamageDealtEvent implements EventType {
     name: "damage_dealt"
+    targets: {}[] = []
 }
 
-export class DamageTakenEvent implements Event{
+export class DamageTakenEvent implements EventType {
     name: "damage_taken"
+    targets: {}[] = []
 }
 
-export class HealedEvent implements Event{
+export class HealedEvent implements EventType {
     name: "healed"
+    targets: {}[] = []
 }
 
-export class HealingEvent implements Event{
+export class HealingEvent implements EventType {
     name: "healing"
+    targets: {}[] = []
 }
 
-export class MovingEvent implements Event{
+export class MovingEvent implements EventType {
     name: "moving"
+    targets: {}[] = []
 }
 
-export class TargetedEvent implements Event{
+export class TargetedEvent implements EventType {
     name: "targeted"
+    targets: {}[] = []
 }
 
-export class TargetingEvent implements Event{
+export class TargetingEvent implements EventType {
     name: "targeting"
+    targets: {}[] = []
+}
+
+export class TileClickEvent implements EventType {
+    name: "tile_clicked"
+    targets: TileModel
+
+    constructor(targets?: TileModel) {
+        this.targets = targets
+    }
+}
+
+export class TileAddedEvent implements EventType {
+    name: "tile_added"
+    targets: TileModel
+    boundsBefore: {
+        widthMin: number,
+        widthMax: number,
+        heightMin: number,
+        heightMax: number
+    }
 }

@@ -3,19 +3,23 @@ declare var require: any
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Button} from "./UI"
-import {View} from "../models/View"
+import {View} from "../models/ViewModel"
 import {MainMenu} from "./MainMenu"
 import {BoardModel} from "../models/BoardModel"
-import {Tile, TileType} from "../models/TileModel"
+import {TileModel, TileType} from "../models/TileModel"
 import {Entity} from "../models/EntityModel"
 import {BoardManager} from "../managers/BoardManager"
 import {TileTypes} from "../managers/TileManager"
 import {App} from "../App"
-
+import {TileView} from "./TileView"
+import {EventBus, TileAddedEvent} from "../managers/GameManager"
 
 export class BoardView extends React.Component<{
         changeView: (newVew: View)=>void,
         board: BoardModel,
+        tileHeight: number,
+        tileWidth: number,
+        tileSpacing: number,
         entities: Entity[]
     }, {
         selectedTile: {x: number, y: number},
@@ -27,17 +31,9 @@ export class BoardView extends React.Component<{
         showGrid: boolean
     }> {
 
-    private tileHeight: number
-    private tileWidth: number
-    private tileSpacing: number
-    
     constructor() {
         super()
         
-        this.tileHeight = App.tileHeight
-        this.tileSpacing = App.tileSpacing
-        this.tileWidth = App.tileWidth
-
         this.state = {
             selectedTile: null,
             scrollX: 0,
@@ -49,14 +45,19 @@ export class BoardView extends React.Component<{
         }
     }
 
+    componentWillReceiveProps(nextProps: {changeView: (newVew: View)=>void, board: BoardModel, entities: Entity[]}) {
+        
+    }
+
     componentWillMount () {
         this.centerBoard()
+        EventBus.subscribe(this.adjustBoardAfterTileAdded)
     }
 
     getTilePath(x: number, y: number, originLeft: number, originTop: number) {
-        var tileHeight = this.tileHeight
-        var tileWidth = this.tileWidth
-        var tileSpacing = this.tileSpacing
+        var tileHeight = this.props.tileHeight
+        var tileWidth = this.props.tileWidth
+        var tileSpacing = this.props.tileSpacing
 
         var offsetX = (tileWidth + tileSpacing)/2
         var offsetY = tileHeight/4
@@ -75,13 +76,13 @@ export class BoardView extends React.Component<{
     }
 
     getBoardPxSize() {
-        var bounds = this.props.board.bounds
+        var bounds = this.props.board.getBounds()
 
-        var widthMin = (this.tileWidth + this.tileSpacing) * (Math.abs(bounds.widthMin) + 1/2)
-        var widthMax = (this.tileWidth + this.tileSpacing) * (Math.abs(bounds.widthMax) + 1/2)
+        var widthMin = (this.props.tileWidth + this.props.tileSpacing) * (Math.abs(bounds.widthMin) + 1/2)
+        var widthMax = (this.props.tileWidth + this.props.tileSpacing) * (Math.abs(bounds.widthMax) + 1/2)
 
-        var heightMin = (this.tileHeight + this.tileSpacing) * (Math.abs(bounds.heightMin) * 3/4)
-        var heightMax = (this.tileHeight + this.tileSpacing) * (Math.abs(bounds.heightMax) * 3/4 + 1)
+        var heightMin = (this.props.tileHeight + this.props.tileSpacing) * (Math.abs(bounds.heightMin) * 3/4)
+        var heightMax = (this.props.tileHeight + this.props.tileSpacing) * (Math.abs(bounds.heightMax) * 3/4 + 1)
 
         return {
             widthMin: widthMin,
@@ -93,7 +94,7 @@ export class BoardView extends React.Component<{
 
     centerBoard () {
         this.state.scrollX = -this.getBoardPxSize().widthMin
-        this.state.scrollY = -this.getBoardPxSize().heightMin - this.tileHeight / 2
+        this.state.scrollY = -this.getBoardPxSize().heightMin - this.props.tileHeight / 2
         this.setState(this.state)
     }
 
@@ -101,33 +102,34 @@ export class BoardView extends React.Component<{
         {this.props.changeView(new View(MainMenu))}
     }
 
-    handleTileClick(e: any) {
-        if(this.state.dragging) {
-            return
-        }
-        var xClicked = e.target.getAttribute("data-x")
-        var yClicked = e.target.getAttribute("data-y")
-        if(this.state.selectedTile && this.state.selectedTile.x == xClicked && this.state.selectedTile.y == yClicked) {
-            this.state.selectedTile = null
-        } else {
-            this.state.selectedTile = {x: xClicked, y: yClicked}
-        }
-        this.setState(this.state)
+    // handleTileClick(e: any) {
+    //     if(this.state.dragging) {
+    //         return
+    //     }
+    //     var xClicked = e.target.getAttribute("data-x")
+    //     var yClicked = e.target.getAttribute("data-y")
+    //     if(this.state.selectedTile && this.state.selectedTile.x == xClicked && this.state.selectedTile.y == yClicked) {
+    //         this.state.selectedTile = null
+    //     } else {
+    //         this.state.selectedTile = {x: xClicked, y: yClicked}
+    //     }
+    //     this.setState(this.state)
+    // }
+
+    handleSelectedTileClick(e: any) {
+        
     }
 
-    handleAdjacentTileClick(e: any) {
-        if(this.state.dragging) {
+    adjustBoardAfterTileAdded = (event: TileAddedEvent) => {
+        if(!(event instanceof TileAddedEvent)) {
             return
         }
+        var boundsBefore = event.boundsBefore
 
-        var boundsBefore = this.getBoardPxSize()
+        var x = event.targets.x
+        var y = event.targets.y
 
-        var x = e.target.attributes["data-x"].nodeValue
-        var y = e.target.attributes["data-y"].nodeValue
-
-        BoardManager.addTile(x, y, TileTypes.grass)
-
-        var boundsAfter = this.getBoardPxSize()
+        var boundsAfter = this.props.board.getBounds()
 
         if(boundsAfter.widthMin > boundsBefore.widthMin) {
             this.state.scrollX = this.state.scrollX - Math.abs(boundsAfter.widthMin - boundsBefore.widthMin)
@@ -213,14 +215,11 @@ export class BoardView extends React.Component<{
                     <TileView
                         id={"x" + xIndex + "y" + yIndex}
                         tile={tiles[xIndex][yIndex]}
-                        onClick={this.handleTileClick.bind(this)}
                         className={classNameStart + classNameSelected}
                         path={path}
+                        height={this.props.tileHeight}
+                        width={this.props.tileWidth}
                         key={xIndex + "_" + yIndex}
-                        x={xIndex}
-                        y={yIndex}
-                        width={this.tileWidth}
-                        height={this.tileHeight}
                         showGrid={this.state.showGrid}>
                     </TileView>
                 )
@@ -233,14 +232,11 @@ export class BoardView extends React.Component<{
                 paths.push(
                     <TileView
                         tile={adjacents[xIndex][yIndex]}
-                        onClick={this.handleAdjacentTileClick.bind(this)}
                         className={"tile adjacent" + classNameStart}
                         path={path}
+                        height={this.props.tileHeight}
+                        width={this.props.tileWidth}
                         key={"a" + xIndex + "_" + yIndex}
-                        x={xIndex}
-                        y={yIndex}
-                        width={this.tileWidth}
-                        height={this.tileHeight}
                         showGrid={this.state.showGrid}>
                     </TileView>
                 )
@@ -262,8 +258,8 @@ export class BoardView extends React.Component<{
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
                 <Button text="Reset Zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomClick.bind(this)}></Button>
                 <Button text="Reset Board Position" id="board-reset-position-button" onClick={this.handleCenterBoardClick.bind(this)}></Button>
-                <Button text="Toggle Grid" id="board-toggle-grid" onClick={this.handleToggleGrid.bind(this)}></Button>
-                <Button text="Start Game" id="board-start-game" onClick={this.handleStartGame.bind(this)}></Button>
+                <Button text="Toggle Grid" id="board-toggle-grid-button" onClick={this.handleToggleGrid.bind(this)}></Button>
+                <Button text="Start Game" id="board-start-game-button" onClick={this.handleStartGame.bind(this)}></Button>
                 <div
                     id="board"
                     style={{perspective: boardPerspective}}
@@ -284,7 +280,7 @@ export class BoardView extends React.Component<{
                                 <use
                                     xlinkHref={"#x" + selectedTileX + "y" + selectedTileY}
                                     style={{pointerEvents: "none"}}
-                                    onClick={this.handleTileClick.bind(this)}
+                                    onClick={this.handleSelectedTileClick.bind(this)}
                                     data-x={selectedTileX}
                                     data-y={selectedTileY}/>
                             </g>
@@ -297,86 +293,6 @@ export class BoardView extends React.Component<{
                     </div>
                 </div>
             </div>
-        )
-    }
-}
-
-export class TileView extends React.Component<{
-        tile: Tile,
-        id?: string,
-        onClick?: (e: React.MouseEvent | React.TouchEvent)=>void,
-        className?: string,
-        path: {
-            top: {x: number, y: number},
-            topRight: {x: number, y: number},
-            bottomRight: {x: number, y: number},
-            bottom: {x: number, y: number},
-            bottomleft: {x: number, y: number},
-            topLeft: {x: number, y: number}
-        },
-        x: string,
-        y: string,
-        height: number,
-        width: number,
-        showGrid: boolean
-    }, {
-    }> {
-    
-    constructor() {
-        super()
-    }
-
-    // componentDidMount () {
-    //     var path = (this.refs as any).path
-    //     if(path) {
-    //         var pathLength = path.getTotalLength()
-    //         path.style = "stroke-dasharray: " + (pathLength / 500) + "em"
-    //     }
-    // }
-
-    handlePathClick (e: React.MouseEvent | React.TouchEvent) {
-        if(this.props.onClick instanceof Function) {
-            this.props.onClick(e)
-        }
-    }
-
-    render() {
-        var img: any
-        if (this.props.tile && this.props.tile.type) {
-            img = require('../../../assets/images/' + this.props.tile.type.textureName + this.props.tile.textureVariant + ".png")
-        }
-        var path = this.props.path
-        var d = "M " + path.top.x + "," + path.top.y
-            + " l " + path.topRight.x + "," + path.topRight.y
-            + " l " + path.bottomRight.x + "," + path.bottomRight.y
-            + " l " + path.bottom.x + "," + path.bottom.y
-            + " l " + path.bottomleft.x + "," + path.bottomleft.y
-            + " l " + path.topLeft.x + "," + path.topLeft.y + "z"
-
-        var className = "tile" + (this.props.className ? " " + this.props.className : "") + (this.props.showGrid ? " tile-grid" : "")
-
-        return (
-            <g >
-                {this.props.tile && this.props.tile.type ? 
-                    <image
-                        className={"tile-image" + (this.props.className ? " " + this.props.className : "")}
-                        xlinkHref={img}
-                        x={path.top.x}
-                        y={path.top.y}
-                        height={this.props.height}
-                        width={this.props.width}>
-                    </image> : null
-                }
-                <path
-                    id={this.props.id}
-                    ref="path"
-                    onClick={this.handlePathClick.bind(this)}
-                    className={className}
-                    d={d}
-                    data-x={this.props.x}
-                    data-y={this.props.y}>
-                </path>
-            </g>
         )
     }
 }
