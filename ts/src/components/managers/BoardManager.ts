@@ -2,6 +2,7 @@ import {TileModel} from "../models/TileModel"
 import {TileType} from "../models/TileModel"
 import {TileTypes} from "../managers/TileManager"
 import {BoardModel} from "../models/BoardModel"
+import {EventBus} from "./GameManager"
 
 export class BoardManager {
     static getBounds(adjacents: {[x: string]: {[y: string]: TileModel}}) {
@@ -143,10 +144,5 @@ export class BoardManager {
             return null
         }
         return availables
-    }
-
-    static isTileAdjacent(tile: TileModel, board: BoardModel) {
-        var adjacents = BoardManager.getAdjacents(board)
-        return !!adjacents[tile.x][tile.y]
     }
 }

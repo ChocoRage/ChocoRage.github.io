@@ -9,7 +9,7 @@ import {EntityModel} from "./models/EntityModel"
 import {PlayerModel} from "./models/PlayerModel"
 import {BoardManager} from "./managers/BoardManager"
 import {TileModel} from "./models/TileModel"
-import {GameManager, EventBus, EventType, TileClickEvent, TileAddedEvent} from "./managers/GameManager"
+import {GameManager, EventBus, EventType, BoardTileClickEvent, AdjacentTileClickEvent, TileAddedEvent} from "./managers/GameManager"
 
 export class App extends React.Component<{
     }, {
@@ -39,23 +39,19 @@ export class App extends React.Component<{
             playerModel: App.playerModel
         }
 
-        EventBus.subscribe(this.handleTileClick)
+        EventBus.subscribe(this.handleAdjacentTileClick)
     }
 
-    handleTileClick = (event: TileClickEvent) => {
-        if(!(event instanceof TileClickEvent)) {
+    handleAdjacentTileClick = (event: AdjacentTileClickEvent) => {
+        if(!(event instanceof AdjacentTileClickEvent)) {
             return
         }
-        if(BoardManager.isTileAdjacent(event.targets, this.state.boardModel)) {
-            var newTile = new TileModel(event.targets.x, event.targets.y, event.targets.type)
-            var tileAddedEvent = new TileAddedEvent()
-            tileAddedEvent.targets = newTile
-            tileAddedEvent.boundsBefore = this.state.boardModel.getBounds()
-            this.state.boardModel = BoardManager.addTile(this.state.boardModel, newTile)
-            EventBus.notify(tileAddedEvent)
-        } else {
-
-        }
+        var newTile = new TileModel(event.target.x, event.target.y, event.target.type)
+        var tileAddedEvent = new TileAddedEvent()
+        tileAddedEvent.target = newTile
+        tileAddedEvent.boundsBefore = this.state.boardModel.getBounds()
+        this.state.boardModel = BoardManager.addTile(this.state.boardModel, newTile)
+        EventBus.notify(tileAddedEvent)
     }
 
     changeView(newView: View) {

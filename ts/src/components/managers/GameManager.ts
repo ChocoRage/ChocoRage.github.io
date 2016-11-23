@@ -26,67 +26,53 @@ export class EventBus {
 }
 
 export interface EventType {
-    name: string
-    targets: any
 }
 
 export class AttackedEvent implements EventType {
-    name: "attacked"
-    targets: {}[] = []
 }
 
 export class AttackingEvent implements EventType {
-    name: "attacking"
-    targets: {}[] = []
 }
 
 export class DamageDealtEvent implements EventType {
-    name: "damage_dealt"
-    targets: {}[] = []
 }
 
 export class DamageTakenEvent implements EventType {
-    name: "damage_taken"
-    targets: {}[] = []
 }
 
 export class HealedEvent implements EventType {
-    name: "healed"
-    targets: {}[] = []
 }
 
 export class HealingEvent implements EventType {
-    name: "healing"
-    targets: {}[] = []
 }
 
 export class MovingEvent implements EventType {
-    name: "moving"
-    targets: {}[] = []
 }
 
 export class TargetedEvent implements EventType {
-    name: "targeted"
-    targets: {}[] = []
 }
 
 export class TargetingEvent implements EventType {
-    name: "targeting"
-    targets: {}[] = []
 }
 
-export class TileClickEvent implements EventType {
-    name: "tile_clicked"
-    targets: TileModel
+export class BoardTileClickEvent implements EventType {
+    target: TileModel
 
-    constructor(targets?: TileModel) {
-        this.targets = targets
+    constructor(target?: TileModel) {
+        this.target = target
+    }
+}
+
+export class AdjacentTileClickEvent implements EventType {
+    target: TileModel
+
+    constructor(target?: TileModel) {
+        this.target = target
     }
 }
 
 export class TileAddedEvent implements EventType {
-    name: "tile_added"
-    targets: TileModel
+    target: TileModel
     boundsBefore: {
         widthMin: number,
         widthMax: number,

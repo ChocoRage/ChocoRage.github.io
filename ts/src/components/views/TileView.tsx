@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
 import * as React from "react";
 import {TileModel} from "../models/TileModel"
-import {EventBus, TileClickEvent} from "../managers/GameManager"
+import {EventBus} from "../managers/GameManager"
 
 export class TileView extends React.Component<{
         tile: TileModel,
@@ -15,6 +15,7 @@ export class TileView extends React.Component<{
             bottomleft: {x: number, y: number},
             topLeft: {x: number, y: number}
         },
+        onClick: (tile: TileModel)=>void,
         height: number,
         width: number,
         showGrid: boolean
@@ -26,8 +27,9 @@ export class TileView extends React.Component<{
     }
 
     handlePathClick (e: React.MouseEvent | React.TouchEvent) {
-        var tileClickEvent = new TileClickEvent(this.props.tile)
-        EventBus.notify(tileClickEvent)
+        if(typeof this.props.onClick == "function") {
+            this.props.onClick(this.props.tile)
+        }
     }
 
     render() {

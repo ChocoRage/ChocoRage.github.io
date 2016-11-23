@@ -12,7 +12,7 @@ import {BoardManager} from "../managers/BoardManager"
 import {TileTypes} from "../managers/TileManager"
 import {App} from "../App"
 import {TileView} from "./TileView"
-import {EventBus, TileAddedEvent} from "../managers/GameManager"
+import {EventBus, TileAddedEvent, BoardTileClickEvent, AdjacentTileClickEvent} from "../managers/GameManager"
 
 export class BoardView extends React.Component<{
         changeView: (newVew: View)=>void,
@@ -52,6 +52,7 @@ export class BoardView extends React.Component<{
     componentWillMount () {
         this.centerBoard()
         EventBus.subscribe(this.adjustBoardAfterTileAdded)
+        EventBus.subscribe(this.setSelectedTile)
     }
 
     getTilePath(x: number, y: number, originLeft: number, originTop: number) {
@@ -75,9 +76,7 @@ export class BoardView extends React.Component<{
         }
     }
 
-    getBoardPxSize() {
-        var bounds = this.props.board.getBounds()
-
+    getBoardPxSize(bounds: {widthMin: number, widthMax: number, heightMin: number, heightMax: number}) {
         var widthMin = (this.props.tileWidth + this.props.tileSpacing) * (Math.abs(bounds.widthMin) + 1/2)
         var widthMax = (this.props.tileWidth + this.props.tileSpacing) * (Math.abs(bounds.widthMax) + 1/2)
 
@@ -93,8 +92,9 @@ export class BoardView extends React.Component<{
     }
 
     centerBoard () {
-        this.state.scrollX = -this.getBoardPxSize().widthMin
-        this.state.scrollY = -this.getBoardPxSize().heightMin - this.props.tileHeight / 2
+        var bounds = BoardManager.getBounds(this.props.board.adjacents)
+        this.state.scrollX = -this.getBoardPxSize(bounds).widthMin
+        this.state.scrollY = -this.getBoardPxSize(bounds).heightMin - this.props.tileHeight / 2
         this.setState(this.state)
     }
 
@@ -102,34 +102,40 @@ export class BoardView extends React.Component<{
         {this.props.changeView(new View(MainMenu))}
     }
 
-    // handleTileClick(e: any) {
-    //     if(this.state.dragging) {
-    //         return
-    //     }
-    //     var xClicked = e.target.getAttribute("data-x")
-    //     var yClicked = e.target.getAttribute("data-y")
-    //     if(this.state.selectedTile && this.state.selectedTile.x == xClicked && this.state.selectedTile.y == yClicked) {
-    //         this.state.selectedTile = null
-    //     } else {
-    //         this.state.selectedTile = {x: xClicked, y: yClicked}
-    //     }
-    //     this.setState(this.state)
-    // }
+    setSelectedTile = (event: BoardTileClickEvent) => {
+        if(!this.state.selectedTile || this.state.selectedTile.x != +event.target.x || this.state.selectedTile.y != +event.target.y) {
+            this.state.selectedTile = {x: +event.target.x, y: +event.target.y}
+        } else {
+            this.state.selectedTile = null
+        }
+    }
 
-    handleSelectedTileClick(e: any) {
-        
+    handleBoardTileClick = (tile: TileModel) => {
+        if(this.state.dragging) {
+            return
+        }
+        var tileClickEvent = new BoardTileClickEvent(tile)
+        EventBus.notify(tileClickEvent)
+    }
+
+    handleAdjacentTileClick = (tile: TileModel) => {
+        if(this.state.dragging) {
+            return
+        }
+        var tileClickEvent = new AdjacentTileClickEvent(tile)
+        EventBus.notify(tileClickEvent)
     }
 
     adjustBoardAfterTileAdded = (event: TileAddedEvent) => {
         if(!(event instanceof TileAddedEvent)) {
             return
         }
-        var boundsBefore = event.boundsBefore
+        var boundsBefore = this.getBoardPxSize(event.boundsBefore)
 
-        var x = event.targets.x
-        var y = event.targets.y
+        var x = event.target.x
+        var y = event.target.y
 
-        var boundsAfter = this.props.board.getBounds()
+        var boundsAfter = this.getBoardPxSize(this.props.board.getBounds())
 
         if(boundsAfter.widthMin > boundsBefore.widthMin) {
             this.state.scrollX = this.state.scrollX - Math.abs(boundsAfter.widthMin - boundsBefore.widthMin)
@@ -197,7 +203,7 @@ export class BoardView extends React.Component<{
         var tiles = this.props.board.tiles
         var adjacents = this.props.board.adjacents
         var paths: any[] = []
-        var boardSize = this.getBoardPxSize()
+        var boardSize = this.getBoardPxSize(BoardManager.getBounds(this.props.board.adjacents))
         
         var selectedTileX = ""
         var selectedTileY = ""
@@ -217,6 +223,7 @@ export class BoardView extends React.Component<{
                         tile={tiles[xIndex][yIndex]}
                         className={classNameStart + classNameSelected}
                         path={path}
+                        onClick={this.handleBoardTileClick}
                         height={this.props.tileHeight}
                         width={this.props.tileWidth}
                         key={xIndex + "_" + yIndex}
@@ -234,6 +241,7 @@ export class BoardView extends React.Component<{
                         tile={adjacents[xIndex][yIndex]}
                         className={"tile adjacent" + classNameStart}
                         path={path}
+                        onClick={this.handleAdjacentTileClick}
                         height={this.props.tileHeight}
                         width={this.props.tileWidth}
                         key={"a" + xIndex + "_" + yIndex}
@@ -280,7 +288,7 @@ export class BoardView extends React.Component<{
                                 <use
                                     xlinkHref={"#x" + selectedTileX + "y" + selectedTileY}
                                     style={{pointerEvents: "none"}}
-                                    onClick={this.handleSelectedTileClick.bind(this)}
+                                    onClick={this.handleBoardTileClick.bind(this)}
                                     data-x={selectedTileX}
                                     data-y={selectedTileY}/>
                             </g>
