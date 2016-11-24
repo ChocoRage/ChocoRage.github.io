@@ -1,21 +1,16 @@
-/// <reference path="../../../typings/index.d.ts" />
-declare var require: any
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Button} from "./UI"
-import {View} from "../models/ViewModel"
-import {MainMenu} from "./MainMenu"
+import {MainMenuView} from "./MainMenuView"
 import {BoardModel} from "../models/BoardModel"
 import {TileModel, TileType} from "../models/TileModel"
 import {Entity} from "../models/EntityModel"
 import {BoardManager} from "../managers/BoardManager"
-import {TileTypes} from "../managers/TileManager"
 import {App} from "../App"
 import {TileView} from "./TileView"
-import {EventBus, TileAddedEvent, BoardTileClickEvent, AdjacentTileClickEvent} from "../managers/GameManager"
+import * as GM from "../managers/GameManager"
 
 export class BoardView extends React.Component<{
-        changeView: (newVew: View)=>void,
         board: BoardModel,
         tileHeight: number,
         tileWidth: number,
@@ -45,14 +40,14 @@ export class BoardView extends React.Component<{
         }
     }
 
-    componentWillReceiveProps(nextProps: {changeView: (newVew: View)=>void, board: BoardModel, entities: Entity[]}) {
+    componentWillReceiveProps(nextProps: {board: BoardModel, entities: Entity[]}) {
         
     }
 
     componentWillMount () {
         this.centerBoard()
-        EventBus.subscribe(this.adjustBoardAfterTileAdded)
-        EventBus.subscribe(this.setSelectedTile)
+        GM.EventBus.subscribe(this.adjustBoardAfterTileAdded)
+        GM.EventBus.subscribe(this.setSelectedTile)
     }
 
     getTilePath(x: number, y: number, originLeft: number, originTop: number) {
@@ -92,17 +87,16 @@ export class BoardView extends React.Component<{
     }
 
     centerBoard () {
-        var bounds = BoardManager.getBounds(this.props.board.adjacents)
+        var bounds = BoardManager.getBounds(this.props.board.unexplored)
         this.state.scrollX = -this.getBoardPxSize(bounds).widthMin
         this.state.scrollY = -this.getBoardPxSize(bounds).heightMin - this.props.tileHeight / 2
         this.setState(this.state)
     }
 
     handleMenuClick() {
-        {this.props.changeView(new View(MainMenu))}
     }
 
-    setSelectedTile = (event: BoardTileClickEvent) => {
+    setSelectedTile = (event: GM.ExploredTileClickedEvent) => {
         if(!this.state.selectedTile || this.state.selectedTile.x != +event.target.x || this.state.selectedTile.y != +event.target.y) {
             this.state.selectedTile = {x: +event.target.x, y: +event.target.y}
         } else {
@@ -110,24 +104,24 @@ export class BoardView extends React.Component<{
         }
     }
 
-    handleBoardTileClick = (tile: TileModel) => {
+    handleExploredTileClick = (tile: TileModel) => {
         if(this.state.dragging) {
             return
         }
-        var tileClickEvent = new BoardTileClickEvent(tile)
-        EventBus.notify(tileClickEvent)
+        var tileClickEvent = new GM.ExploredTileClickedEvent(tile, this.props.board)
+        GM.GameManager.exploredTileClicked(tileClickEvent)
     }
 
-    handleAdjacentTileClick = (tile: TileModel) => {
+    handleUnexploredTileClick = (tile: TileModel) => {
         if(this.state.dragging) {
             return
         }
-        var tileClickEvent = new AdjacentTileClickEvent(tile)
-        EventBus.notify(tileClickEvent)
+        var tileClickEvent = new GM.UnexploredTileClickedEvent(tile, this.props.board)
+        GM.GameManager.unexploredTileClicked(tileClickEvent)
     }
 
-    adjustBoardAfterTileAdded = (event: TileAddedEvent) => {
-        if(!(event instanceof TileAddedEvent)) {
+    adjustBoardAfterTileAdded = (event: GM.TileAddedEvent) => {
+        if(!(event instanceof GM.TileAddedEvent)) {
             return
         }
         var boundsBefore = this.getBoardPxSize(event.boundsBefore)
@@ -135,7 +129,7 @@ export class BoardView extends React.Component<{
         var x = event.target.x
         var y = event.target.y
 
-        var boundsAfter = this.getBoardPxSize(this.props.board.getBounds())
+        var boundsAfter = this.getBoardPxSize(BoardManager.getBounds(this.props.board.unexplored))
 
         if(boundsAfter.widthMin > boundsBefore.widthMin) {
             this.state.scrollX = this.state.scrollX - Math.abs(boundsAfter.widthMin - boundsBefore.widthMin)
@@ -195,15 +189,16 @@ export class BoardView extends React.Component<{
         this.setState(this.state)
     }
 
-    handleStartGame() {
-
+    handleStartGameButtonClick() {
+        var startGameButtonClickedEvent = new GM.StartGameButtonClickedEvent()
+        GM.GameManager.startGameButtonClicked(startGameButtonClickedEvent)
     }
 
     render() {
         var tiles = this.props.board.tiles
-        var adjacents = this.props.board.adjacents
+        var unexplored = this.props.board.unexplored
         var paths: any[] = []
-        var boardSize = this.getBoardPxSize(BoardManager.getBounds(this.props.board.adjacents))
+        var boardSize = this.getBoardPxSize(BoardManager.getBounds(this.props.board.unexplored))
         
         var selectedTileX = ""
         var selectedTileY = ""
@@ -223,7 +218,7 @@ export class BoardView extends React.Component<{
                         tile={tiles[xIndex][yIndex]}
                         className={classNameStart + classNameSelected}
                         path={path}
-                        onClick={this.handleBoardTileClick}
+                        onClick={this.handleExploredTileClick}
                         height={this.props.tileHeight}
                         width={this.props.tileWidth}
                         key={xIndex + "_" + yIndex}
@@ -232,16 +227,16 @@ export class BoardView extends React.Component<{
                 )
             })
         })
-        Object.keys(adjacents).map(xIndex => {
-            Object.keys(adjacents[+xIndex]).map(yIndex => {
+        Object.keys(unexplored).map(xIndex => {
+            Object.keys(unexplored[+xIndex]).map(yIndex => {
                 var path = this.getTilePath(+xIndex, +yIndex, boardSize.widthMin, boardSize.heightMin)
                 var classNameStart = (+xIndex == 0 && +yIndex == 0 ? "start" : "")
                 paths.push(
                     <TileView
-                        tile={adjacents[xIndex][yIndex]}
-                        className={"tile adjacent" + classNameStart}
+                        tile={unexplored[xIndex][yIndex]}
+                        className={"tile unexplored" + classNameStart}
                         path={path}
-                        onClick={this.handleAdjacentTileClick}
+                        onClick={this.handleUnexploredTileClick}
                         height={this.props.tileHeight}
                         width={this.props.tileWidth}
                         key={"a" + xIndex + "_" + yIndex}
@@ -267,7 +262,7 @@ export class BoardView extends React.Component<{
                 <Button text="Reset Zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomClick.bind(this)}></Button>
                 <Button text="Reset Board Position" id="board-reset-position-button" onClick={this.handleCenterBoardClick.bind(this)}></Button>
                 <Button text="Toggle Grid" id="board-toggle-grid-button" onClick={this.handleToggleGrid.bind(this)}></Button>
-                <Button text="Start Game" id="board-start-game-button" onClick={this.handleStartGame.bind(this)}></Button>
+                <Button text="Start Game" id="board-start-game-button" onClick={this.handleStartGameButtonClick.bind(this)}></Button>
                 <div
                     id="board"
                     style={{perspective: boardPerspective}}
@@ -288,7 +283,7 @@ export class BoardView extends React.Component<{
                                 <use
                                     xlinkHref={"#x" + selectedTileX + "y" + selectedTileY}
                                     style={{pointerEvents: "none"}}
-                                    onClick={this.handleBoardTileClick.bind(this)}
+                                    onClick={this.handleExploredTileClick.bind(this)}
                                     data-x={selectedTileX}
                                     data-y={selectedTileY}/>
                             </g>

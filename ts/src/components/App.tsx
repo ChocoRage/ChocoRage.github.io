@@ -1,76 +1,69 @@
 /// <reference path="../../typings/index.d.ts" />
 import * as React from "react"
-import {MainMenu} from "./views/MainMenu"
+import {MainMenuView} from "./views/MainMenuView"
 import {BoardView} from "./views/BoardView"
-import {View} from "./models/ViewModel"
-import {GameModel} from "./models/GameModel"
 import {BoardModel} from "./models/BoardModel"
 import {EntityModel} from "./models/EntityModel"
 import {PlayerModel} from "./models/PlayerModel"
 import {BoardManager} from "./managers/BoardManager"
 import {TileModel} from "./models/TileModel"
-import {GameManager, EventBus, EventType, BoardTileClickEvent, AdjacentTileClickEvent, TileAddedEvent} from "./managers/GameManager"
+import * as GM from "./managers/GameManager"
 
 export class App extends React.Component<{
     }, {
-        currentView: View,
+        currentView: any,
         boardModel: BoardModel,
-        entityModel: EntityModel,
-        playerModel: PlayerModel
+        entityModel: EntityModel
     }> {
 
-    static gameModel: GameModel
-    static playerModel: PlayerModel
-
     tileHeight = 300
-    static cos30deg = Math.cos(Math.PI/6)
-    tileWidth = Math.ceil(App.cos30deg * this.tileHeight)
+    tileWidth = Math.ceil(Math.cos(Math.PI/6) * this.tileHeight)
     tileSpacing = 0
 
     constructor(props: any) {
         super(props)
-
-        App.gameModel = new GameModel()
-
         this.state = {
-            currentView: new View(BoardView),
+            currentView: BoardView,
             boardModel: new BoardModel(),
-            entityModel: new EntityModel(),
-            playerModel: App.playerModel
+            entityModel: new EntityModel()
         }
-
-        EventBus.subscribe(this.handleAdjacentTileClick)
     }
 
-    handleAdjacentTileClick = (event: AdjacentTileClickEvent) => {
-        if(!(event instanceof AdjacentTileClickEvent)) {
+    componentDidMount() {
+        GM.EventBus.subscribe(this.startGameButtonClicked)
+        GM.EventBus.subscribe(this.tileAdded)
+    }
+
+    startGameButtonClicked = (event: GM.StartGameButtonClickedEvent) => {
+        if(!(event instanceof GM.StartGameButtonClickedEvent)) {
             return
         }
-        var newTile = new TileModel(event.target.x, event.target.y, event.target.type)
-        var tileAddedEvent = new TileAddedEvent()
-        tileAddedEvent.target = newTile
-        tileAddedEvent.boundsBefore = this.state.boardModel.getBounds()
-        this.state.boardModel = BoardManager.addTile(this.state.boardModel, newTile)
-        EventBus.notify(tileAddedEvent)
+        this.state.entityModel.entities
     }
 
-    changeView(newView: View) {
-        this.state.currentView = newView;
-        this.setState(this.state)
+    tileAdded = (event: GM.TileAddedEvent) => {
+        if(!(event instanceof GM.TileAddedEvent)) {
+            return
+        }
+        this.state.boardModel = event.boardModel
     }
 
     render() {
-        var View = this.state.currentView.view
+        var view: any
+        if(this.state.currentView == BoardView) {
+            view = (
+                <BoardView
+                    board={this.state.boardModel}
+                    entities={this.state.entityModel.entities}
+                    tileHeight={this.tileHeight}
+                    tileWidth={this.tileWidth}
+                    tileSpacing={this.tileSpacing}/>
+            )
+        }
         return  (
             <div id="app-container">
                 <div id="view-container">
-                    <View
-                        changeView={this.changeView.bind(this)}
-                        board={this.state.boardModel}
-                        entities={this.state.entityModel.entities}
-                        tileHeight={this.tileHeight}
-                        tileWidth={this.tileWidth}
-                        tileSpacing={this.tileSpacing}></View>
+                    {view}
                 </div>
             </div>
         )

@@ -1,6 +1,3 @@
-export class EntityManager { 
-}
-
 export interface EntityAspect {
 }
 
