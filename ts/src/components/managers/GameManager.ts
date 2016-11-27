@@ -4,6 +4,8 @@ import {TileModel} from "../models/TileModel"
 import {BoardModel} from "../models/BoardModel"
 import {BoardManager} from "./BoardManager"
 import {grass} from "./TileManager"
+import {Player, PlayerModel} from "../models/PlayerModel"
+import {PlayerManager} from "./PlayerManager"
 
 export class GameManager {
     static unexploredTileClicked(event: UnexploredTileClickedEvent) {
@@ -11,7 +13,7 @@ export class GameManager {
         var newTile = new TileModel(event.target.x, event.target.y, grass)
         var boundsBefore = BoardManager.getBounds(event.boardModel.unexplored)
         var newBoard = BoardExecutor.addTile(event.boardModel, newTile)
-        var tileAddedEvent = new TileAddedEvent(newTile, newBoard, boundsBefore)
+        var tileAddedEvent = new TileAddedEvent(event.triggeringPlayerId, newTile, newBoard, boundsBefore)
         EventBusNotifyer.notify(tileAddedEvent)
     }
 
@@ -19,12 +21,39 @@ export class GameManager {
         EventBusNotifyer.notify(event)
     }
 
-    static startGameButtonClicked(event: StartGameButtonClickedEvent) {
-        EventBusNotifyer.notify(event)        
+    static createGameButtonClicked(event: CreateGameButtonClickedEvent) {
+        EventBusNotifyer.notify(event)
+    }
+
+    static startGame(event: StartGameEvent) {
+        // TODO if game already started, return
+        EventBusNotifyer.notify(event)
+    }
+
+    static createGameFormSubmitted(event: CreateGameFormSubmitted) {
+        // TODO check if player already exists
+        EventBusNotifyer.notify(event)
+        var nextId = PlayerManager.getNextPlayerId(event.playerModel)
+        event.playerProperties.map(player => {
+            var newPlayer = new Player(nextId, player.name, player.color)
+            var playerCreatedEvent = new PlayerCreatedEvent(newPlayer)
+            EventBusNotifyer.notify(playerCreatedEvent)
+            nextId += 1
+        })
+        var startGameEvent = new StartGameEvent()
+        EventBusNotifyer.notify(startGameEvent)
+    }
+
+    static endTurnButtonClicked(event: EndTurnButtonClickedEvent) {
+        EventBusNotifyer.notify(event)
+        var endTurnEvent = new EndTurnEvent(event.triggeringPlayerId)
+        EventBusNotifyer.notify(endTurnEvent)
     }
 }
 
-class EventBusNotifyer {    
+class EventBusNotifyer {
+    // the listeners can be part property of a manager component because they will never be persisted.
+    // every game has to populate the listeners at runtime. loaded games need to go through the event history and execute them serially.
     static listeners: ((eventType: EventType)=>void)[] = []
 
     static notify(eventType: EventType) {
@@ -46,56 +75,70 @@ export class EventBus {
 }
 
 export interface EventType {
+    triggeringPlayerId?: number
+    isLogged?: ()=>boolean
 }
 
 export class AttackedEvent implements EventType {
+    triggeringPlayerId: number
 }
 
 export class AttackingEvent implements EventType {
+    triggeringPlayerId: number
 }
 
 export class DamageDealtEvent implements EventType {
+    triggeringPlayerId: number
 }
 
 export class DamageTakenEvent implements EventType {
+    triggeringPlayerId: number
 }
 
 export class HealedEvent implements EventType {
+    triggeringPlayerId: number
 }
 
 export class HealingEvent implements EventType {
+    triggeringPlayerId: number
 }
 
 export class MovingEvent implements EventType {
+    triggeringPlayerId: number
 }
 
 export class TargetedEvent implements EventType {
+    triggeringPlayerId: number
 }
 
 export class TargetingEvent implements EventType {
+    triggeringPlayerId: number
 }
 
 export class UnexploredTileClickedEvent implements EventType {
+    triggeringPlayerId: number
     target: TileModel
     boardModel: BoardModel
 
-    constructor(target?: TileModel, boardModel?: BoardModel) {
+    constructor(triggeringPlayerId: number, target?: TileModel, boardModel?: BoardModel) {
         this.target = target
         this.boardModel = boardModel
     }
 }
 
 export class ExploredTileClickedEvent implements EventType {
+    triggeringPlayerId: number
     target: TileModel
     boardModel: BoardModel
 
-    constructor(target?: TileModel, boardModel?: BoardModel) {
+    constructor(triggeringPlayerId: number, target?: TileModel, boardModel?: BoardModel) {
         this.target = target
         this.boardModel = boardModel
     }
 }
 
 export class TileAddedEvent implements EventType {
+    triggeringPlayerId: number
     target: TileModel
     boardModel: BoardModel
     boundsBefore: {
@@ -105,19 +148,58 @@ export class TileAddedEvent implements EventType {
         heightMax: number
     }
 
-    constructor(target?: TileModel, boardModel?: BoardModel, boundsBefore?: {widthMin: number,widthMax: number,heightMin: number,heightMax: number}) {
+    constructor(triggeringPlayerId: number, target?: TileModel, boardModel?: BoardModel, boundsBefore?: {widthMin: number,widthMax: number,heightMin: number,heightMax: number}) {
         this.target = target
         this.boardModel = boardModel
         this.boundsBefore = boundsBefore
     }
 }
 
-export class StartGameButtonClickedEvent implements EventType {
+export class CreateGameButtonClickedEvent implements EventType {
+    isLogged = ()=>{return false}
+}
 
+export class StartGameButtonClicked implements EventType {
+    isLogged = ()=>{return false}
 }
 
 export class StartGameEvent implements EventType {
+}
 
+export class CreateGameFormSubmitted implements EventType {
+    isLogged = ()=>{return false}
+    playerModel: PlayerModel
+    playerProperties: {name: string, color: string}[]
+
+    constructor(playerModel: PlayerModel, playerProperties: {name: string, color: string}[]) {
+        this.playerModel = playerModel
+        this.playerProperties = playerProperties
+    }
+}
+
+export class PlayerCreatedEvent implements EventType {
+    newPlayer: Player
+
+    constructor(newPlayer: Player) {
+        this.newPlayer = newPlayer
+    }
+}
+
+
+export class EndTurnButtonClickedEvent implements EventType {
+    triggeringPlayerId: number
+
+    constructor(triggeringPlayerId: number) {
+        this.triggeringPlayerId = triggeringPlayerId
+    }
+}
+
+export class EndTurnEvent implements EventType {
+    triggeringPlayerId: number
+
+    constructor(triggeringPlayerId: number) {
+        this.triggeringPlayerId = triggeringPlayerId
+    }
 }
 
 

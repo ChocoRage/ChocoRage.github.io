@@ -1,10 +1,10 @@
 import {App} from "../App"
 
 export class PlayerModel {
-    players: {[playerId: number]: Player}
+    players: Player[]
 
-    constructor(players?: {[playerId: number]: Player}) {
-        this.players = players || {}
+    constructor(players?: Player[]) {
+        this.players = players || []
     }
 }
 

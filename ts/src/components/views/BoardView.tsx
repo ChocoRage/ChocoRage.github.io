@@ -4,18 +4,21 @@ import {Button} from "./UI"
 import {MainMenuView} from "./MainMenuView"
 import {BoardModel} from "../models/BoardModel"
 import {TileModel, TileType} from "../models/TileModel"
-import {Entity} from "../models/EntityModel"
+import {Entity, EntityModel} from "../models/EntityModel"
 import {BoardManager} from "../managers/BoardManager"
 import {App} from "../App"
 import {TileView} from "./TileView"
+import {PlayerModel} from "../models/PlayerModel"
 import * as GM from "../managers/GameManager"
 
 export class BoardView extends React.Component<{
-        board: BoardModel,
+        boardModel: BoardModel,
         tileHeight: number,
         tileWidth: number,
         tileSpacing: number,
-        entities: Entity[]
+        entityModel: EntityModel,
+        playerModel: PlayerModel,
+        activePlayerId: number
     }, {
         selectedTile: {x: number, y: number},
         zoom: number,
@@ -44,13 +47,14 @@ export class BoardView extends React.Component<{
         
     }
 
-    componentWillMount () {
+    componentWillMount() {
+        console.log(this.props.playerModel)
         this.centerBoard()
-        GM.EventBus.subscribe(this.adjustBoardAfterTileAdded)
+        GM.EventBus.subscribe(this.handleTileAddedEvent)
         GM.EventBus.subscribe(this.setSelectedTile)
     }
 
-    getTilePath(x: number, y: number, originLeft: number, originTop: number) {
+    getTilePath = (x: number, y: number, originLeft: number, originTop: number) => {
         var tileHeight = this.props.tileHeight
         var tileWidth = this.props.tileWidth
         var tileSpacing = this.props.tileSpacing
@@ -71,7 +75,7 @@ export class BoardView extends React.Component<{
         }
     }
 
-    getBoardPxSize(bounds: {widthMin: number, widthMax: number, heightMin: number, heightMax: number}) {
+    getBoardPxSize = (bounds: {widthMin: number, widthMax: number, heightMin: number, heightMax: number}) => {
         var widthMin = (this.props.tileWidth + this.props.tileSpacing) * (Math.abs(bounds.widthMin) + 1/2)
         var widthMax = (this.props.tileWidth + this.props.tileSpacing) * (Math.abs(bounds.widthMax) + 1/2)
 
@@ -86,14 +90,14 @@ export class BoardView extends React.Component<{
         }
     }
 
-    centerBoard () {
-        var bounds = BoardManager.getBounds(this.props.board.unexplored)
+    centerBoard = () => {
+        var bounds = BoardManager.getBounds(this.props.boardModel.unexplored)
         this.state.scrollX = -this.getBoardPxSize(bounds).widthMin
         this.state.scrollY = -this.getBoardPxSize(bounds).heightMin - this.props.tileHeight / 2
         this.setState(this.state)
     }
 
-    handleMenuClick() {
+    handleMenuClick = () => {
     }
 
     setSelectedTile = (event: GM.ExploredTileClickedEvent) => {
@@ -104,11 +108,11 @@ export class BoardView extends React.Component<{
         }
     }
 
-    handleExploredTileClick = (tile: TileModel) => {
+    handleExploredTileClicked = (tile: TileModel) => {
         if(this.state.dragging) {
             return
         }
-        var tileClickEvent = new GM.ExploredTileClickedEvent(tile, this.props.board)
+        var tileClickEvent = new GM.ExploredTileClickedEvent(this.props.activePlayerId, tile, this.props.boardModel)
         GM.GameManager.exploredTileClicked(tileClickEvent)
     }
 
@@ -116,11 +120,11 @@ export class BoardView extends React.Component<{
         if(this.state.dragging) {
             return
         }
-        var tileClickEvent = new GM.UnexploredTileClickedEvent(tile, this.props.board)
+        var tileClickEvent = new GM.UnexploredTileClickedEvent(this.props.activePlayerId, tile, this.props.boardModel)
         GM.GameManager.unexploredTileClicked(tileClickEvent)
     }
 
-    adjustBoardAfterTileAdded = (event: GM.TileAddedEvent) => {
+    handleTileAddedEvent = (event: GM.TileAddedEvent) => {
         if(!(event instanceof GM.TileAddedEvent)) {
             return
         }
@@ -129,7 +133,7 @@ export class BoardView extends React.Component<{
         var x = event.target.x
         var y = event.target.y
 
-        var boundsAfter = this.getBoardPxSize(BoardManager.getBounds(this.props.board.unexplored))
+        var boundsAfter = this.getBoardPxSize(BoardManager.getBounds(this.props.boardModel.unexplored))
 
         if(boundsAfter.widthMin > boundsBefore.widthMin) {
             this.state.scrollX = this.state.scrollX - Math.abs(boundsAfter.widthMin - boundsBefore.widthMin)
@@ -141,17 +145,17 @@ export class BoardView extends React.Component<{
         this.setState(this.state)
     }
 
-    handleOnWheel(e: React.WheelEvent) {
+    handleOnWheel = (e: React.WheelEvent) => {
         var sign = e.deltaY / Math.abs(e.deltaY)
         this.state.zoom = Math.max(0.2, Math.min(this.state.zoom - (sign * 0.1), 2.5))
         this.setState(this.state)
     }
 
-    startDrag(e: React.MouseEvent) {
+    startDrag = (e: React.MouseEvent) => {
         this.state.dragPosition = {x: e.clientX, y: e.clientY}
     }
 
-    handleDrag(e: React.MouseEvent) {
+    handleDrag = (e: React.MouseEvent) => {
         if(!this.state.dragPosition) {
             return
         }
@@ -165,7 +169,7 @@ export class BoardView extends React.Component<{
         this.setState(this.state)
     }
 
-    endDrag(e: React.MouseEvent) {
+    endDrag = (e: React.MouseEvent) => {
         this.state.dragPosition = null
         window.setTimeout(
             () => {
@@ -175,30 +179,30 @@ export class BoardView extends React.Component<{
         )
     }
 
-    handleCenterBoardClick() {
+    handleCenterBoardButtonClick = () => {
         this.centerBoard()
     }
 
-    handleResetZoomClick() {
+    handleResetZoomButtonClicked = () => {
         this.state.zoom = 1
         this.setState(this.state)
     }
 
-    handleToggleGrid() {
+    handleToggleGridButtonClicked = () => {
         this.state.showGrid = !this.state.showGrid
         this.setState(this.state)
     }
 
-    handleStartGameButtonClick() {
-        var startGameButtonClickedEvent = new GM.StartGameButtonClickedEvent()
-        GM.GameManager.startGameButtonClicked(startGameButtonClickedEvent)
+    handleEndTurnButtonClicked = () => {
+        var endTurnButtonClickedEvent = new GM.EndTurnButtonClickedEvent(this.props.activePlayerId)
+        GM.GameManager.endTurnButtonClicked(endTurnButtonClickedEvent)
     }
 
     render() {
-        var tiles = this.props.board.tiles
-        var unexplored = this.props.board.unexplored
+        var tiles = this.props.boardModel.tiles
+        var unexplored = this.props.boardModel.unexplored
         var paths: any[] = []
-        var boardSize = this.getBoardPxSize(BoardManager.getBounds(this.props.board.unexplored))
+        var boardSize = this.getBoardPxSize(BoardManager.getBounds(this.props.boardModel.unexplored))
         
         var selectedTileX = ""
         var selectedTileY = ""
@@ -218,7 +222,7 @@ export class BoardView extends React.Component<{
                         tile={tiles[xIndex][yIndex]}
                         className={classNameStart + classNameSelected}
                         path={path}
-                        onClick={this.handleExploredTileClick}
+                        onClick={this.handleExploredTileClicked}
                         height={this.props.tileHeight}
                         width={this.props.tileWidth}
                         key={xIndex + "_" + yIndex}
@@ -259,10 +263,10 @@ export class BoardView extends React.Component<{
         return (
             <div id="view-board" className="view">
                 <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
-                <Button text="Reset Zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomClick.bind(this)}></Button>
-                <Button text="Reset Board Position" id="board-reset-position-button" onClick={this.handleCenterBoardClick.bind(this)}></Button>
-                <Button text="Toggle Grid" id="board-toggle-grid-button" onClick={this.handleToggleGrid.bind(this)}></Button>
-                <Button text="Start Game" id="board-start-game-button" onClick={this.handleStartGameButtonClick.bind(this)}></Button>
+                <Button text="Reset Zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomButtonClicked.bind(this)}></Button>
+                <Button text="Reset Board Position" id="board-reset-position-button" onClick={this.handleCenterBoardButtonClick.bind(this)}></Button>
+                <Button text="Toggle Grid" id="board-toggle-grid-button" onClick={this.handleToggleGridButtonClicked.bind(this)}></Button>
+                <Button text="End Turn" id="board-end-turn-button" onClick={this.handleEndTurnButtonClicked.bind(this)}></Button>
                 <div
                     id="board"
                     style={{perspective: boardPerspective}}
@@ -283,13 +287,13 @@ export class BoardView extends React.Component<{
                                 <use
                                     xlinkHref={"#x" + selectedTileX + "y" + selectedTileY}
                                     style={{pointerEvents: "none"}}
-                                    onClick={this.handleExploredTileClick.bind(this)}
+                                    onClick={this.handleExploredTileClicked.bind(this)}
                                     data-x={selectedTileX}
                                     data-y={selectedTileY}/>
                             </g>
                         </svg>
                         <div id="entities">
-                            {this.props.entities.map((entity, index) =>
+                            {this.props.entityModel.entities.map((entity, index) =>
                                 {/* add entities to the board */}
                             )}
                         </div>
