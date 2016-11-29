@@ -30,7 +30,7 @@ export class GameManager {
         EventBusNotifyer.notify(event)
     }
 
-    static createGameFormSubmitted(event: CreateGameFormSubmitted) {
+    static startGameButtonClicked(event: StartGameButtonClicked) {
         // TODO check if player already exists
         EventBusNotifyer.notify(event)
         var nextId = PlayerManager.getNextPlayerId(event.playerModel)
@@ -38,6 +38,9 @@ export class GameManager {
             var newPlayer = new Player(nextId, player.name, player.color)
             var playerCreatedEvent = new PlayerCreatedEvent(newPlayer)
             EventBusNotifyer.notify(playerCreatedEvent)
+            var newEntity = new Entity(nextId, "sapphire", {x: "0", y: "0"}, [])
+            var entityCreatedEvent = new EntityCreatedEvent(newEntity)
+            EventBusNotifyer.notify(entityCreatedEvent)
             nextId += 1
         })
         var startGameEvent = new StartGameEvent()
@@ -159,14 +162,11 @@ export class CreateGameButtonClickedEvent implements EventType {
     isLogged = ()=>{return false}
 }
 
-export class StartGameButtonClicked implements EventType {
-    isLogged = ()=>{return false}
-}
-
 export class StartGameEvent implements EventType {
+    playerModel: PlayerModel
 }
 
-export class CreateGameFormSubmitted implements EventType {
+export class StartGameButtonClicked implements EventType {
     isLogged = ()=>{return false}
     playerModel: PlayerModel
     playerProperties: {name: string, color: string}[]
@@ -185,6 +185,13 @@ export class PlayerCreatedEvent implements EventType {
     }
 }
 
+export class EntityCreatedEvent implements EventType {
+    newEntity: Entity
+
+    constructor(newEntity: Entity) {
+        this.newEntity = newEntity
+    }
+}
 
 export class EndTurnButtonClickedEvent implements EventType {
     triggeringPlayerId: number

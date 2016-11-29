@@ -9,6 +9,7 @@ import {BoardManager} from "../managers/BoardManager"
 import {App} from "../App"
 import {TileView} from "./TileView"
 import {PlayerModel} from "../models/PlayerModel"
+import {EntityView} from "../views/EntityView"
 import * as GM from "../managers/GameManager"
 
 export class BoardView extends React.Component<{
@@ -48,10 +49,24 @@ export class BoardView extends React.Component<{
     }
 
     componentWillMount() {
-        console.log(this.props.playerModel)
         this.centerBoard()
         GM.EventBus.subscribe(this.handleTileAddedEvent)
         GM.EventBus.subscribe(this.setSelectedTile)
+    }
+
+    componentDidMount() {
+        var entities = document.querySelectorAll(".entity")
+        for(var i = 0; i < entities.length; i++) {
+            var x = entities[i].children[0].getAttribute("data-x")
+            var y = entities[i].children[0].getAttribute("data-y")
+            var tile = document.querySelector("[data-x='" + x + "'][data-x='" + y + "']");
+            var top = tile.getBoundingClientRect().top
+            var left = tile.getBoundingClientRect().left;
+            var height = tile.getBoundingClientRect().height;
+            var width = tile.getBoundingClientRect().width;
+            (entities[i] as any).style.transform = "translate(" + (top - height/2) + "px, " + (left + width/2) + "px)";
+        }
+
     }
 
     getTilePath = (x: number, y: number, originLeft: number, originTop: number) => {
@@ -201,7 +216,9 @@ export class BoardView extends React.Component<{
     render() {
         var tiles = this.props.boardModel.tiles
         var unexplored = this.props.boardModel.unexplored
+        var entities = this.props.entityModel.entities
         var paths: any[] = []
+        var entitySvgs: any[] = []
         var boardSize = this.getBoardPxSize(BoardManager.getBounds(this.props.boardModel.unexplored))
         
         var selectedTileX = ""
@@ -249,6 +266,20 @@ export class BoardView extends React.Component<{
                 )
             })
         })
+        Object.keys(entities).map((playerId, index) => {
+            entities[+playerId].map((entity, index) => {
+                entitySvgs.push(
+                    <EntityView
+                        entity={entity}
+                        height={this.props.tileHeight}
+                        width={this.props.tileWidth}
+                        key={index}
+                        x={entity.position.x}
+                        y={entity.position.y}>
+                    </EntityView>
+                )
+            })
+        })
 
         var svgTranslate = this.state.scrollX && this.state.scrollY ? ("translate(" + this.state.scrollX + "px," + this.state.scrollY + "px) ") : ""
         var svgTransform: string = svgTranslate
@@ -262,11 +293,13 @@ export class BoardView extends React.Component<{
 
         return (
             <div id="view-board" className="view">
-                <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
-                <Button text="Reset Zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomButtonClicked.bind(this)}></Button>
-                <Button text="Reset Board Position" id="board-reset-position-button" onClick={this.handleCenterBoardButtonClick.bind(this)}></Button>
-                <Button text="Toggle Grid" id="board-toggle-grid-button" onClick={this.handleToggleGridButtonClicked.bind(this)}></Button>
-                <Button text="End Turn" id="board-end-turn-button" onClick={this.handleEndTurnButtonClicked.bind(this)}></Button>
+                <div id="board-buttons">
+                    <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
+                    <Button text="Reset Zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomButtonClicked.bind(this)}></Button>
+                    <Button text="Reset Board Position" id="board-reset-position-button" onClick={this.handleCenterBoardButtonClick.bind(this)}></Button>
+                    <Button text="Toggle Grid" id="board-toggle-grid-button" onClick={this.handleToggleGridButtonClicked.bind(this)}></Button>
+                    <Button text="End Turn" id="board-end-turn-button" onClick={this.handleEndTurnButtonClicked.bind(this)}></Button>
+                </div>
                 <div
                     id="board"
                     style={{perspective: boardPerspective}}
@@ -292,11 +325,16 @@ export class BoardView extends React.Component<{
                                     data-y={selectedTileY}/>
                             </g>
                         </svg>
-                        <div id="entities">
-                            {this.props.entityModel.entities.map((entity, index) =>
-                                {/* add entities to the board */}
-                            )}
-                        </div>
+                    </div>
+                    <div id="entities">
+                        <svg
+                            id="entities-svg">
+                            <g id="entities-g">
+                                {entitySvgs.map(svg =>
+                                    svg
+                                )}
+                            </g>
+                        </svg>
                     </div>
                 </div>
             </div>

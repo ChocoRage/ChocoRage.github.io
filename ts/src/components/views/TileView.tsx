@@ -35,7 +35,6 @@ export class TileView extends React.Component<{
     render() {
         var img: any
         if (this.props.tile && this.props.tile.type) {
-            // img = require('../../../assets/images/grass0.png')
             img = require('../../../assets/images/' + this.props.tile.type.textureName + this.props.tile.textureVariant + ".png")
         }
         var path = this.props.path

@@ -32,7 +32,7 @@ export class App extends React.Component<{
             currentView: MainMenuView,
             modalViews: [],
             boardModel: null,
-            entityModel: null,
+            entityModel: new EntityModel(),
             playerModel: new PlayerModel(),
             activePlayerId: null,
             eventHistory: new EventHistory()
@@ -43,6 +43,7 @@ export class App extends React.Component<{
         GM.EventBus.subscribe(this.addToEventHistory)
         GM.EventBus.subscribe(this.handleCreateGameButtonClickedEvent)
         GM.EventBus.subscribe(this.handlePlayerCreatedEvent)
+        GM.EventBus.subscribe(this.handleEntityCreatedEvent)
         GM.EventBus.subscribe(this.handleStartGameEvent)
         GM.EventBus.subscribe(this.handleTileAddedEvent)
         GM.EventBus.subscribe(this.handleEndTurnEvent)
@@ -71,6 +72,15 @@ export class App extends React.Component<{
             return
         }
         this.state.playerModel.players.push(event.newPlayer)
+        this.state.entityModel.entities[event.newPlayer.id] = []
+    }
+
+    handleEntityCreatedEvent = (event: GM.EntityCreatedEvent) => {
+        if(!(event instanceof GM.EntityCreatedEvent)) {
+            return
+        }
+        this.state.entityModel.entities[event.newEntity.ownerId].push(event.newEntity)
+        console.log(this.state.entityModel)
     }
 
     handleStartGameEvent = (event: GM.StartGameEvent) => {
@@ -83,7 +93,6 @@ export class App extends React.Component<{
             }
         })
         this.state.boardModel = new BoardModel()
-        this.state.entityModel = new EntityModel()
         this.state.currentView = BoardView
         this.setState(this.state)
     }
