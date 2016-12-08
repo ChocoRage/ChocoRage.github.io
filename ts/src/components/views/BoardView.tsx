@@ -27,7 +27,8 @@ export class BoardView extends React.Component<{
         scrollY: number,
         dragging: boolean,
         dragPosition: {x: number, y: number},
-        showGrid: boolean
+        showGrid: boolean,
+        didMount: boolean
     }> {
 
     constructor() {
@@ -40,7 +41,8 @@ export class BoardView extends React.Component<{
             zoom: 1,
             dragging: false,
             dragPosition: null,
-            showGrid: true
+            showGrid: true,
+            didMount: false
         }
     }
 
@@ -55,18 +57,10 @@ export class BoardView extends React.Component<{
     }
 
     componentDidMount() {
-        var entities = document.querySelectorAll(".entity")
-        for(var i = 0; i < entities.length; i++) {
-            var x = entities[i].children[0].getAttribute("data-x")
-            var y = entities[i].children[0].getAttribute("data-y")
-            var tile = document.querySelector("[data-x='" + x + "'][data-x='" + y + "']");
-            var top = tile.getBoundingClientRect().top
-            var left = tile.getBoundingClientRect().left;
-            var height = tile.getBoundingClientRect().height;
-            var width = tile.getBoundingClientRect().width;
-            (entities[i] as any).style.transform = "translate(" + (top - height/2) + "px, " + (left + width/2) + "px)";
+        if(!this.state.didMount) {
+            this.state.didMount = true
+            this.setState(this.state)
         }
-
     }
 
     getTilePath = (x: number, y: number, originLeft: number, originTop: number) => {
@@ -116,6 +110,9 @@ export class BoardView extends React.Component<{
     }
 
     setSelectedTile = (event: GM.ExploredTileClickedEvent) => {
+        if(!(event instanceof GM.ExploredTileClickedEvent)) {
+            return
+        }
         if(!this.state.selectedTile || this.state.selectedTile.x != +event.target.x || this.state.selectedTile.y != +event.target.y) {
             this.state.selectedTile = {x: +event.target.x, y: +event.target.y}
         } else {
@@ -213,6 +210,35 @@ export class BoardView extends React.Component<{
         GM.GameManager.endTurnButtonClicked(endTurnButtonClickedEvent)
     }
 
+    calculateEntityPosition(entity: Entity): {g: {[cssProperty: string]: string}, image: {[cssProperty: string]: string}} {
+        if(!entity) {
+            return
+        }
+
+        var styleG: {[cssProperty: string]: string} = {}
+        var styleImage: {[cssProperty: string]: string} = {}
+
+        var x = entity.position.x
+        var y = entity.position.y
+        var tileId = "x" + x + "y" + y
+        var tile = document.getElementById(tileId)
+        if(!tile) {
+            return
+        } else {
+            var rect = tile.getBoundingClientRect()
+            var tileHeight = rect.height
+            var tileWidth = rect.width
+            var tileTop = rect.top
+            var tileLeft = rect.left
+            var scale = (tileHeight / this.props.tileHeight).toFixed(5)
+            var entityLeft = tileLeft + (tileWidth / 2)
+            var entityHeight = tileTop + (tileHeight / 2)
+            styleG["transform"] = "translate(" + entityLeft + "px, " + entityHeight + "px) scale(" + scale + ")"
+            styleImage["transform"] = "translate(-50%, -100%)"
+        }
+        return {g: styleG, image: styleImage}
+    }
+
     render() {
         var tiles = this.props.boardModel.tiles
         var unexplored = this.props.boardModel.unexplored
@@ -266,22 +292,27 @@ export class BoardView extends React.Component<{
                 )
             })
         })
-        Object.keys(entities).map((playerId, index) => {
-            entities[+playerId].map((entity, index) => {
-                entitySvgs.push(
-                    <EntityView
-                        entity={entity}
-                        height={this.props.tileHeight}
-                        width={this.props.tileWidth}
-                        key={index}
-                        x={entity.position.x}
-                        y={entity.position.y}>
-                    </EntityView>
-                )
+        if(this.state.didMount) {
+            Object.keys(entities).map((playerId, index) => {
+                entities[+playerId].map((entity, index) => {
+                    var style = this.calculateEntityPosition(entity)
+                    entitySvgs.push(
+                        <EntityView
+                            id={entity.id}
+                            entity={entity}
+                            height={this.props.tileHeight}
+                            width={this.props.tileWidth}
+                            key={index}
+                            x={entity.position.x}
+                            y={entity.position.y}
+                            style={style}>
+                        </EntityView>
+                    )
+                })
             })
-        })
+        }
 
-        var svgTranslate = this.state.scrollX && this.state.scrollY ? ("translate(" + this.state.scrollX + "px," + this.state.scrollY + "px) ") : ""
+        var svgTranslate = this.state.scrollX && this.state.scrollY ? ("translate(" + (this.state.scrollX).toString() + "px," + (this.state.scrollY).toString() + "px) ") : ""
         var svgTransform: string = svgTranslate
 
         var boardPerspective = (400 + 600 * 1/this.state.zoom) + "px"
@@ -290,6 +321,7 @@ export class BoardView extends React.Component<{
         var boardCenter = "translate(-50%, -50%)"
         var boardRotate = " rotateX(40deg)"
         var boardTransform = boardZoom + boardCenter + boardRotate
+        var entitiesTransform = boardZoom + boardCenter
 
         return (
             <div id="view-board" className="view">
@@ -326,16 +358,16 @@ export class BoardView extends React.Component<{
                             </g>
                         </svg>
                     </div>
-                    <div id="entities">
-                        <svg
-                            id="entities-svg">
-                            <g id="entities-g">
-                                {entitySvgs.map(svg =>
-                                    svg
-                                )}
-                            </g>
-                        </svg>
-                    </div>
+                </div>
+                <div id="entities">
+                    <svg
+                        id="entities-svg"
+                        width={window.innerWidth}
+                        height={window.innerHeight}>
+                        {entitySvgs.map(svg =>
+                            svg
+                        )}
+                    </svg>
                 </div>
             </div>
         )

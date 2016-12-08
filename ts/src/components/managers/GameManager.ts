@@ -1,4 +1,4 @@
-import {Entity} from "../models/EntityModel"
+import {Entity, EntityModel} from "../models/EntityModel"
 import {App} from "../App"
 import {TileModel} from "../models/TileModel"
 import {BoardModel} from "../models/BoardModel"
@@ -6,6 +6,7 @@ import {BoardManager} from "./BoardManager"
 import {grass} from "./TileManager"
 import {Player, PlayerModel} from "../models/PlayerModel"
 import {PlayerManager} from "./PlayerManager"
+import {EntityManager} from "./EntityManager"
 
 export class GameManager {
     static unexploredTileClicked(event: UnexploredTileClickedEvent) {
@@ -30,18 +31,19 @@ export class GameManager {
         EventBusNotifyer.notify(event)
     }
 
-    static startGameButtonClicked(event: StartGameButtonClicked) {
+    static startGameButtonClicked(event: StartGameButtonClickedEvent) {
         // TODO check if player already exists
         EventBusNotifyer.notify(event)
-        var nextId = PlayerManager.getNextPlayerId(event.playerModel)
+        var nextPlayerId = PlayerManager.getNextPlayerId(event.playerModel)
+        var nextEntityId = EntityManager.getNextEntityId(event.entityModel)
         event.playerProperties.map(player => {
-            var newPlayer = new Player(nextId, player.name, player.color)
+            var newPlayer = new Player(nextPlayerId, player.name, player.color)
             var playerCreatedEvent = new PlayerCreatedEvent(newPlayer)
             EventBusNotifyer.notify(playerCreatedEvent)
-            var newEntity = new Entity(nextId, "sapphire", {x: "0", y: "0"}, [])
+            var newEntity = new Entity(nextEntityId, nextPlayerId, "sapphire", {x: "0", y: "0"}, [])
             var entityCreatedEvent = new EntityCreatedEvent(newEntity)
             EventBusNotifyer.notify(entityCreatedEvent)
-            nextId += 1
+            nextPlayerId += 1
         })
         var startGameEvent = new StartGameEvent()
         EventBusNotifyer.notify(startGameEvent)
@@ -166,13 +168,15 @@ export class StartGameEvent implements EventType {
     playerModel: PlayerModel
 }
 
-export class StartGameButtonClicked implements EventType {
+export class StartGameButtonClickedEvent implements EventType {
     isLogged = ()=>{return false}
     playerModel: PlayerModel
+    entityModel: EntityModel
     playerProperties: {name: string, color: string}[]
 
-    constructor(playerModel: PlayerModel, playerProperties: {name: string, color: string}[]) {
+    constructor(playerModel: PlayerModel, entityModel: EntityModel, playerProperties: {name: string, color: string}[]) {
         this.playerModel = playerModel
+        this.entityModel = entityModel
         this.playerProperties = playerProperties
     }
 }

@@ -9,13 +9,15 @@ export class EntityModel {
 }
 
 export class Entity {
-    ownerId: number
+    id: number
+    playerId: number
     skinUrl: string
     aspects: EntityAspect[]
     position: {x: string, y: string}
 
-    constructor(ownerId: number, skinUrl: string, position: {x: string, y: string}, aspects?: EntityAspect[]) {
-        this.ownerId = ownerId
+    constructor(id: number, ownerId: number, skinUrl: string, position: {x: string, y: string}, aspects?: EntityAspect[]) {
+        this.id = id
+        this.playerId = ownerId
         this.skinUrl = skinUrl
         this.aspects = aspects || []
         this.position = position

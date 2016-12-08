@@ -79,8 +79,7 @@ export class App extends React.Component<{
         if(!(event instanceof GM.EntityCreatedEvent)) {
             return
         }
-        this.state.entityModel.entities[event.newEntity.ownerId].push(event.newEntity)
-        console.log(this.state.entityModel)
+        this.state.entityModel.entities[event.newEntity.playerId].push(event.newEntity)
     }
 
     handleStartGameEvent = (event: GM.StartGameEvent) => {
@@ -150,6 +149,7 @@ export class App extends React.Component<{
                             <CreateGameModalView
                                 open={modal.open}
                                 playerModel={this.state.playerModel}
+                                entityModel={this.state.entityModel}
                                 key={index}>
                             </CreateGameModalView>
                         )
