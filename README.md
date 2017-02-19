@@ -1,4 +1,4 @@
-# simulacra"
+# simulacra
 
 * npm install -g gulp
 * npm install -g webpack
