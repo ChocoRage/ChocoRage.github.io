@@ -40,9 +40,9 @@ export class GameManager {
             var newPlayer = new Player(nextPlayerId, player.name, player.color)
             var playerCreatedEvent = new PlayerCreatedEvent(newPlayer)
             EventBusNotifyer.notify(playerCreatedEvent)
-            var newEntity = new Entity(nextEntityId, nextPlayerId, "sapphire", {x: "0", y: "0"}, [])
-            var entityCreatedEvent = new EntityCreatedEvent(newEntity)
-            EventBusNotifyer.notify(entityCreatedEvent)
+            // var newEntity = new Entity(nextEntityId, nextPlayerId, "sapphire", {x: "0", y: "0"}, [])
+            // var entityCreatedEvent = new EntityCreatedEvent(newEntity)
+            // EventBusNotifyer.notify(entityCreatedEvent)
             nextPlayerId += 1
         })
         var startGameEvent = new StartGameEvent()
@@ -57,7 +57,7 @@ export class GameManager {
 }
 
 class EventBusNotifyer {
-    // the listeners can be part property of a manager component because they will never be persisted.
+    // the listeners can be property of a manager component because they will never be persisted.
     // every game has to populate the listeners at runtime. loaded games need to go through the event history and execute them serially.
     static listeners: ((eventType: EventType)=>void)[] = []
 

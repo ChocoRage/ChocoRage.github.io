@@ -2,10 +2,14 @@
     "compilerOptions": {
         "outDir": "./dist/",
         "sourceMap": true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "module": "commonjs",
         "target": "es6",
-        "jsx": "react"
+        "jsx": "react",
+        "paths": {
+            "baseUrl": ".",
+            "babylonjs": ["node_modules/babylonjs"]
+        }
     },
     "compileOnSave": true,
     "files": [
