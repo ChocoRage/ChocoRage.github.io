@@ -29,7 +29,7 @@ export class App extends React.Component<{
     constructor(props: any) {
         super(props)
         this.state = {
-            currentView: BoardView,
+            currentView: MainMenuView,
             modalViews: [],
             boardModel: null,
             entityModel: new EntityModel(),
@@ -118,14 +118,7 @@ export class App extends React.Component<{
     }
 
     render() {
-        var view: any       
-        
-        /* ============= quick start ============== */        
-        var color = "ff8800"
-        var name = "player1"
-        var createStartGameButtonClickEvent = new GM.StartGameButtonClickedEvent(this.state.playerModel, this.state.entityModel, [{name: name, color: color}])
-        GM.GameManager.startGameButtonClicked(createStartGameButtonClickEvent)
-
+        var view: any
         switch(this.state.currentView) {
             case BoardView:
                 view = (
@@ -165,7 +158,6 @@ export class App extends React.Component<{
                 }
             })
         }
-
         return  (
             <div id="app-container">
                 {modalViews}

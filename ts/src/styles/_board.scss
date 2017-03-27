@@ -1,64 +1,56 @@
 @import "_variables.scss";
 @import "_animations.scss";
 
-#renderCanvas {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+#board {
+    text-align: center;
     height: 100%;
-    width: 100%;
+
+    &-center {
+        position: relative;
+        display: inline-block;
+        top: 50%;
+        width: 10px;
+        height: 10px;
+    }
+
+    &-svg {
+        position: relative;
+    }
 }
 
-// #board {
-//     text-align: center;
-//     height: 100%;
+#entities {
+    position: absolute;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
 
-//     &-center {
-//         position: relative;
-//         display: inline-block;
-//         top: 50%;
-//         width: 10px;
-//         height: 10px;
-//     }
+    &-center {
+        position: relative;
+        display: inline-block;
+        top: 50%;
+        width: 10px;
+        height: 10px;
+    }
 
-//     &-svg {
-//         position: relative;
-//     }
-// }
+    &-svg {
+        position: relative;
+    }
+}
 
-// #entities {
-//     position: absolute;
-//     text-align: center;
-//     height: 100%;
-//     width: 100%;
-//     top: 0;
-//     left: 0;
-//     pointer-events: none;
+#entities-svg {
 
-//     &-center {
-//         position: relative;
-//         display: inline-block;
-//         top: 50%;
-//         width: 10px;
-//         height: 10px;
-//     }
+    svg {
+        height: 100%;
+        width: 100%;
 
-//     &-svg {
-//         position: relative;
-//     }
-// }
-
-// g.entity {
-//     position: absolute;
-// }
-
-// div.entity-div {
-//     position: absolute;
-//     display: inline-block;
-//     transform: translate(-50%, -100%);
-// }
+        g.entity {
+            position: absolute;
+        }
+    }
+}
 
 #board-buttons {
     position: absolute;
