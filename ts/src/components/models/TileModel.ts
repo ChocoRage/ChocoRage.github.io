@@ -3,6 +3,7 @@ export class TileModel {
     textureVariant: number
     x: string
     y: string
+    controllingPlayerId: number
 
     constructor(x: string, y: string, type?: TileType, textureVariant?: number) {
         this.x = x

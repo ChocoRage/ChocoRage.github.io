@@ -17,3 +17,25 @@ $stroke-width: 15px;
         stroke-width: 15px;
     }
 }
+
+
+@keyframes tileRevealMode {
+    0% {
+        fill: $color-tile-unexplored;
+    }
+    50% {
+        fill: $color-tile-unexplored-reveal;
+    }
+    100% {
+        fill: $color-tile-unexplored;
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}

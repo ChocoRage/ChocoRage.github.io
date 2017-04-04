@@ -93,6 +93,37 @@
     }
 }
 
+#game-buttons {
+    position: absolute;
+    display: inline-block;
+    vertical-align: top;
+    bottom: 25px;
+    left: 25px;
+    z-index: 1;
+    user-select: none;
+
+    button:not(:last-child) {
+        display: block;
+        margin-bottom: 20px;
+    }
+
+}
+
+#board-reveal-button {
+    bottom: 0;
+    background-image: url("../../assets/images/lookingglass.png");
+    background-position: center;
+    background-size: 50px auto;
+    background-repeat: no-repeat;
+    height: 70px;
+    width: 70px;
+    text-align: center;
+    padding: 0.3em;
+    border-radius: 100%;
+    line-height: 5.5;
+    color: $color-text;
+}
+
 .tile {
     pointer-events: all;
     cursor: pointer;
@@ -134,10 +165,17 @@
     }
 
     &.unexplored {
-        fill: $color-board-bgr - #111;
+        fill: $color-tile-unexplored;
+        cursor: default;
+        animation: none;
+
+        &.reveal-mode {
+            cursor: pointer;
+            animation: tileRevealMode 2s linear infinite;
+        }
 
         &:hover {
-            fill: #666;
+            fill: $color-tile-unexplored-hover;
         }
     }
 

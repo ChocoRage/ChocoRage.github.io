@@ -46,7 +46,10 @@ export class App extends React.Component<{
         GM.EventBus.subscribe(this.handleEntityCreatedEvent)
         GM.EventBus.subscribe(this.handleStartGameEvent)
         GM.EventBus.subscribe(this.handleTileAddedEvent)
-        GM.EventBus.subscribe(this.handleEndTurnEvent)
+
+        /* DELETEME */
+        var createStartGameEvent = new GM.StartGameEvent(this.state.playerModel, this.state.entityModel, [{name: "player1", color: "#ff0088"}])
+        GM.GameManager.startGame(createStartGameEvent)
     }
 
     /* ========================================================================= */
@@ -101,20 +104,6 @@ export class App extends React.Component<{
             return
         }
         this.state.boardModel = event.boardModel
-    }
-
-    handleEndTurnEvent = (event: GM.EndTurnEvent) => {
-        if(!(event instanceof GM.EndTurnEvent)) {
-            return
-        }
-        var currentPlayerIndex: number
-        for(var i = 0; i < this.state.playerModel.players.length; i++) {
-            if(this.state.activePlayerId == this.state.playerModel.players[i].id) {
-                currentPlayerIndex = i
-                break
-            }
-        }
-        this.state.activePlayerId = (currentPlayerIndex + 1) % this.state.playerModel.players.length
     }
 
     render() {

@@ -27,11 +27,6 @@ export class GameManager {
     }
 
     static startGame(event: StartGameEvent) {
-        // TODO if game already started, return
-        EventBusNotifyer.notify(event)
-    }
-
-    static startGameButtonClicked(event: StartGameButtonClickedEvent) {
         // TODO check if player already exists
         EventBusNotifyer.notify(event)
         var nextPlayerId = PlayerManager.getNextPlayerId(event.playerModel)
@@ -40,19 +35,13 @@ export class GameManager {
             var newPlayer = new Player(nextPlayerId, player.name, player.color)
             var playerCreatedEvent = new PlayerCreatedEvent(newPlayer)
             EventBusNotifyer.notify(playerCreatedEvent)
-            var newEntity = new Entity(nextEntityId, nextPlayerId, "sapphire", {x: "0", y: "0"}, [])
-            var entityCreatedEvent = new EntityCreatedEvent(newEntity)
-            EventBusNotifyer.notify(entityCreatedEvent)
+            // var newEntity = new Entity(nextEntityId, nextPlayerId, "", {x: "0", y: "0"}, [])
+            // var entityCreatedEvent = new EntityCreatedEvent(newEntity)
+            // EventBusNotifyer.notify(entityCreatedEvent)
             nextPlayerId += 1
         })
-        var startGameEvent = new StartGameEvent()
+        var startGameEvent = new StartGameEvent(event.playerModel, event.entityModel, event.playerProperties)
         EventBusNotifyer.notify(startGameEvent)
-    }
-
-    static endTurnButtonClicked(event: EndTurnButtonClickedEvent) {
-        EventBusNotifyer.notify(event)
-        var endTurnEvent = new EndTurnEvent(event.triggeringPlayerId)
-        EventBusNotifyer.notify(endTurnEvent)
     }
 }
 
@@ -165,10 +154,6 @@ export class CreateGameButtonClickedEvent implements EventType {
 }
 
 export class StartGameEvent implements EventType {
-    playerModel: PlayerModel
-}
-
-export class StartGameButtonClickedEvent implements EventType {
     isLogged = ()=>{return false}
     playerModel: PlayerModel
     entityModel: EntityModel
@@ -196,23 +181,6 @@ export class EntityCreatedEvent implements EventType {
         this.newEntity = newEntity
     }
 }
-
-export class EndTurnButtonClickedEvent implements EventType {
-    triggeringPlayerId: number
-
-    constructor(triggeringPlayerId: number) {
-        this.triggeringPlayerId = triggeringPlayerId
-    }
-}
-
-export class EndTurnEvent implements EventType {
-    triggeringPlayerId: number
-
-    constructor(triggeringPlayerId: number) {
-        this.triggeringPlayerId = triggeringPlayerId
-    }
-}
-
 
 /* ================= Executors =================*/
 /* Executors have methods that affect the game, such as the board, the entities or anything else that can be mutated.

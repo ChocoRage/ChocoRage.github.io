@@ -21,13 +21,13 @@ export class CreateGameModalView extends React.Component<{
         }
     }
 
-    handleStartGameButtonClicked = (e: any) => {
+    handleStartGame = (e: any) => {
         // TODO make color chooser
         // TODO make option to add multiple players
         var color = "ff8800"
         var name = this.state.nameInput
-        var createStartGameButtonClickEvent = new GM.StartGameButtonClickedEvent(this.props.playerModel, this.props.entityModel, [{name: name, color: color}])
-        GM.GameManager.startGameButtonClicked(createStartGameButtonClickEvent)
+        var createStartGameEvent = new GM.StartGameEvent(this.props.playerModel, this.props.entityModel, [{name: name, color: color}])
+        GM.GameManager.startGame(createStartGameEvent)
         e.preventDefault()
     }
 
@@ -38,7 +38,7 @@ export class CreateGameModalView extends React.Component<{
     render() {
         return (
             <div id="create-player-screen" className="modal">
-                <form action="" onSubmit={this.handleStartGameButtonClicked.bind(this)} id="create-player-form" className="form form-modal">
+                <form action="" onSubmit={this.handleStartGame.bind(this)} id="create-player-form" className="form form-modal">
                     <TextInput id="player-name-input" onChange={this.handleNameInputChange.bind(this)}></TextInput>
                     <Button text="Start!" id="start-game-button"></Button>
                 </form>

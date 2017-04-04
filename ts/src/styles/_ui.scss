@@ -5,8 +5,9 @@
     border: none;
     outline: none;
     color: $color-highlight;
-    background-color: $color-base;
+    background-color: rgba($color-button-r, $color-button-g, $color-button-b, .5);
     padding: 0.5em;
+    box-shadow: 0 0 15px -2px #eee inset;
     
     &:not([disabled]) {
         cursor: pointer;
@@ -15,5 +16,24 @@
             background-color: $color-highlight;
             color: $color-base;
         }
+    }
+
+    &.button-active {
+        background-color: $color-highlight;
+        color: $color-base;
+    }
+
+    & .button-active-indicator {
+        display: block;
+        width: 90%;
+        height: 90%;
+        border: 8px dotted rgba(62, 96, 11, 0.7);
+        border-radius: 100%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: 50% 50%;
+        transform: translate(-50%,-50%);
+        animation: spin 5s linear infinite;
     }
 }

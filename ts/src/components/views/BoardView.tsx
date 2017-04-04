@@ -28,7 +28,8 @@ export class BoardView extends React.Component<{
         dragging: boolean,
         dragPosition: {x: number, y: number},
         showGrid: boolean,
-        didMount: boolean
+        didMount: boolean,
+        revealTileMode: boolean
     }> {
 
     constructor() {
@@ -42,7 +43,8 @@ export class BoardView extends React.Component<{
             dragging: false,
             dragPosition: null,
             showGrid: true,
-            didMount: false
+            didMount: false,
+            revealTileMode: false
         }
     }
 
@@ -61,6 +63,11 @@ export class BoardView extends React.Component<{
             this.state.didMount = true
             this.setState(this.state)
         }
+        window.addEventListener("keydown", (e) => {
+            if(e.code == "Escape") {
+                this.handleEscKeyPressed()
+            }
+        })
     }
 
     getTilePath = (x: number, y: number, originLeft: number, originTop: number) => {
@@ -129,7 +136,7 @@ export class BoardView extends React.Component<{
     }
 
     handleUnexploredTileClick = (tile: TileModel) => {
-        if(this.state.dragging) {
+        if(this.state.dragging || !this.state.revealTileMode) {
             return
         }
         var tileClickEvent = new GM.UnexploredTileClickedEvent(this.props.activePlayerId, tile, this.props.boardModel)
@@ -205,11 +212,6 @@ export class BoardView extends React.Component<{
         this.setState(this.state)
     }
 
-    handleEndTurnButtonClicked = () => {
-        var endTurnButtonClickedEvent = new GM.EndTurnButtonClickedEvent(this.props.activePlayerId)
-        GM.GameManager.endTurnButtonClicked(endTurnButtonClickedEvent)
-    }
-
     calculateEntityPosition(entity: Entity): {g: {[cssProperty: string]: string}, image: {[cssProperty: string]: string}} {
         if(!entity) {
             return
@@ -237,6 +239,16 @@ export class BoardView extends React.Component<{
             styleImage["transform"] = "translate(-50%, -100%)"
         }
         return {g: styleG, image: styleImage}
+    }
+
+    handleRevealTileButtonClicked = (e: MouseEvent) => {
+        this.state.revealTileMode = !this.state.revealTileMode
+        this.setState(this.state)
+    }
+
+    handleEscKeyPressed = () => {
+        this.state.revealTileMode = false;
+        this.setState(this.state)
     }
 
     render() {
@@ -281,7 +293,7 @@ export class BoardView extends React.Component<{
                 paths.push(
                     <TileView
                         tile={unexplored[xIndex][yIndex]}
-                        className={"tile unexplored" + classNameStart}
+                        className={"tile unexplored" + classNameStart + (this.state.revealTileMode ? " reveal-mode": "")}
                         path={path}
                         onClick={this.handleUnexploredTileClick}
                         height={this.props.tileHeight}
@@ -319,18 +331,20 @@ export class BoardView extends React.Component<{
 
         var boardZoom = "scale(" + this.state.zoom + ") "
         var boardCenter = "translate(-50%, -50%)"
-        var boardRotate = " rotateX(40deg)"
+        var boardRotate = " rotateX(30deg)"
         var boardTransform = boardZoom + boardCenter + boardRotate
-        var entitiesTransform = boardZoom + boardCenter
+        // var entitiesTransform = boardZoom + boardCenter
 
         return (
-            <div id="view-board" className="view">
-                <div id="board-buttons">
+            <div id="view-board" className={"view" + (this.state.revealTileMode ? " reveal-mode": "")}>
+                {/*<div id="board-buttons">
                     <Button text="Main Menu" id="board-main-menu-button" onClick={this.handleMenuClick.bind(this)}></Button>
                     <Button text="Reset Zoom" id="board-reset-zoom-button" onClick={this.handleResetZoomButtonClicked.bind(this)}></Button>
                     <Button text="Reset Board Position" id="board-reset-position-button" onClick={this.handleCenterBoardButtonClick.bind(this)}></Button>
                     <Button text="Toggle Grid" id="board-toggle-grid-button" onClick={this.handleToggleGridButtonClicked.bind(this)}></Button>
-                    <Button text="End Turn" id="board-end-turn-button" onClick={this.handleEndTurnButtonClicked.bind(this)}></Button>
+                </div>*/}
+                <div id="game-buttons">
+                    <Button text="" id="board-reveal-button" onClick={this.handleRevealTileButtonClicked.bind(this)} active={this.state.revealTileMode}></Button>
                 </div>
                 <div
                     id="board"
@@ -358,16 +372,6 @@ export class BoardView extends React.Component<{
                             </g>
                         </svg>
                     </div>
-                </div>
-                <div id="entities">
-                    <svg
-                        id="entities-svg"
-                        width={window.innerWidth}
-                        height={window.innerHeight}>
-                        {entitySvgs.map(svg =>
-                            svg
-                        )}
-                    </svg>
                 </div>
             </div>
         )

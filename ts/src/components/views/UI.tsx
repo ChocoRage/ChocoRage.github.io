@@ -5,7 +5,8 @@ export class Button extends React.Component<{
         disabled?: boolean,
         onClick?: ()=>{},
         id?: string,
-        className?: string
+        className?: string,
+        active?: boolean
     }, {}> {
     constructor(props: any) {
         super(props)
@@ -20,8 +21,11 @@ export class Button extends React.Component<{
             <button
                 id={this.props.id}
                 onClick={typeof this.props.onClick == "function" ? this.handleOnClick.bind(this) : null}
-                className={"button" + (this.props.className ? " " + this.props.className : "")}>
+                className={"button" + (this.props.className ? " " + this.props.className : "") + (this.props.active ? " button-active" : "")}>
                     {this.props.text}
+                    {this.props.active ? 
+                        <span className="button-active-indicator"/> : null
+                    }
             </button>
         )
     }
