@@ -1,10 +1,10 @@
 import {BoardManager} from "../managers/BoardManager"
-import {TileModel, TileType} from './TileModel'
-import {grass} from "../managers/TileManager"
+import {Tile, TileType} from './TileModel'
+import {grass} from "../database/Database"
 
 export class BoardModel {
-    tiles: {[x: string]: {[y: string]: TileModel}}
-    unexplored: {[x: string]: {[y: string]: TileModel}}
+    tiles: {[x: string]: {[y: string]: Tile}}
+    unexplored: {[x: string]: {[y: string]: Tile}}
     // private bounds: {widthMin: number, widthMax: number, heightMin: number, heightMax: number}
 
     constructor(json?: string) {
@@ -14,7 +14,7 @@ export class BoardModel {
         }
 
         // <REMOVE ME>
-        this.tiles["0"]["0"] =  new TileModel("0", "0", grass)
+        this.tiles["0"]["0"] =  new Tile("0", "0", grass)
         this.unexplored = BoardManager.getUnexploredAdjacentTiles(this.tiles, "0", "0")
         // </REMOVE ME>
     }

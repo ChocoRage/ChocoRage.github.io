@@ -4,23 +4,15 @@ import {MainMenuView} from "./views/MainMenuView"
 import {BoardView} from "./views/BoardView"
 import {BoardModel} from "./models/BoardModel"
 import {EntityModel} from "./models/EntityModel"
-import {PlayerModel} from "./models/PlayerModel"
+import {PlayerModel, Player} from "./models/PlayerModel"
 import {BoardManager} from "./managers/BoardManager"
-import {TileModel} from "./models/TileModel"
+import {Tile} from "./models/TileModel"
 import {CreateGameModalView} from "./views/CreateGameView"
-import {EventHistory} from "./models/GameModel"
+import {EventHistory, EventType, GameState} from "./models/GameModel"
 import * as GM from "./managers/GameManager"
 
 export class App extends React.Component<{
-    }, {
-        currentView: any,
-        modalViews: any[],
-        boardModel: BoardModel,
-        entityModel: EntityModel,
-        playerModel: PlayerModel,
-        activePlayerId: number,
-        eventHistory: EventHistory
-    }> {
+    }, GameState> {
 
     tileHeight = 300
     tileWidth = Math.ceil(Math.cos(Math.PI/6) * this.tileHeight)
@@ -28,35 +20,27 @@ export class App extends React.Component<{
 
     constructor(props: any) {
         super(props)
-        this.state = {
-            currentView: MainMenuView,
-            modalViews: [],
-            boardModel: null,
-            entityModel: new EntityModel(),
-            playerModel: new PlayerModel(),
-            activePlayerId: null,
-            eventHistory: new EventHistory()
-        }
+        this.state = new GameState()
     }
 
     componentDidMount() {
         GM.EventBus.subscribe(this.addToEventHistory)
         GM.EventBus.subscribe(this.handleCreateGameButtonClickedEvent)
         GM.EventBus.subscribe(this.handlePlayerCreatedEvent)
-        GM.EventBus.subscribe(this.handleEntityCreatedEvent)
         GM.EventBus.subscribe(this.handleStartGameEvent)
         GM.EventBus.subscribe(this.handleTileAddedEvent)
 
         /* DELETEME */
-        var createStartGameEvent = new GM.StartGameEvent(this.state.playerModel, this.state.entityModel, [{name: "player1", color: "#ff0088"}])
-        GM.GameManager.startGame(createStartGameEvent)
+        GM.GameManager.init()
+        GM.GameManager.addPlayer(new GM.AddPlayerEvent(new Player("#000", "p1")))
+        GM.GameManager.startGame()
     }
 
-    /* ========================================================================= */
-    /* ======================== Event Bus Subscriptions ======================== */
-    /* ========================================================================= */
-    addToEventHistory = (event: GM.EventType) => {
-        // TODO if events are loaded by savegame, don't register them again
+/* =================================================================================================================================== */
+/* ======================== Event Bus Subscriptions ================================================================================== */
+/* =================================================================================================================================== */
+    addToEventHistory = (event: EventType) => {
+        // TODO if events are loaded from a savegame, don't register them again
         if(event.isLogged && typeof event.isLogged == "function" && event.isLogged()) {
             this.state.eventHistory.events.push(event)
         }
@@ -70,23 +54,15 @@ export class App extends React.Component<{
         this.setState(this.state)
     }
 
-    handlePlayerCreatedEvent = (event: GM.PlayerCreatedEvent) => {
-        if(!(event instanceof GM.PlayerCreatedEvent)) {
+    handlePlayerCreatedEvent = (event: GM.PlayerAddedEvent) => {
+        if(!(event instanceof GM.PlayerAddedEvent)) {
             return
         }
-        this.state.playerModel.players.push(event.newPlayer)
-        this.state.entityModel.entities[event.newPlayer.id] = []
+        this.state.playerModel = event.newPlayerModel
     }
 
-    handleEntityCreatedEvent = (event: GM.EntityCreatedEvent) => {
-        if(!(event instanceof GM.EntityCreatedEvent)) {
-            return
-        }
-        this.state.entityModel.entities[event.newEntity.playerId].push(event.newEntity)
-    }
-
-    handleStartGameEvent = (event: GM.StartGameEvent) => {
-        if(!(event instanceof GM.StartGameEvent)) {
+    handleStartGameEvent = (event: GM.GameStartedEvent) => {
+        if(!(event instanceof GM.GameStartedEvent)) {
             return
         }
         this.state.modalViews.map((modals, index) => {
@@ -94,7 +70,6 @@ export class App extends React.Component<{
                 this.state.modalViews.splice(index, 1)
             }
         })
-        this.state.boardModel = new BoardModel()
         this.state.currentView = BoardView
         this.setState(this.state)
     }
@@ -104,7 +79,9 @@ export class App extends React.Component<{
             return
         }
         this.state.boardModel = event.boardModel
+        this.setState(this.state)
     }
+/* =================================================================================================================================== */
 
     render() {
         var view: any
@@ -112,13 +89,11 @@ export class App extends React.Component<{
             case BoardView:
                 view = (
                     <BoardView
-                        boardModel={this.state.boardModel}
-                        entityModel={this.state.entityModel}
-                        playerModel={this.state.playerModel}
                         tileHeight={this.tileHeight}
                         tileWidth={this.tileWidth}
                         tileSpacing={this.tileSpacing}
-                        activePlayerId={this.state.activePlayerId}/>
+                        tiles={this.state.boardModel.tiles}
+                        unexplored={this.state.boardModel.unexplored}/>
                 )
                 break;
             default: break;
@@ -137,8 +112,6 @@ export class App extends React.Component<{
                         modalViews.push(
                             <CreateGameModalView
                                 open={modal.open}
-                                playerModel={this.state.playerModel}
-                                entityModel={this.state.entityModel}
                                 key={index}>
                             </CreateGameModalView>
                         )

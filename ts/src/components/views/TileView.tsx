@@ -1,10 +1,10 @@
 /// <reference path="../../../typings/index.d.ts" />
 import * as React from "react";
-import {TileModel} from "../models/TileModel"
+import {Tile} from "../models/TileModel"
 import {EventBus} from "../managers/GameManager"
 
 export class TileView extends React.Component<{
-        tile: TileModel,
+        tile: Tile,
         id?: string,
         className?: string,
         path: {
@@ -15,7 +15,7 @@ export class TileView extends React.Component<{
             bottomleft: {x: number, y: number},
             topLeft: {x: number, y: number}
         },
-        onClick: (tile: TileModel)=>void,
+        onClick: (tile: Tile)=>void,
         height: number,
         width: number,
         showGrid: boolean

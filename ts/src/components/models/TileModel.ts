@@ -1,9 +1,9 @@
-export class TileModel {
+export class Tile {
     type: TileType
     textureVariant: number
     x: string
     y: string
-    controllingPlayerId: number
+    controllingPlayerId: number = -1
 
     constructor(x: string, y: string, type?: TileType, textureVariant?: number) {
         this.x = x

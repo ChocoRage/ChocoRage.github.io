@@ -1,11 +1,9 @@
-import {TileModel} from "../models/TileModel"
-import {TileType} from "../models/TileModel"
-import {grass} from "../managers/TileManager"
+import {Tile} from "../models/TileModel"
 import {BoardModel} from "../models/BoardModel"
 import {EventBus, GameManager} from "./GameManager"
 
 export class BoardManager {
-    static getBounds(tiles: {[x: string]: {[y: string]: TileModel}}) {
+    static getBounds(tiles: {[x: string]: {[y: string]: Tile}}) {
         var widthMax = 0
         var widthMin = 0
         var heightMax = 0
@@ -27,8 +25,8 @@ export class BoardManager {
         }
     }
 
-    static getUnexploredAdjacentTiles(unexplored: {[x: string]: {[y: string]: TileModel}}, x: string, y: string) : {[x: string]: {[y: string]: TileModel}} {
-        var availables: {[x: string]: {[y: string]: TileModel}} = {}
+    static getUnexploredAdjacentTiles(unexplored: {[x: string]: {[y: string]: Tile}}, x: string, y: string) : {[x: string]: {[y: string]: Tile}} {
+        var availables: {[x: string]: {[y: string]: Tile}} = {}
         if(unexplored && unexplored[x] && unexplored[x][y]) {
             var xPlusOne = "" + (+x + 1)
             var xMinusOne = "" + (+x - 1)
@@ -44,42 +42,42 @@ export class BoardManager {
                 if(!availables[xPlusOne]) {
                     availables[xPlusOne] = {}
                 }
-                availables[xPlusOne][y] = new TileModel(""+xPlusOne, ""+y, null)
+                availables[xPlusOne][y] = new Tile(""+xPlusOne, ""+y, null)
             }
             // tile on the bottom right
             if(!unexplored[x] || !unexplored[x][yPlusOne]) {
                 if(!availables[x]) {
                     availables[x] = {}
                 }
-                availables[x][yPlusOne] = new TileModel(""+x, ""+yPlusOne, null)
+                availables[x][yPlusOne] = new Tile(""+x, ""+yPlusOne, null)
             }
             // tile on the bottom left 
             if(!unexplored[xMinusOne] || !unexplored[xMinusOne][yPlusOne]) {
                 if(!availables[xMinusOne]) {
                     availables[xMinusOne] = {}
                 }
-                availables[xMinusOne][yPlusOne] = new TileModel(""+xMinusOne, ""+yPlusOne, null)
+                availables[xMinusOne][yPlusOne] = new Tile(""+xMinusOne, ""+yPlusOne, null)
             }
             // tile on the left 
             if(!unexplored[xMinusOne] || !unexplored[xMinusOne][y]) {
                 if(!availables[xMinusOne]) {
                     availables[xMinusOne] = {}
                 }
-                availables[xMinusOne][y] = new TileModel(""+xMinusOne, ""+y, null)
+                availables[xMinusOne][y] = new Tile(""+xMinusOne, ""+y, null)
             }
             // tile on the top left 
             if(!unexplored[x] || !unexplored[x][yMinusOne]) {
                 if(!availables[x]) {
                     availables[x] = {}
                 }
-                availables[x][yMinusOne] = new TileModel(""+x, ""+yMinusOne, null)
+                availables[x][yMinusOne] = new Tile(""+x, ""+yMinusOne, null)
             }
             // tile on the top right
             if(!unexplored[xPlusOne] || !unexplored[xPlusOne][yMinusOne]) {
                 if(!availables[xPlusOne]) {
                     availables[xPlusOne] = {}
                 }
-                availables[xPlusOne][yMinusOne] = new TileModel(""+xPlusOne, ""+yMinusOne, null)
+                availables[xPlusOne][yMinusOne] = new Tile(""+xPlusOne, ""+yMinusOne, null)
             }
         } else {
             return null

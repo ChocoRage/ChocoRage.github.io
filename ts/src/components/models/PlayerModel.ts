@@ -1,4 +1,5 @@
 import {App} from "../App"
+import {PlayerResource, ResourceType} from "./ResourceModel"
 
 export class PlayerModel {
     players: Player[]
@@ -12,9 +13,9 @@ export class Player {
     id: number
     color: string
     name: string
+    playerResources: {[id: number]: PlayerResource}
 
-    constructor(id: number, color: string, name: string) {
-        this.id = id
+    constructor(color: string, name: string) {
         this.color = color
         this.name = name
     }

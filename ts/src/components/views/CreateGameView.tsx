@@ -1,13 +1,10 @@
 import * as React from "react"
 import {Button, TextInput} from "./UI"
-import {Player, PlayerModel} from "../models/PlayerModel"
-import {EntityModel} from "../models/EntityModel"
+import {Player} from "../models/PlayerModel"
 import * as GM from "../managers/GameManager"
 
 export class CreateGameModalView extends React.Component<{
-        open: boolean,
-        playerModel: PlayerModel,
-        entityModel: EntityModel
+        open: boolean
     },{
         nameInput: string,
         colorInput: string
@@ -26,8 +23,8 @@ export class CreateGameModalView extends React.Component<{
         // TODO make option to add multiple players
         var color = "ff8800"
         var name = this.state.nameInput
-        var createStartGameEvent = new GM.StartGameEvent(this.props.playerModel, this.props.entityModel, [{name: name, color: color}])
-        GM.GameManager.startGame(createStartGameEvent)
+        var addPlayerEvent = new GM.AddPlayerEvent(new Player(color, name))
+        GM.GameManager.startGame()
         e.preventDefault()
     }
 
