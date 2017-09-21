@@ -1,7 +1,5 @@
 import {ResourceType, ResourceModel}  from "../models/ResourceModel"
 
-export const res1 = new ResourceType("res1")
-
 export class ResourceManager {
     static getNextResourceId(resourceModel: ResourceModel): number {
         var currentMaxId = -1

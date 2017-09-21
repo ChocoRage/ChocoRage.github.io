@@ -1,9 +1,9 @@
 import * as React from "react"
 import {Button, TextInput} from "./UI"
 import {Player} from "../models/PlayerModel"
-import * as GM from "../managers/GameManager"
+import {AddPlayerEvent} from "../managers/GameManager"
 
-export class CreateGameModalView extends React.Component<{
+export class CreatePlayerModalView extends React.Component<{
         open: boolean
     },{
         nameInput: string,
@@ -18,13 +18,13 @@ export class CreateGameModalView extends React.Component<{
         }
     }
 
-    handleStartGame = (e: any) => {
+    handleCreatePlayerButtonClicked = (e: any) => {
         // TODO make color chooser
         // TODO make option to add multiple players
         var color = "ff8800"
         var name = this.state.nameInput
-        var addPlayerEvent = new GM.AddPlayerEvent(new Player(color, name))
-        GM.GameManager.startGame()
+        var addPlayerEvent = new AddPlayerEvent(new Player(color, name))
+        
         e.preventDefault()
     }
 
@@ -35,9 +35,9 @@ export class CreateGameModalView extends React.Component<{
     render() {
         return (
             <div id="create-player-screen" className="modal">
-                <form action="" onSubmit={this.handleStartGame.bind(this)} id="create-player-form" className="form form-modal">
+                <form action="" onSubmit={this.handleCreatePlayerButtonClicked.bind(this)} id="create-player-form" className="form form-modal">
                     <TextInput id="player-name-input" onChange={this.handleNameInputChange.bind(this)}></TextInput>
-                    <Button text="Start!" id="start-game-button"></Button>
+                    <Button text="Create Player" id="create-player-button"></Button>
                 </form>
             </div>
         )

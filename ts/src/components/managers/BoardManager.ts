@@ -1,6 +1,6 @@
 import {Tile} from "../models/TileModel"
 import {BoardModel} from "../models/BoardModel"
-import {EventBus, GameManager} from "./GameManager"
+import {EventBus} from "./GameManager"
 
 export class BoardManager {
     static getBounds(tiles: {[x: string]: {[y: string]: Tile}}) {

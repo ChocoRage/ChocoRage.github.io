@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import * as GM from "../managers/GameManager"
+import {EventBus, TileAddedEvent, AddTileEvent} from "../managers/GameManager"
 import {BoardManager} from "../managers/BoardManager"
 
 import {GameState} from "../models/GameModel"
@@ -50,8 +50,7 @@ export class BoardView extends React.Component<{
 
     componentWillMount() {
         this.centerBoard()
-        GM.EventBus.subscribe(this.handleTileAddedEvent)
-        GM.EventBus.subscribe(this.setSelectedTile)
+        EventBus.subscribe(this.handleTileAddedEvent, TileAddedEvent.prototype)
     }
 
     componentDidMount() {
@@ -69,8 +68,8 @@ export class BoardView extends React.Component<{
 /* =================================================================================================================================== */
 /* ======================== Event Bus Subscriptions ================================================================================== */
 /* =================================================================================================================================== */
-    handleTileAddedEvent = (event: GM.TileAddedEvent) => {
-        if(!(event instanceof GM.TileAddedEvent)) {
+    handleTileAddedEvent = (event: TileAddedEvent) => {
+        if(!(event instanceof TileAddedEvent)) {
             return
         }
         var boundsBefore = this.getBoardPxSize(event.boundsBefore)
@@ -141,8 +140,8 @@ export class BoardView extends React.Component<{
         if(this.state.dragging || !this.state.revealTileMode) {
             return
         }
-        var tileClickEvent = new GM.AddTileEvent(tile)
-        GM.GameManager.addTile(tileClickEvent)
+        var tileClickEvent = new AddTileEvent(tile)
+        EventBus.event(tileClickEvent)
     }
 
     setSelectedTile = (tile: Tile) => {

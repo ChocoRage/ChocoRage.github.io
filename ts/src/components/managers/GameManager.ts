@@ -8,21 +8,28 @@ import {PlayerManager} from "./PlayerManager"
 import {ResourceType, PlayerResource, ResourceModel} from "../models/ResourceModel"
 import {EventType, GameState} from "../models/GameModel"
 
-import * as Utils from "../Utils"
+import {cloneObject} from "../util/Utils"
 
 import * as DB from "../database/Database"
 
-export class GameManager {
+class GameManager {
     private static gameState: GameState
 
-    static init(): GameState {
+    static handleEvent(event: EventType): void {
+        console.log((event as any).constructor.name)
+        this["handle" + (event as any).constructor.name](event)
+    }
+
+    static handleInitEvent() {
         GameManager.gameState = new GameState()
 
         GameManager.gameState.boardModel = new BoardModel()
         GameManager.gameState.playerModel = new PlayerModel()
         GameManager.gameState.resourceModel = new ResourceModel()
 
-        return (Utils.cloneObject(GameManager.gameState) as GameState)
+        var initEvent = new InitEvent(GameManager.gameState)
+
+        EventBusNotifyer.notify(initEvent)
     }
 
     static startGame() {
@@ -30,12 +37,12 @@ export class GameManager {
         EventBusNotifyer.notify(gameStartedEvent)
     }
 
-    static addPlayer(event: AddPlayerEvent) {
+    static handleAddPlayerEvent(event: AddPlayerEvent) {
         var nextPlayerId = PlayerManager.getNextPlayerId(GameManager.gameState.playerModel)
         event.newPlayer.id = nextPlayerId
         GameManager.gameState.playerModel.players[nextPlayerId] = event.newPlayer
-        var playerCopy = (Utils.cloneObject(event.newPlayer) as Player)
-        var playerModelCopy = (Utils.cloneObject(GameManager.gameState.playerModel) as PlayerModel)
+        var playerCopy = (cloneObject(event.newPlayer) as Player)
+        var playerModelCopy = (cloneObject(GameManager.gameState.playerModel) as PlayerModel)
         var playerAddedEvent = new PlayerAddedEvent(playerCopy, playerModelCopy)
         EventBusNotifyer.notify(playerAddedEvent)
     }
@@ -48,7 +55,7 @@ export class GameManager {
         var newTile = new Tile(event.target.x, event.target.y, DB.grass)
         var boundsBefore = BoardManager.getBounds(GameManager.gameState.boardModel.unexplored)
         var newBoard = BoardExecutor.addTile(GameManager.gameState.boardModel, newTile)
-        var tileAddedEvent = new TileAddedEvent(GameManager.gameState.playerId, newTile, newBoard, boundsBefore)
+        var tileAddedEvent = new TileAddedEvent(event.triggeringPlayerId, newTile, newBoard, boundsBefore)
         EventBusNotifyer.notify(tileAddedEvent)
     }
 }
@@ -63,6 +70,7 @@ class EventBusNotifyer {
     static listeners: ((eventType: EventType)=>void)[] = []
 
     static notify(eventType: EventType) {
+        // TODO Make broadcasting more efficient. Create a channel for each event type and only notify listeners who are in that channel.
         EventBusNotifyer.listeners.map(cb => {
             cb(eventType)
         })
@@ -70,13 +78,17 @@ class EventBusNotifyer {
 }
 
 export class EventBus {
-    static subscribe(cb: (eventType: EventType)=>void) {
+    static subscribe(cb: (eventType: EventType)=>void, eventType: EventType) {
         EventBusNotifyer.listeners.push(cb)
     }
 
-    static unsubscribe(cb: (eventType: EventType)=>void) {
+    static unsubscribe(cb: (eventType: EventType)=>void, eventType: EventType) {
         var idx = EventBusNotifyer.listeners.indexOf(cb)
         EventBusNotifyer.listeners.splice(idx, 1)
+    }
+
+    static event(event: EventType) {
+        GameManager.handleEvent(event)
     }
 }
 
@@ -84,25 +96,36 @@ export class EventBus {
 /* ======================== Event Types ============================================================================================== */
 /* =================================================================================================================================== */
 
-export class AddTileEvent implements EventType {
+export class InitEvent extends EventType {
+    gameState: GameState
+
+    constructor(gameState?: GameState) {
+        super()
+        this.gameState = gameState
+    }
+}
+
+export class AddTileEvent extends EventType {
     target: Tile
 
     constructor(target?: Tile) {
+        super()
         this.target = target
     }
 }
 
-export class PlayerAddedEvent implements EventType {
+export class PlayerAddedEvent extends EventType {
     newPlayerModel: PlayerModel
     newPlayer: Player
 
     constructor(newPlayer: Player, newPlayerModel: PlayerModel) {
+        super()
         this.newPlayer = newPlayer
         this.newPlayerModel = newPlayerModel
     }
 }
 
-export class TileAddedEvent implements EventType {
+export class TileAddedEvent extends EventType {
     triggeringPlayerId: number
     target: Tile
     boardModel: BoardModel
@@ -114,26 +137,29 @@ export class TileAddedEvent implements EventType {
     }
 
     constructor(triggeringPlayerId: number, target?: Tile, boardModel?: BoardModel, boundsBefore?: {widthMin: number,widthMax: number,heightMin: number,heightMax: number}) {
+        super()
         this.target = target
         this.boardModel = boardModel
         this.boundsBefore = boundsBefore
     }
 }
 
-export class CreateGameButtonClickedEvent implements EventType {
+export class CreateGameButtonClickedEvent extends EventType {
     isLogged = false
 }
 
-export class GameStartedEvent implements EventType {
+export class GameStartedEvent extends EventType {
 
     constructor() {
+        super()
     }
 }
 
-export class AddPlayerEvent implements EventType {
+export class AddPlayerEvent extends EventType {
     newPlayer: Player
 
     constructor(newPlayer: Player) {
+        super()
         this.newPlayer = newPlayer
     }
 }

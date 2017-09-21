@@ -1,10 +1,8 @@
-import {res1} from "../managers/ResourceManager"
-
 export class ResourceModel {
     resourceTypes: {[id: number]: ResourceType} = []
 
     constructor() {
-        this.resourceTypes[0] = res1
+        this.resourceTypes[0] = new ResourceType("res1")
     }
 }
 

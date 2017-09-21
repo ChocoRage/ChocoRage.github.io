@@ -10,17 +10,14 @@ export class EventHistory {
     }
 }
 
-export interface EventType {
+export abstract class EventType {
     triggeringPlayerId?: number
-    isLogged?: boolean
+    isLogged?: boolean = true
 }
 
 export class GameState {
-    currentView: any
-    modalViews: any[]
     boardModel: BoardModel
     playerModel: PlayerModel
     resourceModel: ResourceModel
     eventHistory: EventHistory
-    playerId: number
 }

@@ -2,7 +2,7 @@
 import * as React from "react";
 import {Button} from "./UI"
 import {BoardView} from "./BoardView"
-import * as GM from "../managers/GameManager"
+import {EventBus, CreateGameButtonClickedEvent} from "../managers/GameManager"
 import {PlayerModel} from "../models/PlayerModel"
 
 export class MainMenuView extends React.Component<{
@@ -11,8 +11,8 @@ export class MainMenuView extends React.Component<{
     }> {
 
     handleCreateNewGameButtonClick = () => {
-        var createGameButtonClickedEvent = new GM.CreateGameButtonClickedEvent()
-        GM.GameManager.createGameButtonClicked(createGameButtonClickedEvent)
+        var createGameButtonClickedEvent = new CreateGameButtonClickedEvent()
+        EventBus.event(createGameButtonClickedEvent)
     }
 
     render() {
