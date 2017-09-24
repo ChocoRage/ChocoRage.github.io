@@ -1,4 +1,6 @@
 import {PlayerModel, Player} from "../models/PlayerModel"
+import {PlayerResource} from "../models/ResourceModel"
+import {resourceTypes, energyResource, scoreResource} from "../database/Database"
 
 export class PlayerManager {
     static getNextPlayerId(playerModel: PlayerModel): number {
@@ -9,5 +11,5 @@ export class PlayerManager {
             }
         })
         return currentMaxId + 1
-    }
+    }    
 }

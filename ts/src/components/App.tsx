@@ -2,21 +2,20 @@
 import * as React from "react"
 import {MainMenuView} from "./views/MainMenuView"
 import {BoardView} from "./views/BoardView"
-import {BoardModel} from "./models/BoardModel"
-import {EntityModel} from "./models/EntityModel"
-import {PlayerModel, Player} from "./models/PlayerModel"
-import {BoardManager} from "./managers/BoardManager"
-import {Tile, TileType} from "./models/TileModel"
+import {Player} from "./models/PlayerModel"
+import {TileType} from "./models/TileModel"
 import {CreatePlayerModalView} from "./views/CreatePlayerView"
-import {EventHistory, EventType, GameState} from "./models/GameModel"
-import {EventBus, AddPlayerEvent, PlayerAddedEvent, CreateGameButtonClickedEvent, GameStartedEvent, TileAddedEvent, InitEvent} from "./managers/GameManager"
+import {GameStateModel, GameState} from "./models/GameModel"
+import {ResourceType} from "./models/ResourceModel"
+import {EventBus, AddPlayerEvent, PlayerAddedEvent, CreateGameButtonClickedEvent, StartGameEvent, TileAddedEvent, InitEvent} from "./managers/GameManager"
 
 export class App extends React.Component<{
     }, {
-        gameState: GameState,
+        gameStateModel: GameStateModel,
         currentView: any,
         modalViews: any[],
-        tileTypes: TileType[]
+        tileTypes: TileType[],
+        resourceTypes: ResourceType[]
     }> {
 
     tileHeight = 300
@@ -26,23 +25,25 @@ export class App extends React.Component<{
     constructor(props: any) {
         super(props)
         this.state = {
-            gameState: new GameState(),
+            gameStateModel: new GameStateModel(),
             currentView: BoardView,
             modalViews: [],
-            tileTypes: null
+            tileTypes: null,
+            resourceTypes: null
         }
     }
 
     componentDidMount() {
         EventBus.subscribe(this.handleCreateGameButtonClickedEvent, CreateGameButtonClickedEvent.prototype)
         EventBus.subscribe(this.handlePlayerAddedEvent, PlayerAddedEvent.prototype)
-        EventBus.subscribe(this.handleStartGameEvent, GameStartedEvent.prototype)
+        EventBus.subscribe(this.handleStartGameEvent, StartGameEvent.prototype)
         EventBus.subscribe(this.handleTileAddedEvent, TileAddedEvent.prototype)
         EventBus.subscribe(this.handleInitEvent, InitEvent.prototype)
 
         /* DELETEME */
-        EventBus.event(new InitEvent(null, null))
+        EventBus.event(new InitEvent(null, null, null))
         EventBus.event(new AddPlayerEvent(new Player("#000", "p1")))
+        EventBus.event(new StartGameEvent(null))
     }
 
 /* =================================================================================================================================== */
@@ -53,13 +54,17 @@ export class App extends React.Component<{
         if(!(event instanceof InitEvent)) {
             return
         }
-        this.state.gameState = event.gameState
+        this.state.gameStateModel = event.gameState
         this.state.tileTypes = event.tileTypes
+        this.state.resourceTypes = event.resourceTypes
         this.setState(this.state)
     }
 
     handleCreateGameButtonClickedEvent = (event: CreateGameButtonClickedEvent) => {
         if(!(event instanceof CreateGameButtonClickedEvent)) {
+            return
+        }
+        if(this.state.gameStateModel.gameState == GameState.GamePaused) {
             return
         }
         this.state.modalViews.push({view: CreatePlayerModalView, open: true})
@@ -70,11 +75,11 @@ export class App extends React.Component<{
         if(!(event instanceof PlayerAddedEvent)) {
             return
         }
-        this.state.gameState.playerModel = event.newPlayerModel
+        this.state.gameStateModel.playerModel = event.newPlayerModel
     }
 
-    handleStartGameEvent = (event: GameStartedEvent) => {
-        if(!(event instanceof GameStartedEvent)) {
+    handleStartGameEvent = (event: StartGameEvent) => {
+        if(!(event instanceof StartGameEvent)) {
             return
         }
         this.state.modalViews.map((modals, index) => {
@@ -90,13 +95,13 @@ export class App extends React.Component<{
         if(!(event instanceof TileAddedEvent)) {
             return
         }
-        this.state.gameState.boardModel = event.boardModel
+        this.state.gameStateModel.boardModel = event.boardModel
         this.setState(this.state)
     }
 /* =================================================================================================================================== */
 
     render() {
-        if(!this.state.gameState.boardModel) {
+        if(!this.state.gameStateModel.boardModel) {
             return null
         }
         var view: any
@@ -107,16 +112,18 @@ export class App extends React.Component<{
                         tileHeight={this.tileHeight}
                         tileWidth={this.tileWidth}
                         tileSpacing={this.tileSpacing}
-                        tiles={this.state.gameState.boardModel.tiles}
-                        unexplored={this.state.gameState.boardModel.unexplored}
-                        tileTypes={this.state.tileTypes}/>
+                        tiles={this.state.gameStateModel.boardModel.tiles}
+                        unexplored={this.state.gameStateModel.boardModel.unexplored}
+                        tileTypes={this.state.tileTypes}
+                        resourceTypes={this.state.resourceTypes}
+                        gameStateModel={this.state.gameStateModel}/>
                 )
                 break;
             default: break;
             case MainMenuView:
                 view = (
                     <MainMenuView
-                        playerModel={this.state.gameState.playerModel}/>
+                        playerModel={this.state.gameStateModel.playerModel}/>
                 )
         }
         var modalViews: any

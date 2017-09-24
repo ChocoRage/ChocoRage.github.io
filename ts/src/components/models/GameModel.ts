@@ -1,6 +1,5 @@
 import {BoardModel} from "./BoardModel"
-import {PlayerModel} from "./PlayerModel"
-import {ResourceModel} from "./ResourceModel"
+import {PlayerModel, Player} from "./PlayerModel"
 
 export class EventHistory {
     events: EventType[]
@@ -15,9 +14,15 @@ export abstract class EventType {
     isLogged?: boolean = true
 }
 
-export class GameState {
+export class GameStateModel {
     boardModel: BoardModel
     playerModel: PlayerModel
-    resourceModel: ResourceModel
     eventHistory: EventHistory
+    currentPlayer: Player
+    gameState: GameState
+}
+
+export enum GameState {
+    GamePaused,
+    GameRunning
 }

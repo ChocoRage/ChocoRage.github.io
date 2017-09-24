@@ -13,7 +13,7 @@ export class Player {
     id: number
     color: string
     name: string
-    playerResources: {[id: number]: PlayerResource}
+    playerResources: {[resourceName: string]: PlayerResource}
 
     constructor(color: string, name: string) {
         this.color = color

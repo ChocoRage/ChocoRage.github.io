@@ -2,18 +2,18 @@ $stroke-width: 15px;
 
 @keyframes tileSelected {
     0% {
-        stroke: #aeb;
-        stroke-opacity: .7;
+        stroke: #79D38E;
+        stroke-opacity: .9;
         stroke-width: 15px;
     }
     50% {
         stroke: #8b9;
         stroke-opacity: .5;
-        stroke-width: 10px;
+        stroke-width: 5px;
     }
     100% {
-        stroke: #aeb;
-        stroke-opacity: .7;
+        stroke: #79D38E;
+        stroke-opacity: .9;
         stroke-width: 15px;
     }
 }
@@ -37,5 +37,14 @@ $stroke-width: 15px;
     }
     100% {
         transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes dasharraySpin {
+    0% {
+        stroke-dashoffset: 0;
+    }
+    100% {
+        stroke-dashoffset: -210;
     }
 }

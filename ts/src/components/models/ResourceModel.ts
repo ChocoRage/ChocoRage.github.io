@@ -1,28 +1,19 @@
-export class ResourceModel {
-    resourceTypes: {[id: number]: ResourceType} = []
-
-    constructor() {
-        this.resourceTypes[0] = new ResourceType("res1")
-    }
-}
-
 export class PlayerResource {
-    resourceType: ResourceType
-    amount: number
-    cap: number
+    amount: number = 0
+    cap: number = -1
 
-    constructor(resourceType: ResourceType, amount?: number, cap?: number) {
-        this.resourceType = resourceType
-        this.amount = amount || 0
-        this.cap = cap || 99
+    constructor(amount: number, cap?: number) {
+        this.amount = +amount
+        if(cap) this.cap = cap
     }
 }
 
 export class ResourceType {
-    id: number
     name: string
+    icon: string
     
-    constructor(name: string) {
+    constructor(name: string, icon: string) {
         this.name = name
+        this.icon = icon
     }
 }

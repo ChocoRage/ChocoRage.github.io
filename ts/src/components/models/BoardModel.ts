@@ -1,5 +1,5 @@
 import {BoardManager} from "../managers/BoardManager"
-import {Tile, TileType} from './TileModel'
+import {Tile, TileType} from "./TileModel"
 import {whiteTile} from "../database/Database"
 
 export class BoardModel {

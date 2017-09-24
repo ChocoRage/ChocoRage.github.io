@@ -3,17 +3,18 @@ import {App} from "../App"
 import {Tile, TileType} from "../models/TileModel"
 import {BoardModel} from "../models/BoardModel"
 import {Player, PlayerModel} from "../models/PlayerModel"
+import {ResourceType, PlayerResource} from "../models/ResourceModel"
+import {EventType, GameStateModel, GameState} from "../models/GameModel"
 import {BoardManager} from "./BoardManager"
 import {PlayerManager} from "./PlayerManager"
-import {ResourceType, PlayerResource, ResourceModel} from "../models/ResourceModel"
-import {EventType, GameState} from "../models/GameModel"
+import {ResourceManager} from "./ResourceManager"
 
 import {cloneObject} from "../util/Utils"
 
-import {tileTypes} from "../database/Database"
+import {tileTypes, resourceTypes} from "../database/Database"
 
 class GameManager {
-    private static gameState: GameState
+    private static gameStateModel: GameStateModel
 
     static handleEvent(event: EventType): void {
         console.log((event as any).constructor.name)
@@ -21,29 +22,35 @@ class GameManager {
     }
 
     static handleInitEvent() {
-        GameManager.gameState = new GameState()
+        GameManager.gameStateModel = new GameStateModel()
+        GameManager.gameStateModel.boardModel = new BoardModel()
+        GameManager.gameStateModel.playerModel = new PlayerModel()
+        GameManager.gameStateModel.gameState = GameState.GamePaused
 
-        GameManager.gameState.boardModel = new BoardModel()
-        GameManager.gameState.playerModel = new PlayerModel()
-        GameManager.gameState.resourceModel = new ResourceModel()
-
-        var initEvent = new InitEvent(GameManager.gameState, tileTypes)
+        var initEvent = new InitEvent(GameManager.gameStateModel, tileTypes, resourceTypes)
 
         EventBusNotifyer.notify(initEvent)
     }
 
-    static startGame() {
-        var gameStartedEvent = new GameStartedEvent()
+    static handleStartGameEvent() {
+        GameManager.gameStateModel.gameState = GameState.GameRunning
+        GameManager.gameStateModel.currentPlayer = GameManager.gameStateModel.playerModel.players[0]
+
+        var gameStartedEvent = new StartGameEvent(GameManager.gameStateModel)
+
         EventBusNotifyer.notify(gameStartedEvent)
     }
 
     static handleAddPlayerEvent(event: AddPlayerEvent) {
-        var nextPlayerId = PlayerManager.getNextPlayerId(GameManager.gameState.playerModel)
+        var nextPlayerId = PlayerManager.getNextPlayerId(GameManager.gameStateModel.playerModel)
         event.newPlayer.id = nextPlayerId
-        GameManager.gameState.playerModel.players[nextPlayerId] = event.newPlayer
+        event.newPlayer.playerResources = ResourceManager.getInitialPlayerResources()
+        GameManager.gameStateModel.playerModel.players[nextPlayerId] = event.newPlayer
         var playerCopy = (cloneObject(event.newPlayer) as Player)
-        var playerModelCopy = (cloneObject(GameManager.gameState.playerModel) as PlayerModel)
+        var playerModelCopy = (cloneObject(GameManager.gameStateModel.playerModel) as PlayerModel)
+
         var playerAddedEvent = new PlayerAddedEvent(playerCopy, playerModelCopy)
+
         EventBusNotifyer.notify(playerAddedEvent)
     }
 
@@ -55,10 +62,12 @@ class GameManager {
         // DELETEME
         var newTile = new Tile(event.tile.x, event.tile.y, event.tile.type)
 
-        var boundsBefore = BoardManager.getBounds(GameManager.gameState.boardModel.unexplored)
-        var newBoard = BoardExecutor.addTile(GameManager.gameState.boardModel, newTile)
+        var boundsBefore = BoardManager.getBounds(GameManager.gameStateModel.boardModel.unexplored)
+        var newBoard = BoardExecutor.addTile(GameManager.gameStateModel.boardModel, newTile)
         var boundsAfter = BoardManager.getBounds(newBoard.unexplored)
+
         var tileAddedEvent = new TileAddedEvent(event.triggeringPlayerId, newTile, newBoard, boundsBefore, boundsAfter)
+        
         EventBusNotifyer.notify(tileAddedEvent)
     }
 }
@@ -100,13 +109,15 @@ export class EventBus {
 /* =================================================================================================================================== */
 
 export class InitEvent extends EventType {
-    gameState: GameState
+    gameState: GameStateModel
     tileTypes: TileType[]
+    resourceTypes: ResourceType[]
 
-    constructor(gameState: GameState, tileTypes: TileType[]) {
+    constructor(gameState: GameStateModel, tileTypes: TileType[], resourceTypes: ResourceType[]) {
         super()
         this.gameState = gameState
         this.tileTypes = tileTypes
+        this.resourceTypes = resourceTypes
     }
 }
 
@@ -173,10 +184,12 @@ export class CreateGameButtonClickedEvent extends EventType {
     isLogged = false
 }
 
-export class GameStartedEvent extends EventType {
+export class StartGameEvent extends EventType {
+    gameStateModel: GameStateModel
 
-    constructor() {
+    constructor(gameStateModel: GameStateModel) {
         super()
+        this.gameStateModel = gameStateModel
     }
 }
 
@@ -193,7 +206,7 @@ export class AddPlayerEvent extends EventType {
 /* =================================================================================================================================== */
 /* ======================== Executors ================================================================================================ */
 /* =================================================================================================================================== */
-/* Executors have methods that affect the game, such as the board, the entities or anything else that can be mutated.
+/* Executors have methods that affect the game, such as the board, or anything else that can be mutated.
 Executors are only visible to the Game Manager to make sure no component other than the Game Manager can call these functions. */
 class BoardExecutor {
     static addTile(boardModel: BoardModel, tile: Tile): BoardModel {

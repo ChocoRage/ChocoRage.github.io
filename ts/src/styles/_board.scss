@@ -18,116 +18,106 @@
     }
 }
 
-#entities {
-    position: absolute;
-    text-align: center;
-    height: 100%;
-    width: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-
-    &-center {
-        position: relative;
-        display: inline-block;
-        top: 50%;
-        width: 10px;
-        height: 10px;
-    }
-
-    &-svg {
-        position: relative;
-    }
-}
-
-#entities-svg {
-
-    svg {
-        height: 100%;
-        width: 100%;
-
-        g.entity {
-            position: absolute;
-        }
-    }
-}
-
-#board-buttons {
-    position: absolute;
-    display: inline-block;
-    vertical-align: top;
-    left: 25px;
-    top: 25px;
-    z-index: 1;
-    user-select: none;
-
-    button {
-        display: block;
-        height: $button-size;
-        width: $button-size;
-    }
-}
-
-#board-main-menu-button {
-    top: 25px;
-}
-
-#board-reset-zoom-button {
-    top: 65px;
-}
-
-#board-reset-position-button {
-    top: 105px;
-}
-
-#board-toggle-grid-button {
-    top: 145px;
-}
-
-#board-start-game-button {
-    top: 185px;
-}
-
 #board-g {
     g {
         font-size: 10px;
     }
 }
 
-#game-buttons {
+#game-resources {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+}
+
+.resource {
+    line-height: 25px;
+    padding: 0.5em;
+    border: 2px solid #333;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 1em;
+    
+    &:not(:last-child) {
+        margin-bottom: 1em;
+    }
+
+    &-icon,
+    &-amount {
+        font-size: 1.2em;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    &-icon {
+        margin-right: 0.5em;
+    }
+}
+
+#tile-buttons {
     position: absolute;
     display: flex;
     bottom: 25px;
     left: 25px;
     z-index: 1;
     user-select: none;
+    pointer-events: none;
 
-    button {
-        height: $button-size;
-        width: $button-size;
-        position: relative;
-        border-radius: 100%;
+    .button {
+        &:not(.button-svg) {
+            pointer-events: all;
+            height: $button-size;
+            width: $button-size;
+            position: relative;
+            border-radius: 100%;
+        }
 
-        &:not(:last-child) {
-            margin-right: $button-size;
+        &-svg {
+            background-color: transparent;
+            padding: 0;
+            overflow: visible;
+            box-shadow: none;
+
+            path {
+                pointer-events: all;
+
+                &.button-svg-active {
+                    stroke: #000;
+                    stroke-dasharray: .5 17;
+                    stroke-width: 5;
+                    animation: dasharraySpin 3s linear infinite;
+                }
+            }
+        }
+            
+        &-container {
+            width: $button-size * 1.5;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        &-badge {
+            pointer-events: none;
+            transform: translateY(-1em);
+            
+            &-line {
+                display: inline-block;
+                text-align: center;
+                border: 2px solid #333;
+                border-radius: 100%;
+                background-color: rgba(32,32,32,.7);
+                width: 2em;
+                height: 2em;
+                line-height: 2em;
+
+                &+.button-badge-line {
+                    margin-left: -.4em;
+                }
+            }
         }
     }
-
-}
-
-#board-reveal-button {
-    bottom: 0;
-    background-image: url("../../assets/images/lookingglass.png");
-    background-position: center;
-    background-size: 50px auto;
-    background-repeat: no-repeat;
-    height: 70px;
-    width: 70px;
-    text-align: center;
-    padding: 0.3em;
-    border-radius: 100%;
-    line-height: 5.5;
-    color: $color-text;
 }
 
 .tile {

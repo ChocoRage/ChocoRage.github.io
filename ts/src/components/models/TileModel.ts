@@ -1,3 +1,5 @@
+import {ResourceType} from "./ResourceModel"
+
 export class Tile {
     type: TileType
     textureVariant: number
@@ -16,14 +18,26 @@ export class Tile {
 export class TileType {
     name: string
     color: Color
+    cost?: TileResourceCost[]
     description?: string
     texture?: Texture
 
-    constructor(name: string, color: Color, description?: string, texture?: Texture) {
+    constructor(name: string, color: Color, cost?: TileResourceCost[], description?: string, texture?: Texture) {
         this.name = name
         this.color = color
+        this.cost = cost
         this.description = description
         this.texture = texture
+    }
+}
+
+export class TileResourceCost {
+    resourceType: ResourceType
+    amount: number
+
+    constructor(resourceType: ResourceType, amount: number) {
+        this.resourceType = resourceType
+        this.amount = amount
     }
 }
 

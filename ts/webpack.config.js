@@ -1,4 +1,4 @@
-var autoprefixer = require('autoprefixer');
+var autoprefixer = require("autoprefixer");
 
 module.exports = {
     entry: [
@@ -35,7 +35,7 @@ module.exports = {
         ]
     },
 
-    postcss: [ autoprefixer({ browsers: ['last 2 versions'] }) ],
+    postcss: [ autoprefixer({ browsers: ["last 2 versions"] }) ],
 
     externals: {
         "react": "React",

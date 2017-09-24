@@ -7,7 +7,9 @@ export class Button extends React.Component<{
         id?: string,
         className?: string,
         active?: boolean,
-        style?: {}
+        style?: {},
+        badgeText?: string[],
+        pathProps?: {}
     }, {}> {
     constructor(props: any) {
         super(props)
@@ -18,17 +20,41 @@ export class Button extends React.Component<{
     }
 
     render() {
+        var onClick = typeof this.props.onClick == "function" ? this.handleOnClick.bind(this) : null
+        var className = (this.props.className ? this.props.className : "button") + (this.props.active ? " button-active" : "")
+
         return (
-            <button
-                id={this.props.id}
-                onClick={typeof this.props.onClick == "function" ? this.handleOnClick.bind(this) : null}
-                className={"button" + (this.props.className ? " " + this.props.className : "") + (this.props.active ? " button-active" : "")}
-                style={this.props.style}>
-                    {this.props.text}
-                    {this.props.active ? 
-                        <span className="button-active-indicator"/> : null
-                    }
-            </button>
+            <div className="button-container">
+                {this.props.pathProps ?
+                    <svg className={className} style={this.props.style}>
+                        <path
+                            onClick={onClick}
+                            className={this.props.active ? "button-svg-active": ""}
+                            {...this.props.pathProps}/>
+                    </svg>
+                    :
+                    <button
+                        id={this.props.id}
+                        onClick={onClick}
+                        className={className}
+                        style={this.props.style}>
+                            {this.props.text}
+                            {this.props.active ? 
+                                <span className="button-active-indicator"/> : null
+                            }
+                    </button>
+                }
+                {this.props.badgeText ?
+                    <div className="button-badge">
+                        {this.props.badgeText.map((badgeTextLine, index) => 
+                            <div className="button-badge-line" key={index}>
+                                {badgeTextLine}
+                            </div>
+                        )}
+                    </div>
+                    : null
+                }
+            </div>
         )
     }
 }

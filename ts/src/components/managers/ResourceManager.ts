@@ -1,17 +1,23 @@
-import {ResourceType, ResourceModel}  from "../models/ResourceModel"
+import {PlayerResource} from "../models/ResourceModel"
+import {resourceTypes, energyResource, scoreResource} from "../database/Database"
 
 export class ResourceManager {
-    static getNextResourceId(resourceModel: ResourceModel): number {
-        var currentMaxId = -1
-        Object.keys(resourceModel.resourceTypes).map(resId => {
-            currentMaxId = Math.max(resourceModel.resourceTypes[parseInt(resId)].id, currentMaxId)
+    static getInitialPlayerResources(): {[resourceName: string]: PlayerResource} {
+        var playerResources = {}
+        resourceTypes.map((resourceType) => {
+            switch(resourceType) {
+                case energyResource:
+                playerResources[resourceType.name] = new PlayerResource(10)
+                break
+                case scoreResource:
+                playerResources[resourceType.name] = new PlayerResource(0)
+                break
+                default:
+                playerResources[resourceType.name] = new PlayerResource(0)
+                break
+            }
         })
-        return currentMaxId + 1
-    }
-
-    static addResourceType(resourceType: ResourceType, resourceModel: ResourceModel) {
-        var id = ResourceManager.getNextResourceId(resourceModel)
-        resourceModel.resourceTypes[id] = resourceType
-        resourceType.id = id
+        
+        return playerResources
     }
 }

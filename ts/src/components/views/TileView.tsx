@@ -2,6 +2,7 @@
 import * as React from "react";
 import {Tile} from "../models/TileModel"
 import {EventBus} from "../managers/GameManager"
+import {BoardManager} from "../managers/BoardManager"
 
 export class TileView extends React.Component<{
         tile: Tile,
@@ -12,7 +13,7 @@ export class TileView extends React.Component<{
             topRight: {x: number, y: number},
             bottomRight: {x: number, y: number},
             bottom: {x: number, y: number},
-            bottomleft: {x: number, y: number},
+            bottomLeft: {x: number, y: number},
             topLeft: {x: number, y: number}
         },
         onClick: (tile: Tile)=>void,
@@ -35,15 +36,10 @@ export class TileView extends React.Component<{
     render() {
         var img: any
         if (this.props.tile && this.props.tile.type && this.props.tile.type.texture && this.props.tile.textureVariant) {
-            img = require('../../../assets/images/' + this.props.tile.type.texture.name + this.props.tile.textureVariant + ".png")
+            img = require("../../../assets/images/" + this.props.tile.type.texture.name + this.props.tile.textureVariant + ".png")
         }
         var path = this.props.path
-        var d = "M " + path.top.x + "," + path.top.y
-            + " l " + path.topRight.x + "," + path.topRight.y
-            + " l " + path.bottomRight.x + "," + path.bottomRight.y
-            + " l " + path.bottom.x + "," + path.bottom.y
-            + " l " + path.bottomleft.x + "," + path.bottomleft.y
-            + " l " + path.topLeft.x + "," + path.topLeft.y + "z"
+        var d = BoardManager.getTilePathD(path)
 
         var className = "tile" + (this.props.className ? " " + this.props.className : "") + (this.props.showGrid ? " tile-grid" : "")
         var color = this.props.tile.type ? this.props.tile.type.color : {r: 0, g: 0, b: 0, a: 255}

@@ -84,4 +84,55 @@ export class BoardManager {
         }
         return availables
     }
+
+    static getTileVerticesPositions = (x: number, y: number, originLeft: number, originTop: number, tileHeight: number, tileWidth: number, tileSpacing: number) => {
+        var tileHeight = tileHeight
+        var tileWidth = tileWidth
+        var tileSpacing = tileSpacing
+
+        var offsetX = (tileWidth + tileSpacing)/2
+        var offsetY = tileHeight/4
+
+        var absoluteX = originLeft + x * (tileWidth + tileSpacing) + y * offsetX
+        var absoluteY = originTop + y * (tileHeight + tileSpacing - offsetY)
+
+        return {
+            top: {x: absoluteX, y: absoluteY},
+            topRight: {x: tileWidth/2, y: tileHeight/4},
+            bottomRight: {x: 0, y: tileHeight/2},
+            bottom: {x: -tileWidth/2, y: tileHeight/4},
+            bottomLeft: {x: -tileWidth/2, y: -tileHeight/4},
+            topLeft: {x: 0, y: -tileHeight/2}
+        }
+    }
+
+    static getBoardPxSize = (bounds: {widthMin: number, widthMax: number, heightMin: number, heightMax: number}, tileHeight: number, tileWidth: number, tileSpacing: number) => {
+        var widthMin = (tileWidth + tileSpacing) * (Math.abs(bounds.widthMin) + 1/2)
+        var widthMax = (tileWidth + tileSpacing) * (Math.abs(bounds.widthMax) + 1/2)
+
+        var heightMin = (tileHeight + tileSpacing) * (Math.abs(bounds.heightMin) * 3/4)
+        var heightMax = (tileHeight + tileSpacing) * (Math.abs(bounds.heightMax) * 3/4 + 1)
+
+        return {
+            widthMin: widthMin,
+            widthMax: widthMax,
+            heightMin: heightMin,
+            heightMax: heightMax
+        }
+    }
+
+    static getTilePathD(path: {
+        top: {x: number, y: number},
+        topRight: {x: number, y: number},
+        bottomRight: {x: number, y: number},
+        bottom: {x: number, y: number},
+        bottomLeft: {x: number, y: number},
+        topLeft: {x: number, y: number}}): string {
+            return "M " + path.top.x + "," + path.top.y
+            + " l " + path.topRight.x + "," + path.topRight.y
+            + " l " + path.bottomRight.x + "," + path.bottomRight.y
+            + " l " + path.bottom.x + "," + path.bottom.y
+            + " l " + path.bottomLeft.x + "," + path.bottomLeft.y
+            + " l " + path.topLeft.x + "," + path.topLeft.y + "z"
+    }
 }
