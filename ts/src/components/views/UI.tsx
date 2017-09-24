@@ -6,7 +6,8 @@ export class Button extends React.Component<{
         onClick?: ()=>{},
         id?: string,
         className?: string,
-        active?: boolean
+        active?: boolean,
+        style?: {}
     }, {}> {
     constructor(props: any) {
         super(props)
@@ -21,7 +22,8 @@ export class Button extends React.Component<{
             <button
                 id={this.props.id}
                 onClick={typeof this.props.onClick == "function" ? this.handleOnClick.bind(this) : null}
-                className={"button" + (this.props.className ? " " + this.props.className : "") + (this.props.active ? " button-active" : "")}>
+                className={"button" + (this.props.className ? " " + this.props.className : "") + (this.props.active ? " button-active" : "")}
+                style={this.props.style}>
                     {this.props.text}
                     {this.props.active ? 
                         <span className="button-active-indicator"/> : null

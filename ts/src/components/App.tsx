@@ -6,7 +6,7 @@ import {BoardModel} from "./models/BoardModel"
 import {EntityModel} from "./models/EntityModel"
 import {PlayerModel, Player} from "./models/PlayerModel"
 import {BoardManager} from "./managers/BoardManager"
-import {Tile} from "./models/TileModel"
+import {Tile, TileType} from "./models/TileModel"
 import {CreatePlayerModalView} from "./views/CreatePlayerView"
 import {EventHistory, EventType, GameState} from "./models/GameModel"
 import {EventBus, AddPlayerEvent, PlayerAddedEvent, CreateGameButtonClickedEvent, GameStartedEvent, TileAddedEvent, InitEvent} from "./managers/GameManager"
@@ -15,7 +15,8 @@ export class App extends React.Component<{
     }, {
         gameState: GameState,
         currentView: any,
-        modalViews: any[]
+        modalViews: any[],
+        tileTypes: TileType[]
     }> {
 
     tileHeight = 300
@@ -27,7 +28,8 @@ export class App extends React.Component<{
         this.state = {
             gameState: new GameState(),
             currentView: BoardView,
-            modalViews: []
+            modalViews: [],
+            tileTypes: null
         }
     }
 
@@ -39,7 +41,7 @@ export class App extends React.Component<{
         EventBus.subscribe(this.handleInitEvent, InitEvent.prototype)
 
         /* DELETEME */
-        EventBus.event(new InitEvent())
+        EventBus.event(new InitEvent(null, null))
         EventBus.event(new AddPlayerEvent(new Player("#000", "p1")))
     }
 
@@ -52,6 +54,7 @@ export class App extends React.Component<{
             return
         }
         this.state.gameState = event.gameState
+        this.state.tileTypes = event.tileTypes
         this.setState(this.state)
     }
 
@@ -105,7 +108,8 @@ export class App extends React.Component<{
                         tileWidth={this.tileWidth}
                         tileSpacing={this.tileSpacing}
                         tiles={this.state.gameState.boardModel.tiles}
-                        unexplored={this.state.gameState.boardModel.unexplored}/>
+                        unexplored={this.state.gameState.boardModel.unexplored}
+                        tileTypes={this.state.tileTypes}/>
                 )
                 break;
             default: break;

@@ -1,6 +1,6 @@
 import {App} from "../App"
 
-import {Tile} from "../models/TileModel"
+import {Tile, TileType} from "../models/TileModel"
 import {BoardModel} from "../models/BoardModel"
 import {Player, PlayerModel} from "../models/PlayerModel"
 import {BoardManager} from "./BoardManager"
@@ -10,7 +10,7 @@ import {EventType, GameState} from "../models/GameModel"
 
 import {cloneObject} from "../util/Utils"
 
-import * as DB from "../database/Database"
+import {tileTypes} from "../database/Database"
 
 class GameManager {
     private static gameState: GameState
@@ -27,7 +27,7 @@ class GameManager {
         GameManager.gameState.playerModel = new PlayerModel()
         GameManager.gameState.resourceModel = new ResourceModel()
 
-        var initEvent = new InitEvent(GameManager.gameState)
+        var initEvent = new InitEvent(GameManager.gameState, tileTypes)
 
         EventBusNotifyer.notify(initEvent)
     }
@@ -51,11 +51,14 @@ class GameManager {
         EventBusNotifyer.notify(event)
     }
 
-    static addTile(event: AddTileEvent) {
-        var newTile = new Tile(event.target.x, event.target.y, DB.grass)
+    static handleAddTileEvent(event: AddTileEvent) {
+        // DELETEME
+        var newTile = new Tile(event.tile.x, event.tile.y, event.tile.type)
+
         var boundsBefore = BoardManager.getBounds(GameManager.gameState.boardModel.unexplored)
         var newBoard = BoardExecutor.addTile(GameManager.gameState.boardModel, newTile)
-        var tileAddedEvent = new TileAddedEvent(event.triggeringPlayerId, newTile, newBoard, boundsBefore)
+        var boundsAfter = BoardManager.getBounds(newBoard.unexplored)
+        var tileAddedEvent = new TileAddedEvent(event.triggeringPlayerId, newTile, newBoard, boundsBefore, boundsAfter)
         EventBusNotifyer.notify(tileAddedEvent)
     }
 }
@@ -98,19 +101,21 @@ export class EventBus {
 
 export class InitEvent extends EventType {
     gameState: GameState
+    tileTypes: TileType[]
 
-    constructor(gameState?: GameState) {
+    constructor(gameState: GameState, tileTypes: TileType[]) {
         super()
         this.gameState = gameState
+        this.tileTypes = tileTypes
     }
 }
 
 export class AddTileEvent extends EventType {
-    target: Tile
+    tile: Tile
 
-    constructor(target?: Tile) {
+    constructor(target: Tile) {
         super()
-        this.target = target
+        this.tile = target
     }
 }
 
@@ -135,12 +140,32 @@ export class TileAddedEvent extends EventType {
         heightMin: number,
         heightMax: number
     }
+    boundsAfter: {
+        widthMin: number,
+        widthMax: number,
+        heightMin: number,
+        heightMax: number
+    }
 
-    constructor(triggeringPlayerId: number, target?: Tile, boardModel?: BoardModel, boundsBefore?: {widthMin: number,widthMax: number,heightMin: number,heightMax: number}) {
+    constructor(
+        triggeringPlayerId: number,
+        target?: Tile,
+        boardModel?: BoardModel,
+        boundsBefore?: {
+            widthMin: number,
+            widthMax: number,
+            heightMin: number,
+            heightMax: number},
+        boundsAfter?: {
+            widthMin: number,
+            widthMax: number,
+            heightMin: number,
+            heightMax: number}) {
         super()
         this.target = target
         this.boardModel = boardModel
         this.boundsBefore = boundsBefore
+        this.boundsAfter = boundsAfter
     }
 }
 

@@ -34,8 +34,8 @@ export class TileView extends React.Component<{
 
     render() {
         var img: any
-        if (this.props.tile && this.props.tile.type) {
-            img = require('../../../assets/images/' + this.props.tile.type.textureName + this.props.tile.textureVariant + ".png")
+        if (this.props.tile && this.props.tile.type && this.props.tile.type.texture && this.props.tile.textureVariant) {
+            img = require('../../../assets/images/' + this.props.tile.type.texture.name + this.props.tile.textureVariant + ".png")
         }
         var path = this.props.path
         var d = "M " + path.top.x + "," + path.top.y
@@ -46,10 +46,12 @@ export class TileView extends React.Component<{
             + " l " + path.topLeft.x + "," + path.topLeft.y + "z"
 
         var className = "tile" + (this.props.className ? " " + this.props.className : "") + (this.props.showGrid ? " tile-grid" : "")
+        var color = this.props.tile.type ? this.props.tile.type.color : {r: 0, g: 0, b: 0, a: 255}
+        var fill = "rgba(" + color.r + "," + color.g + "," + color.b + "," + color.a + ")"
 
         return (
-            <g >
-                {this.props.tile && this.props.tile.type ? 
+            <g>
+                {img ? 
                     <image
                         className={"tile-image" + (this.props.className ? " " + this.props.className : "")}
                         xlinkHref={img}
@@ -66,7 +68,8 @@ export class TileView extends React.Component<{
                     className={className}
                     d={d}
                     data-x={this.props.tile.x}
-                    data-y={this.props.tile.y}>
+                    data-y={this.props.tile.y}
+                    fill={fill}>
                 </path>
             </g>
         )

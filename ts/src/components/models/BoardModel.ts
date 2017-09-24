@@ -1,6 +1,6 @@
 import {BoardManager} from "../managers/BoardManager"
 import {Tile, TileType} from './TileModel'
-import {grass} from "../database/Database"
+import {whiteTile} from "../database/Database"
 
 export class BoardModel {
     tiles: {[x: string]: {[y: string]: Tile}}
@@ -14,7 +14,7 @@ export class BoardModel {
         }
 
         // <REMOVE ME>
-        this.tiles["0"]["0"] =  new Tile("0", "0", grass)
+        this.tiles["0"]["0"] =  new Tile("0", "0", whiteTile)
         this.unexplored = BoardManager.getUnexploredAdjacentTiles(this.tiles, "0", "0")
         // </REMOVE ME>
     }

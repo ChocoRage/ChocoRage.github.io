@@ -61,9 +61,10 @@
     z-index: 1;
     user-select: none;
 
-    button:not(:last-child) {
+    button {
         display: block;
-        margin-bottom: 20px;
+        height: $button-size;
+        width: $button-size;
     }
 }
 
@@ -95,16 +96,21 @@
 
 #game-buttons {
     position: absolute;
-    display: inline-block;
-    vertical-align: top;
+    display: flex;
     bottom: 25px;
     left: 25px;
     z-index: 1;
     user-select: none;
 
-    button:not(:last-child) {
-        display: block;
-        margin-bottom: 20px;
+    button {
+        height: $button-size;
+        width: $button-size;
+        position: relative;
+        border-radius: 100%;
+
+        &:not(:last-child) {
+            margin-right: $button-size;
+        }
     }
 
 }
@@ -127,7 +133,7 @@
 .tile {
     pointer-events: all;
     cursor: pointer;
-    fill: transparent;
+    // fill: transparent;
     stroke: transparent;
     stroke-width: 0;
     stroke-linecap: round;
@@ -161,7 +167,7 @@
     }
 
     &:hover {
-        fill: rgba(255, 255, 255, 0.05);
+        opacity: 0.6;
     }
 
     &.unexplored {
