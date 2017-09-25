@@ -5,3 +5,5 @@
 * npm install webpack-dev-server
 * npm install .
 * webpack -dev -server
+
+Test this app: https://chocorage.github.io/
