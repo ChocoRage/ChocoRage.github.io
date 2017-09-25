@@ -80,7 +80,6 @@
 	Object.defineProperty(exports, "__esModule", { value: true });
 	/// <reference path="../../typings/index.d.ts" />
 	const React = __webpack_require__(2);
-	const MainMenuView_1 = __webpack_require__(5);
 	const BoardView_1 = __webpack_require__(18);
 	const PlayerModel_1 = __webpack_require__(13);
 	const CreatePlayerView_1 = __webpack_require__(21);
@@ -166,11 +165,9 @@
 	        var view;
 	        switch (this.state.currentView) {
 	            case BoardView_1.BoardView:
+	            default:
 	                view = (React.createElement(BoardView_1.BoardView, { tileHeight: this.tileHeight, tileWidth: this.tileWidth, tileSpacing: this.tileSpacing, tiles: this.state.gameStateModel.boardModel.tiles, unexplored: this.state.gameStateModel.boardModel.unexplored, tileTypes: this.state.tileTypes, resourceTypes: this.state.resourceTypes, gameStateModel: this.state.gameStateModel }));
 	                break;
-	            default: break;
-	            case MainMenuView_1.MainMenuView:
-	                view = (React.createElement(MainMenuView_1.MainMenuView, { playerModel: this.state.gameStateModel.playerModel }));
 	        }
 	        var modalViews;
 	        if (this.state.modalViews && this.state.modalViews.length > 0) {
@@ -193,32 +190,7 @@
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	"use strict";
-	Object.defineProperty(exports, "__esModule", { value: true });
-	/// <reference path="../../../typings/index.d.ts" />
-	const React = __webpack_require__(2);
-	const UI_1 = __webpack_require__(6);
-	const GameManager_1 = __webpack_require__(7);
-	class MainMenuView extends React.Component {
-	    constructor() {
-	        super(...arguments);
-	        this.handleCreateNewGameButtonClick = () => {
-	            var createGameButtonClickedEvent = new GameManager_1.CreateGameButtonClickedEvent();
-	            GameManager_1.EventBus.event(createGameButtonClickedEvent);
-	        };
-	    }
-	    render() {
-	        return (React.createElement("div", { id: "view-main-menu", className: "view" },
-	            React.createElement(UI_1.Button, { text: "Create New Game", id: "board-start-game-button", onClick: this.handleCreateNewGameButtonClick.bind(this) })));
-	    }
-	}
-	exports.MainMenuView = MainMenuView;
-
-
-/***/ }),
+/* 5 */,
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
