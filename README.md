@@ -1,9 +1,10 @@
 # simulacra
-
+## Project setup
 * npm install -g gulp
 * npm install -g webpack
-* npm install webpack-dev-server
+* npm install -g webpack-dev-server
 * npm install .
-* webpack -dev -server
-
-Test this app: https://chocorage.github.io/
+## Start local server
+* webpack-dev-server
+## Play online
+* https://chocorage.github.io/
