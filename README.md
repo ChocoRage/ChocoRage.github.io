@@ -1,9 +1,3 @@
-# simulacra
-## Project setup
-* npm install -g webpack
-* npm install -g webpack-dev-server
-* npm install .
-## Start local server
-* webpack-dev-server
-## Play online
-* https://chocorage.github.io/
+This is a simple plain HTML/CSS/JS app which I made as a life counter for MtG.
+
+Enjoy!
