@@ -18,10 +18,11 @@ body {
     height: 100%;
     width: 100%;
     display: flex;
+    background-color: #aba49b;
 }
 #page-body {
     flex-grow: 1;
-    background-color: #aba49b;
+    z-index: 0;
 }
 #page-foot {
     display: flex;
@@ -31,7 +32,8 @@ body {
     box-sizing: content-box;
 }
 #page-foot div button {
-    /* background-color: #aaa; */
+    background-color: transparent;
+    color: #ccc;
     border: none;
     box-shadow: none;
     padding: 0;
@@ -47,6 +49,7 @@ body {
     display: inline-block;
     vertical-align: top;
     box-sizing: border-box;
+    transition: all 0.4s ease-in-out;
 }
 .player-panel .player-panel-content {
     background-color: rgba(255, 255, 255, .2);
@@ -64,15 +67,26 @@ body {
 }
 .player-panel-plus-button {
     top: 0;
+    width: 100%;
 }
 .player-panel-minus-button {
     bottom: 0;
+    width: 100%;
+}
+.player-panel-remove-button {
+    top: 33.3333333%;
+    left: 0;
+    width: 20%;
+    text-align: left;
+}
+.player-count-2 .player-panel-remove-button {
+    display: none;
 }
 .player-panel-plus-button,
-.player-panel-minus-button {
+.player-panel-minus-button,
+.player-panel-remove-button {
     position: absolute;
     left: 0;
-    width: 100%;
     height: 33.333333%;
     z-index: 1;
     background-color: transparent;
@@ -83,19 +97,36 @@ body {
     text-align: center;
     outline: none;
 }
-.player-panel-plus-button:active,
-.player-panel-minus-button:active {
-
-}
 .player-panel-plus-button i.material-icons,
-.player-panel-minus-button i.material-icons {
+.player-panel-minus-button i.material-icons,
+.player-panel-remove-button i.material-icons {
     opacity: .15;
+}
+#page-settings {
+    flex-grow: 1;
+    display: none;
+    z-index: 1;
+    text-align: center;
+}
+#page-settings-content {
+    transform: translateY(-50%);
+    position: relative;
+    top: 50%;
+}
+#select-starting-life-total {
+    margin-left: 2vw;
+    color: #333;
+    background-color: #ccc;
+    border: none;
+    outline: none;
+    box-shadow: none;
 }
 @media screen and (orientation: landscape) {
     #page-container {
         flex-direction: row;
     }
-    #page-body {
+    #page-body,
+    #page-settings {
         width: 90%;
     }
     #page-foot {
@@ -130,15 +161,21 @@ body {
         width: 33.33333%;
     }
     .player-panel-plus-button i.material-icons,
-    .player-panel-minus-button i.material-icons {
+    .player-panel-minus-button i.material-icons,
+    .player-panel-remove-button i.material-icons {
         font-size: 15vh;
+    }
+    #page-settings label,
+    #page-settings select {
+        font-size: 8vh;
     }
 }
 @media screen and (orientation: portrait) {
     #page-container {
         flex-direction: column;
     }
-    #page-body {
+    #page-body,
+    #page-settings {
         height: 90%;
     }
     #page-foot {
@@ -175,8 +212,13 @@ body {
         height: 33.33333%;
     }
     .player-panel-plus-button i.material-icons,
-    .player-panel-minus-button i.material-icons {
+    .player-panel-minus-button i.material-icons,
+    .player-panel-remove-button i.material-icons {
         font-size: 15vw;
+    }
+    #page-settings label,
+    #page-settings select {
+        font-size: 8vw;
     }
 }
 </style>
@@ -184,14 +226,24 @@ body {
     <div id="page-container">
         <div id="page-body">
         </div>
+        <div id="page-settings">
+            <div id="page-settings-content">
+                <label for="select-starting-life-total">Starting Life Total</label>
+                <select id="select-starting-life-total">
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+            </div>
+        </div>
         <div id="page-foot">
             <div>
-                <button id="button-reset" onclick="reset">
+                <button id="button-reset" onclick="resetAll()">
                     <i class="material-icons">settings_backup_restore</i>
                 </button>
             </div>
             <div>
-                <button id="button-settings" onclick="settings">
+                <button id="button-settings" onclick="openSettings()">
                     <i class="material-icons">settings</i>
                 </button>
             </div>
@@ -240,6 +292,16 @@ body {
             minusButtonIcon.className = "material-icons"
             minusButtonIcon.innerText = "remove"
             minusButton.appendChild(minusButtonIcon)
+            var removeButton = document.createElement("button")
+            removeButton.onclick = function() {
+                LifeCounter.removePlayer(player.id)
+            }
+            removeButton.className = "player-panel-remove-button"
+            content.appendChild(removeButton)
+            var removeButtonIcon = document.createElement("i")
+            removeButtonIcon.className = "material-icons"
+            removeButtonIcon.innerText = "delete"
+            removeButton.appendChild(removeButtonIcon)
             var body = document.getElementById("page-body")
             body.appendChild(container)
             body.className = "player-count-" + Object.keys(getStoredItem("players")).length
@@ -250,8 +312,26 @@ body {
         }
     }
 
+    function removePlayerPanel(playerId, remainingPlayerCount) {
+        if(typeof playerId == "number") {
+            document.getElementById("player-id-" + playerId).remove()
+            var body = document.getElementById("page-body")
+            body.className = "player-count-" + remainingPlayerCount
+            document.getElementById("button-newplayer").disabled = false
+        }
+    }
+
     function newPlayerButtonClicked() {
         createNewPlayerPanel()
+    }
+
+    function resetAll() {
+        LifeCounter.resetAllPlayers()
+    }
+
+    function openSettings() {
+        document.getElementById("page-body").style.display = "none"
+        document.getElementById("page-settings").style.display = "initial"
     }
 
     var LifeCounter = {
@@ -260,7 +340,7 @@ body {
             if(Object.keys(players).length < 6) {
                 var ids = {0:0,1:1,2:2,3:3,4:4,5:5}
                 for(var idx in Object.keys(players)) {
-                    delete ids[players[idx].id]
+                    delete ids[players[Object.keys(players)[idx]].id]
                 }
                 var newPlayerId = ids[Object.keys(ids)[0]]
                 var lifeTotal = getStoredItem("startingLifeTotal")
@@ -276,7 +356,12 @@ body {
             }
         },
         removePlayer: function(id) {
-            
+            var players = getStoredItem("players")
+            if(Object.keys(players).length > 2) {
+                removePlayerPanel(id, Object.keys(players).length - 1)
+                delete players[id]
+                setStoredItem("players", players)
+            }
         },
         updateLife: function(id, amount, commanderDamagePlayerId) {
             var players = getStoredItem("players")
@@ -290,7 +375,12 @@ body {
             }
         },
         resetAllPlayers: function() {
-            
+            var players = getStoredItem("players")
+            for(var idx in Object.keys(players)) {
+                players[Object.keys(players)[idx]].lifeTotal = getStoredItem("startingLifeTotal")
+                document.getElementById("player-id-" + players[Object.keys(players)[idx]].id + "-life").innerText = players[Object.keys(players)[idx]].lifeTotal
+            }
+            setStoredItem("players", players)
         }
     }
 
@@ -363,7 +453,7 @@ body {
     function restoreSession() {
         var players = getStoredItem("players")
         for(var idx in Object.keys(players)) {
-            createNewPlayerPanel(players[idx])
+            createNewPlayerPanel(players[Object.keys(players)[idx]])
         }
     }
  
