@@ -742,6 +742,7 @@ button.button-confirm i.material-icons {
     }
 
     (function() {
+        setTimeout(function() { window.scrollTo(0, 1) }, 100);
         if (typeof(Storage) !== "undefined") {
             getStoredItem = getFromLocalStorage
             setStoredItem = setLocalStorage
@@ -761,15 +762,20 @@ button.button-confirm i.material-icons {
 
     function initColors() {
         var Colors = [
-            "rgba(255, 255, 255, .8)",
-            "rgba(64, 64, 255, .7)",
-            "rgba(64, 64, 64, .7)",
-            "rgba(255, 64, 64, .7)",
-            "rgba(64, 255, 64, .7)",
-            "rgba(255, 255, 64, .7)",
-            "rgba(64, 255, 255, .7)",
-            "rgba(255, 64, 255, .7)",
-            "rgba(255, 128, 64, .7)"
+            "#dddddd",
+            "#85302c",
+            "#ca5f61",
+            "#c4824d",
+            "#b6c758",
+            "#327c29",
+            "#3bb271",
+            "#6c7ece",
+            "#4cb6c3",
+            "#335198",
+            "#b17ad3",
+            "#5a2877",
+            "#c55290",
+            "#444444"
         ]
         var colorCountainer = document.getElementById("page-player-properties-colors")
         for(var idx in Colors) {
