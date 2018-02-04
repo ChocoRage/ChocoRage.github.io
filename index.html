@@ -5,6 +5,9 @@
     <link href="https://fonts.googleapis.com/css?family=Assistant|Rammetto+One|Material+Icons" rel="stylesheet">
 </head>
 <style>
+* {
+    transition: opacity 0.2s linear;
+}
 body {
     font-family: Assistant;
     height: 100vh;
@@ -61,33 +64,30 @@ body {
 }
 .player-panel-life {
     font-family: "Rammetto One";
-    transform: translateY(-45%);
+    transform: translateY(-48%);
     position: relative;
     top: 50%;
     z-index: 0;
 }
-.player-panel-plus-button,
-.player-name {
+.player-panel-up-button {
     top: 0;
-    width: 100%;
 }
-.player-panel-minus-button {
+.player-panel-down-button {
     bottom: 0;
-    width: 100%;
 }
 .player-panel-player-properties-button {
     top: 33.3333333%;
     left: 0;
-    width: 100%;
 }
 .player-count-1 .player-panel {
     width: 100%;
     height: 100%;
 }
-.player-panel-plus-button,
-.player-panel-minus-button,
+.player-panel-up-button,
+.player-panel-down-button,
 .player-panel-player-properties-button,
 .player-name {
+    width: 100%;
     position: absolute;
     left: 0;
     height: 33.333333%;
@@ -108,8 +108,8 @@ body {
     user-select: none;
     box-sizing: content-box;
 }
-.player-panel-plus-button i.material-icons,
-.player-panel-minus-button i.material-icons {
+.player-panel-up-button i.material-icons,
+.player-panel-down-button i.material-icons {
     color: rgba(0, 0, 0, .15);
 }
 #page-board {
@@ -154,27 +154,26 @@ body {
     background-color: #ccc;
     border: none;
 }
-#input-player-name {
+input[type="text"],
+input[type="number"] {
+    padding: 0 0.2em;
     background-color: transparent;
     border: none;
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid rgba(0, 0, 0, .2);
 }
-#select-starting-life-total,
-#input-player-name {
-    margin-left: 2vw;
+input[type="text"],
+input[type="number"],
+select {
     color: #333;
     outline: none;
     box-shadow: none;
+    box-sizing: border-box;
 }
 button.button-cancel i.material-icons{
     color: rgba(221, 96, 96, .8) !important;
 }
 button.button-confirm i.material-icons {
     color: rgba(96, 221, 96, .8) !important;
-}
-#input-player-name,
-#page-player-properties-colors {
-    width: 50vw;
 }
 #page-player-properties-colors {
     display: inline-block;
@@ -200,6 +199,25 @@ button.button-confirm i.material-icons {
     outline: none;
     color: #333;
     box-sizing: content-box;
+}
+.page-content-form {
+    font-size: 0;
+}
+label {
+    width: 35%;
+    display: inline-block;
+    vertical-align: top;
+    text-align: right;
+    padding-right: 0.5em;
+    box-sizing: border-box;
+    margin-left: 5%;
+    color: rgba(0, 0, 0, .5);
+}
+label + * {
+    display: inline-block;
+    vertical-align: top;
+    width: 55%;
+    margin-right: 5%;
 }
 @media screen and (orientation: landscape) {
     #page-container {
@@ -246,8 +264,8 @@ button.button-confirm i.material-icons {
     .player-count-6 .player-panel {
         width: 33.33333%;
     }
-    .player-panel-plus-button i.material-icons,
-    .player-panel-minus-button i.material-icons {
+    .player-panel-up-button i.material-icons,
+    .player-panel-down-button i.material-icons {
         font-size: 15vh;
     }
     .player-name {
@@ -266,8 +284,8 @@ button.button-confirm i.material-icons {
         font-size: 8vh;
     }
     .page-head {
-        height: 10vh;
-        font-size: 6vh;
+        height: 15vh;
+        font-size: 8vh;
     }
     .input-color {
         height: 10vh;
@@ -284,6 +302,9 @@ button.button-confirm i.material-icons {
     #button-reset-entrie-board-button {
         height: 10vh;
         padding: 2vh;
+    }
+    .page-content-form-line {
+        margin-bottom: 3vh;
     }
 }
 @media screen and (orientation: portrait) {
@@ -333,8 +354,8 @@ button.button-confirm i.material-icons {
     .player-count-6 .player-panel {
         height: 33.33333%;
     }
-    .player-panel-plus-button i.material-icons,
-    .player-panel-minus-button i.material-icons {
+    .player-panel-up-button i.material-icons,
+    .player-panel-down-button i.material-icons {
         font-size: 15vw;
     }
     .player-name {
@@ -353,8 +374,8 @@ button.button-confirm i.material-icons {
         font-size: 8vw;
     }
     .page-head {
-        height: 10vw;
-        font-size: 6vw;
+        height: 15vw;
+        font-size: 8vw;
     }
     .input-color {
         height: 10vw;
@@ -371,6 +392,9 @@ button.button-confirm i.material-icons {
     #button-reset-entrie-board-button {
         height: 10vw;
         padding: 2vw;
+    }
+    .page-content-form-line {
+        margin-bottom: 3vw;
     }
 }
 </style>
@@ -413,12 +437,19 @@ button.button-confirm i.material-icons {
                     <div class="page-content">
                         <div class="page-content-form">
                             <input type="hidden" id="page-player-properties-id"/>
-                            <label id="input-player-name-label" for="input-player-name">Name</label>
-                            <input type="text" id="input-player-name" onfocus="focusInput(this)" onblur="blurInput(this)"/>
-                            <br/><br/>
-                            <label>Color</label>
-                            <div id="page-player-properties-colors">
-                                <div id="page-player-properties-color-preview">
+                            <div class="page-content-form-line">
+                                <label id="input-player-name-label" for="input-player-name">Name</label>
+                                <input type="text" id="input-player-name" onfocus="focusInput(this)" onblur="blurInput(this)"/>
+                            </div>
+                            <div class="page-content-form-line">
+                                <label id="input-player-life-label" for="input-player-life">Life Total</label>
+                                <input type="number" id="input-player-life" onfocus="focusInput(this)" onblur="blurInput(this)"/>
+                            </div>
+                            <div class="page-content-form-line">
+                                <label>Color</label>
+                                <div id="page-player-properties-colors">
+                                    <div id="page-player-properties-color-preview">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -490,6 +521,7 @@ button.button-confirm i.material-icons {
         for(var idx in allElements) {
             if(inputParentList.indexOf(allElements.item(idx)) < 0) {
                 allElements.item(idx).style.opacity = "0"
+                allElements.item(idx).style.pointerEvents = "none"
             }
         }
     }
@@ -498,6 +530,7 @@ button.button-confirm i.material-icons {
         var allElements = document.querySelectorAll("*")
         for(var idx in allElements) {
             allElements.item(idx).style.opacity = "initial"
+            allElements.item(idx).style.pointerEvents = "initial"
         }
     }
 
@@ -524,26 +557,26 @@ button.button-confirm i.material-icons {
             lifeTotal.className = "player-panel-life"
             lifeTotal.innerText = player.lifeTotal
             content.appendChild(lifeTotal)
-            var plusButton = document.createElement("button")
-            plusButton.onclick = function() {
+            var upButton = document.createElement("button")
+            upButton.onclick = function() {
                 LifeCounter.updateLife(player.id, 1, null)
             }
-            plusButton.className = "player-panel-plus-button"
-            content.appendChild(plusButton)
-            var plusButtonIcon = document.createElement("i")
-            plusButtonIcon.className = "material-icons"
-            plusButtonIcon.innerText = "add"
-            plusButton.appendChild(plusButtonIcon)
-            var minusButton = document.createElement("button")
-            minusButton.onclick = function() {
+            upButton.className = "player-panel-up-button"
+            content.appendChild(upButton)
+            var upButtonIcon = document.createElement("i")
+            upButtonIcon.className = "material-icons"
+            upButtonIcon.innerText = "keyboard_arrow_up"
+            upButton.appendChild(upButtonIcon)
+            var downButton = document.createElement("button")
+            downButton.onclick = function() {
                 LifeCounter.updateLife(player.id, -1, null)
             }
-            minusButton.className = "player-panel-minus-button"
-            content.appendChild(minusButton)
-            var minusButtonIcon = document.createElement("i")
-            minusButtonIcon.className = "material-icons"
-            minusButtonIcon.innerText = "remove"
-            minusButton.appendChild(minusButtonIcon)
+            downButton.className = "player-panel-down-button"
+            content.appendChild(downButton)
+            var downButtonIcon = document.createElement("i")
+            downButtonIcon.className = "material-icons"
+            downButtonIcon.innerText = "keyboard_arrow_down"
+            downButton.appendChild(downButtonIcon)
             var playerPropertiesButton = document.createElement("button")
             playerPropertiesButton.onclick = function() {
                 openPlayerProperties(player.id)
@@ -618,6 +651,7 @@ button.button-confirm i.material-icons {
     function openPlayerProperties(playerId) {
         document.getElementById("page-player-properties-id").value = playerId
         var player = getStoredItem("players")[playerId]
+        document.getElementById("input-player-life").value = player.lifeTotal
         document.getElementById("input-player-name").value = player.name
         document.getElementById("page-player-properties-color-preview").style.backgroundColor = player.color
         document.getElementById("page-board").style.transform = "translate(-100%)"
@@ -658,6 +692,11 @@ button.button-confirm i.material-icons {
             if(colorInput) {
                 players[playerId].color = colorInput.value
                 document.getElementById("player-id-" + playerId).firstChild.style.backgroundColor = players[playerId].color
+            }
+            var lifeInput = document.getElementById("input-player-life")
+            if(lifeInput) {
+                players[playerId].lifeTotal = JSON.parse(lifeInput.value)
+                document.getElementById("player-id-" + playerId + "-life").innerText = players[playerId].lifeTotal
             }
             var nameInput = document.getElementById("input-player-name")
             if(nameInput) {
