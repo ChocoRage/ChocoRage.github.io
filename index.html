@@ -1,7 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/> <!--320-->
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, minimal-ui"/>
+    <!-- for ios 7 style, multi-resolution icon of 152x152 -->
+    <meta name="application-name" content="Life Counter">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-barstyle" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Life Counter">
+    <link rel="apple-touch-icon" href="icon-152.png">
+    <!-- for Chrome on Android, multi-resolution icon of 196x196 -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="shortcut icon" sizes="196x196" href="icon-196.png">
     <link href="https://fonts.googleapis.com/css?family=Assistant|Rammetto+One|Material+Icons" rel="stylesheet">
 </head>
 <style>
@@ -443,7 +452,7 @@ label + * {
                             </div>
                             <div class="page-content-form-line">
                                 <label id="input-player-life-label" for="input-player-life">Life Total</label>
-                                <input type="number" id="input-player-life" onfocus="focusInput(this)" onblur="blurInput(this)"/>
+                                <input type="number" pattern="[0-9]*" id="input-player-life" onfocus="focusInput(this)" onblur="blurInput(this)"/>
                             </div>
                             <div class="page-content-form-line">
                                 <label>Color</label>
@@ -876,5 +885,8 @@ label + * {
             createNewPlayerPanel(players[Object.keys(players)[idx]])
         }
     }
+
+    document.addEventListener("touchmove", function(e) { e.preventDefault() });
+    window.addEventListener("load", function() { window. scrollTo(0, 0); });
 </script>
 </html>
