@@ -44,7 +44,7 @@ body {
     outline: none;
 }
 #page-foot div button:disabled {
-    opacity: .5;
+    color: rgba(170, 170, 170, .5);
 }
 .player-panel {
     display: inline-block;
@@ -110,7 +110,7 @@ body {
 }
 .player-panel-plus-button i.material-icons,
 .player-panel-minus-button i.material-icons {
-    opacity: .15;
+    color: rgba(0, 0, 0, .15);
 }
 #page-board {
     height: 100%;
@@ -266,8 +266,8 @@ button.button-confirm i.material-icons {
         font-size: 8vh;
     }
     .page-head {
-        height: 10vw;
-        font-size: 6vw;
+        height: 10vh;
+        font-size: 6vh;
     }
     .input-color {
         height: 10vh;
@@ -353,8 +353,8 @@ button.button-confirm i.material-icons {
         font-size: 8vw;
     }
     .page-head {
-        height: 10vh;
-        font-size: 6vh;
+        height: 10vw;
+        font-size: 6vw;
     }
     .input-color {
         height: 10vw;
@@ -413,8 +413,8 @@ button.button-confirm i.material-icons {
                     <div class="page-content">
                         <div class="page-content-form">
                             <input type="hidden" id="page-player-properties-id"/>
-                            <label for="input-player-name">Name</label>
-                            <input type="text" id="input-player-name"/>
+                            <label id="input-player-name-label" for="input-player-name">Name</label>
+                            <input type="text" id="input-player-name" onfocus="focusInput(this)" onblur="blurInput(this)"/>
                             <br/><br/>
                             <label>Color</label>
                             <div id="page-player-properties-colors">
@@ -474,6 +474,33 @@ button.button-confirm i.material-icons {
     </div>
 </body>
 <script>
+    function focusInput(input) {
+        var inputParentList = []
+        inputParentList.push(input)
+        var label = document.getElementById(input.id + "-label")
+        if(label) {
+            inputParentList.push(label)
+        }
+        var p = input
+        while(p.parentElement) {
+            inputParentList.push(p.parentElement)
+            p = p.parentElement
+        }
+        var allElements = document.querySelectorAll("*")
+        for(var idx in allElements) {
+            if(inputParentList.indexOf(allElements.item(idx)) < 0) {
+                allElements.item(idx).style.opacity = "0"
+            }
+        }
+    }
+
+    function blurInput(e) {
+        var allElements = document.querySelectorAll("*")
+        for(var idx in allElements) {
+            allElements.item(idx).style.opacity = "initial"
+        }
+    }
+
     function createNewPlayerPanel(player) {
         if(!player) {
             player = LifeCounter.createNewPlayer()
@@ -647,9 +674,9 @@ button.button-confirm i.material-icons {
         for(var idx in players) {
             removePlayerPanel(players[idx].id, 0)
         }
+        closeSettings(true)
         setStoredItem("players", {})
         initLifeCounter()
-        closeSettings()
     }
 
     var LifeCounter = {
@@ -716,8 +743,7 @@ button.button-confirm i.material-icons {
 
     var RuntimeStorage = {
         startingLifeTotal: 20,
-        players: {},
-        setItem: function(itemName, itemValue) {}
+        players: {}
     }
 
     function getStoredItem(itemName) {}
@@ -777,7 +803,7 @@ button.button-confirm i.material-icons {
             "#c55290",
             "#444444"
         ]
-        var colorCountainer = document.getElementById("page-player-properties-colors")
+        var colorContainer = document.getElementById("page-player-properties-colors")
         for(var idx in Colors) {
             var input = document.createElement("input")
             input.type = "radio"
@@ -788,7 +814,7 @@ button.button-confirm i.material-icons {
             input.onchange = function(event) {
                 document.getElementById("page-player-properties-color-preview").style.backgroundColor = event.target.value
             }
-            colorCountainer.appendChild(input)
+            colorContainer.appendChild(input)
         }
     }
 
