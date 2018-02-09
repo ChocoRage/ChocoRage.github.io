@@ -71,14 +71,14 @@ body {
 }
 .player-panel-life {
     font-family: "Rammetto One";
-    transform: translateY(-48%);
+    transform: translateY(-50%);
     position: relative;
     top: 50%;
     z-index: 0;
 }
 .player-panel-life span {
     vertical-align: middle;
-    transition: font-size 0.1s ease;
+    /* transition: font-size 0.1s ease; */
 }
 .player-panel-up-button {
     top: 0;
@@ -604,6 +604,7 @@ label + * {
                 if(Object.keys(Store.get("players")).length == 6) {
                     document.getElementById("button-newplayer").disabled = true
                 }
+                setTimeout(View.adjustContentSizeAll, 400)
             }
         },
         removePlayer: function(playerId) {
@@ -614,6 +615,7 @@ label + * {
             body.className = "player-count-" + remainingPlayerCount
             document.getElementById("button-newplayer").disabled = false
             View.closePlayerProperties()
+            setTimeout(View.adjustContentSizeAll, 400)
         },
         openSettings: function() {
             document.getElementById("page-board").style.transform = "translate(-100%)"
@@ -712,7 +714,7 @@ label + * {
                 var maxFontSize = Math.min(screen.width, screen.height) / 4
                 var fontSize = Math.min(parseFloat(fontSizeStr) * factor, maxFontSize)
                 var fontSizeUnit = /[^0-9.]+/.exec(fontSizeStr)
-                element.style.fontSize = "" + fontSize + fontSizeUnit
+                element.style.fontSize = "" + fontSize + fontSizeUnit[0]
             }, 100)
         },
         adjustContentSizeAll: function() {
@@ -816,19 +818,19 @@ label + * {
         initColors: function() {
             var Colors = [
                 "#dddddd",
-                "#85302c",
-                "#ca5f61",
+                "#666666",
+                "#993633",
+                "#b84c3d",
                 "#c4824d",
                 "#b6c758",
-                "#327c29",
-                "#3bb271",
+                "#b9943e",
+                "#32975c",
+                "#74c144",
                 "#6c7ece",
                 "#4cb6c3",
-                "#335198",
                 "#b17ad3",
-                "#5a2877",
+                "#864ec4",
                 "#c55290",
-                "#444444"
             ]
             var colorContainer = document.getElementById("page-player-properties-colors")
             for(var idx in Colors) {
@@ -854,6 +856,7 @@ label + * {
         },
         initService: function() {
             View.createNewPlayerPanel()
+            View.adjustContentSizeAll()
         }
     }
 
