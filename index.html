@@ -76,6 +76,10 @@ body {
     top: 50%;
     z-index: 0;
 }
+.player-panel-life span {
+    vertical-align: middle;
+    transition: font-size 0.1s ease;
+}
 .player-panel-up-button {
     top: 0;
 }
@@ -256,7 +260,7 @@ label + * {
         height: 50%;
     }
     .player-panel-life {
-        font-size: 24vh;
+        font-size: 25vh;
     }
     .player-count-2 .player-panel {
         height: 100%;
@@ -344,7 +348,7 @@ label + * {
         width: 50%;
     }
     .player-panel-life {
-        font-size: 24vw;
+        font-size: 25vw;
     }
     .player-count-2 .player-panel {
         width: 100%;
@@ -558,11 +562,14 @@ label + * {
                 nameTag.className = "player-name"
                 nameTag.innerText = player.name
                 // content.appendChild(nameTag)
-                var lifeTotal = document.createElement("div")
+                var lifeTotalContainer = document.createElement("div")
+                lifeTotalContainer.className = "player-panel-life"
+                content.appendChild(lifeTotalContainer)
+                var lifeTotal = document.createElement("span")
                 lifeTotal.id = "player-id-" + player.id + "-life"
-                lifeTotal.className = "player-panel-life"
+                // lifeTotal.className = "player-panel-life"
                 lifeTotal.innerText = player.lifeTotal
-                content.appendChild(lifeTotal)
+                lifeTotalContainer.appendChild(lifeTotal)
                 var upButton = document.createElement("button")
                 upButton.onclick = function() {
                     Service.updatePlayerProperty(player.id, "lifeTotal", 1)
@@ -694,6 +701,25 @@ label + * {
                 }
             }
             document.getElementById("page-player-properties-id").value = null
+        },
+        adjustContentSize: function(element) {
+            setTimeout(function() {
+                var parent = element.parentElement
+                var width = element.getBoundingClientRect().width
+                var parentWidth = parent.getBoundingClientRect().width
+                var factor = parentWidth / width
+                var fontSizeStr = element.style.fontSize ? element.style.fontSize : getComputedStyle(element).fontSize
+                var maxFontSize = Math.min(screen.width, screen.height) / 4
+                var fontSize = Math.min(parseFloat(fontSizeStr) * factor, maxFontSize)
+                var fontSizeUnit = /[^0-9.]+/.exec(fontSizeStr)
+                element.style.fontSize = "" + fontSize + fontSizeUnit
+            }, 100)
+        },
+        adjustContentSizeAll: function() {
+            var lifeElements = document.querySelectorAll(".player-panel-life span")
+            for(var idx in lifeElements) {
+                View.adjustContentSize(lifeElements.item(idx))
+            }
         }
     }
 
@@ -741,7 +767,9 @@ label + * {
                             var players = Store.get("players")
                             players[playerId].lifeTotal += args
                             Store.set("players", players)
-                            document.getElementById("player-id-" + playerId + "-life").innerText = players[playerId].lifeTotal
+                            var playerLifePanel = document.getElementById("player-id-" + playerId + "-life")
+                            playerLifePanel.innerText = players[playerId].lifeTotal
+                            View.adjustContentSize(playerLifePanel)
                             Store.set("players", players)
                         }
                         break
@@ -771,10 +799,10 @@ label + * {
         resetAllPlayers: function() {
             var players = Store.get("players")
             for(var idx in Object.keys(players)) {
-                players[Object.keys(players)[idx]].lifeTotal = Store.get("startingLifeTotal")
-                document.getElementById("player-id-" + players[Object.keys(players)[idx]].id + "-life").innerText = players[Object.keys(players)[idx]].lifeTotal
+                Service.updatePlayerProperty(parseInt(Object.keys(players)[idx]), "lifeTotal", Store.get("startingLifeTotal") - players[Object.keys(players)[idx]].lifeTotal)
+                // document.getElementById("player-id-" + players[Object.keys(players)[idx]].id + "-life").innerText = players[Object.keys(players)[idx]].lifeTotal
+                // View.adjustContentSizeAll()
             }
-            Store.set("players", players)
         },
         resetEntireBoard: function() {
             var players = Store.get("players")
@@ -871,6 +899,7 @@ label + * {
             for(var idx in Object.keys(players)) {
                 View.createNewPlayerPanel(players[Object.keys(players)[idx]])
             }
+            View.adjustContentSizeAll()
         }
     };
 
@@ -880,6 +909,9 @@ label + * {
         })
         window.addEventListener("load", function() {
             window. scrollTo(0, 1)
+        })
+        window.addEventListener("orientationchange", function() {
+            window.setTimeout(View.adjustContentSizeAll, 400)
         })
         if (typeof(Storage) !== "undefined") {
             Store.get = Store.getFromLocalStorage
