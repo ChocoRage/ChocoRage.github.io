@@ -232,6 +232,11 @@ label + * {
     width: 55%;
     margin-right: 5%;
 }
+#version {
+    position: fixed;
+    z-index: 99;
+    pointer-events: none;
+}
 @media screen and (orientation: landscape) {
     #page-container {
         flex-direction: row;
@@ -318,6 +323,12 @@ label + * {
     }
     .page-content-form-line {
         margin-bottom: 3vh;
+    }
+    #version {
+        font-size: 3vh;
+        right: 0;
+        bottom: 0;
+        color: #888888;
     }
 }
 @media screen and (orientation: portrait) {
@@ -408,6 +419,12 @@ label + * {
     }
     .page-content-form-line {
         margin-bottom: 3vw;
+    }
+    #version {
+        font-size: 3vw;
+        left: 0;
+        bottom: 0;
+        color: #888888;
     }
 }
 </style>
@@ -516,6 +533,7 @@ label + * {
             </div>
         </div>
     </div>
+    <div id="version">v10020026</div>
 </body>
 <script>
     var View = {
@@ -916,9 +934,7 @@ label + * {
 
     (function() {
         window.addEventListener("load",function() {
-            setTimeout(function(){
-                window.scrollTo(0, 1);
-            }, 0);
+            // document.body.requestFullscreen()
         });
         window.addEventListener("orientationchange", function() {
             window.setTimeout(View.adjustContentSizeAll, 450)
