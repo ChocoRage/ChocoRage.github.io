@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, minimal-ui"/>
-    <!-- for ios 7 style, multi-resolution icon of 152x152 -->
-    <meta name="application-name" content="Life Counter">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-barstyle" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Life Counter">
-    <link rel="apple-touch-icon" href="icon-152.png">
-    <!-- for Chrome on Android, multi-resolution icon of 196x196 -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="shortcut icon" sizes="196x196" href="icon-196.png">
+    <!-- <meta name="application-name" content="Life Counter"> -->
+    <!-- <meta name="apple-mobile-web-app-capable" content="yes"> -->
+    <!-- <meta name="apple-mobile-web-app-status-barstyle" content="black-translucent"> -->
+    <!-- <meta name="apple-mobile-web-app-title" content="Life Counter"> -->
+    <!-- <link rel="apple-touch-icon" href="icon-152.png"> -->
+    <!-- <meta name="mobile-web-app-capable" content="yes"> -->
+    <!-- <link rel="shortcut icon" sizes="196x196" href="icon-196.png"> -->
     <link href="https://fonts.googleapis.com/css?family=Assistant|Rammetto+One|Material+Icons" rel="stylesheet">
 </head>
 <style>
@@ -430,7 +428,7 @@ label + * {
                                 <option value="40">40</option>
                             </select>
                             <br/><br/>
-                            <button id="button-reset-entrie-board-button" onclick="resetEntireBoard()">Reset Entire Board</button>
+                            <button id="button-reset-entrie-board-button" onclick="Service.resetEntireBoard()">Reset Entire Board</button>
                         </div>
                     </div>
                 </div>
@@ -448,11 +446,11 @@ label + * {
                             <input type="hidden" id="page-player-properties-id"/>
                             <div class="page-content-form-line">
                                 <label id="input-player-name-label" for="input-player-name">Name</label>
-                                <input type="text" id="input-player-name" onfocus="focusInput(this)" onblur="blurInput(this)"/>
+                                <input type="text" id="input-player-name" onfocus="View.focusInput(this)" onblur="View.blurInput(this)"/>
                             </div>
                             <div class="page-content-form-line">
                                 <label id="input-player-life-label" for="input-player-life">Life Total</label>
-                                <input type="number" pattern="[0-9]*" id="input-player-life" onfocus="focusInput(this)" onblur="blurInput(this)"/>
+                                <input type="number" pattern="[0-9]*" id="input-player-life" onfocus="View.focusInput(this)" onblur="View.blurInput(this)"/>
                             </div>
                             <div class="page-content-form-line">
                                 <label>Color</label>
@@ -469,44 +467,44 @@ label + * {
         <div id="page-foot">
             <!-- =============== Board Buttons =============== -->
             <div class="page-board">
-                <button id="button-reset" onclick="resetAll()">
+                <button id="button-reset" onclick="Service.resetAllPlayers()">
                     <i class="material-icons">settings_backup_restore</i>
                 </button>
             </div>
             <div class="page-board">
-                <button id="button-settings" onclick="openSettings()">
+                <button id="button-settings" onclick="View.openSettings()">
                     <i class="material-icons">settings</i>
                 </button>
             </div>
             <div class="page-board">
-                <button id="button-newplayer" onclick="newPlayerButtonClicked()">
+                <button id="button-newplayer" onclick="View.createNewPlayerPanel()">
                     <i class="material-icons">person_add</i>
                 </button>
             </div>
             <!-- =============== Settings Buttons =============== -->
             <div class="page-settings">
-                <button id="button-settings-cancel" class="button-cancel" onclick="closeSettings()">
+                <button id="button-settings-cancel" class="button-cancel" onclick="View.closeSettings()">
                     <i class="material-icons">close</i>
                 </button>
             </div>
             <div class="page-settings">
-                <button id="button-settings-confirm" class="button-confirm" onclick="closeSettings(true)">
+                <button id="button-settings-confirm" class="button-confirm" onclick="View.closeSettings(true)">
                     <i class="material-icons">check</i>
                 </button>
             </div>
             <!-- =============== Player Properties Buttons =============== -->
             <div class="page-player-properties">
-                <button id="button-properties-cancel" class="button-cancel" onclick="closePlayerProperties()">
+                <button id="button-properties-cancel" class="button-cancel" onclick="View.closePlayerProperties()">
                     <i class="material-icons">close</i>
                 </button>
             </div>
             <div class="page-player-properties">
-                <button id="button-properties-delete" class="button-delete" onclick="removePlayer()">
+                <button id="button-properties-delete" class="button-delete" onclick="View.removePlayer()">
                     <i class="material-icons">delete</i>
                 </button>
             </div>
             <div class="page-player-properties">
-                <button id="button-properties-confirm" class="button-confirm" onclick="closePlayerProperties(true)">
+                <button id="button-properties-confirm" class="button-confirm" onclick="View.closePlayerProperties(true)">
                     <i class="material-icons">check</i>
                 </button>
             </div>
@@ -514,379 +512,390 @@ label + * {
     </div>
 </body>
 <script>
-    function focusInput(input) {
-        var inputParentList = []
-        inputParentList.push(input)
-        var label = document.getElementById(input.id + "-label")
-        if(label) {
-            inputParentList.push(label)
-        }
-        var p = input
-        while(p.parentElement) {
-            inputParentList.push(p.parentElement)
-            p = p.parentElement
-        }
-        var allElements = document.querySelectorAll("*")
-        for(var idx in allElements) {
-            if(inputParentList.indexOf(allElements.item(idx)) < 0) {
-                allElements.item(idx).style.opacity = "0"
-                allElements.item(idx).style.pointerEvents = "none"
+    var View = {
+        focusInput: function(input) {
+            var inputParentList = []
+            inputParentList.push(input)
+            var label = document.getElementById(input.id + "-label")
+            if(label) {
+                inputParentList.push(label)
             }
-        }
-    }
-
-    function blurInput(e) {
-        var allElements = document.querySelectorAll("*")
-        for(var idx in allElements) {
-            allElements.item(idx).style.opacity = "initial"
-            allElements.item(idx).style.pointerEvents = "initial"
-        }
-    }
-
-    function createNewPlayerPanel(player) {
-        if(!player) {
-            player = LifeCounter.createNewPlayer()
-        }
-        if(player) {
-            var container = document.createElement("div")
-            container.className = "player-panel"
-            container.id = "player-id-" + player.id
-            var content = document.createElement("div")
-            content.className = "player-panel-content"
-            if(player.color) {
-                content.style.backgroundColor = player.color
+            var p = input
+            while(p.parentElement) {
+                inputParentList.push(p.parentElement)
+                p = p.parentElement
             }
-            container.appendChild(content)
-            var nameTag = document.createElement("div")
-            nameTag.className = "player-name"
-            nameTag.innerText = player.name
-            // content.appendChild(nameTag)
-            var lifeTotal = document.createElement("div")
-            lifeTotal.id = "player-id-" + player.id + "-life"
-            lifeTotal.className = "player-panel-life"
-            lifeTotal.innerText = player.lifeTotal
-            content.appendChild(lifeTotal)
-            var upButton = document.createElement("button")
-            upButton.onclick = function() {
-                LifeCounter.updateLife(player.id, 1, null)
+            var allElements = document.querySelectorAll("*")
+            for(var idx in allElements) {
+                if(inputParentList.indexOf(allElements.item(idx)) < 0) {
+                    allElements.item(idx).style.opacity = "0"
+                    allElements.item(idx).style.pointerEvents = "none"
+                }
             }
-            upButton.className = "player-panel-up-button"
-            content.appendChild(upButton)
-            var upButtonIcon = document.createElement("i")
-            upButtonIcon.className = "material-icons"
-            upButtonIcon.innerText = "keyboard_arrow_up"
-            upButton.appendChild(upButtonIcon)
-            var downButton = document.createElement("button")
-            downButton.onclick = function() {
-                LifeCounter.updateLife(player.id, -1, null)
+        },
+        blurInput: function(e) {
+            var allElements = document.querySelectorAll("*")
+            for(var idx in allElements) {
+                allElements.item(idx).style.opacity = "initial"
+                allElements.item(idx).style.pointerEvents = "initial"
             }
-            downButton.className = "player-panel-down-button"
-            content.appendChild(downButton)
-            var downButtonIcon = document.createElement("i")
-            downButtonIcon.className = "material-icons"
-            downButtonIcon.innerText = "keyboard_arrow_down"
-            downButton.appendChild(downButtonIcon)
-            var playerPropertiesButton = document.createElement("button")
-            playerPropertiesButton.onclick = function() {
-                openPlayerProperties(player.id)
+        },
+        createNewPlayerPanel: function(player) {
+            if(!player) {
+                player = Service.createNewPlayer()
             }
-            playerPropertiesButton.className = "player-panel-player-properties-button"
-            content.appendChild(playerPropertiesButton)
-            var board = document.getElementById("page-board")
-            board.appendChild(container)
-            var body = document.getElementById("page-body")
-            body.className = "player-count-" + Object.keys(getStoredItem("players")).length
-            
-            if(Object.keys(getStoredItem("players")).length == 6) {
-                document.getElementById("button-newplayer").disabled = true
+            if(player) {
+                var container = document.createElement("div")
+                container.className = "player-panel"
+                container.id = "player-id-" + player.id
+                var content = document.createElement("div")
+                content.className = "player-panel-content"
+                if(player.color) {
+                    content.style.backgroundColor = player.color
+                }
+                container.appendChild(content)
+                var nameTag = document.createElement("div")
+                nameTag.className = "player-name"
+                nameTag.innerText = player.name
+                // content.appendChild(nameTag)
+                var lifeTotal = document.createElement("div")
+                lifeTotal.id = "player-id-" + player.id + "-life"
+                lifeTotal.className = "player-panel-life"
+                lifeTotal.innerText = player.lifeTotal
+                content.appendChild(lifeTotal)
+                var upButton = document.createElement("button")
+                upButton.onclick = function() {
+                    Service.updatePlayerProperty(player.id, "lifeTotal", 1)
+                }
+                upButton.className = "player-panel-up-button"
+                content.appendChild(upButton)
+                var upButtonIcon = document.createElement("i")
+                upButtonIcon.className = "material-icons"
+                upButtonIcon.innerText = "keyboard_arrow_up"
+                upButton.appendChild(upButtonIcon)
+                var downButton = document.createElement("button")
+                downButton.onclick = function() {
+                    Service.updatePlayerProperty(player.id, "lifeTotal", -1)
+                }
+                downButton.className = "player-panel-down-button"
+                content.appendChild(downButton)
+                var downButtonIcon = document.createElement("i")
+                downButtonIcon.className = "material-icons"
+                downButtonIcon.innerText = "keyboard_arrow_down"
+                downButton.appendChild(downButtonIcon)
+                var playerPropertiesButton = document.createElement("button")
+                playerPropertiesButton.onclick = function() {
+                    View.openPlayerProperties(player.id)
+                }
+                playerPropertiesButton.className = "player-panel-player-properties-button"
+                content.appendChild(playerPropertiesButton)
+                var board = document.getElementById("page-board")
+                board.appendChild(container)
+                var body = document.getElementById("page-body")
+                body.className = "player-count-" + Object.keys(Store.get("players")).length
+                
+                if(Object.keys(Store.get("players")).length == 6) {
+                    document.getElementById("button-newplayer").disabled = true
+                }
             }
-        }
-    }
-
-    function removePlayerPanel(playerId, remainingPlayerCount) {
-        if(typeof playerId == "number") {
+        },
+        removePlayer: function(playerId) {
+            var playerId = typeof playerId == "number" ? playerId : JSON.parse(document.getElementById("page-player-properties-id").value)
+            var remainingPlayerCount = Service.removePlayer(playerId)
             document.getElementById("player-id-" + playerId).remove()
             var body = document.getElementById("page-body")
             body.className = "player-count-" + remainingPlayerCount
             document.getElementById("button-newplayer").disabled = false
-        }
-    }
-
-    function removePlayer() {
-        var playerId = JSON.parse(document.getElementById("page-player-properties-id").value)
-        LifeCounter.removePlayer(playerId)
-        closePlayerProperties()
-    }
-
-    function newPlayerButtonClicked() {
-        createNewPlayerPanel()
-    }
-
-    function resetAll() {
-        LifeCounter.resetAllPlayers()
-    }
-
-    function openSettings() {
-        document.getElementById("page-board").style.transform = "translate(-100%)"
-        var boardNodes = document.getElementsByClassName("page-board")
-        for(var idx in boardNodes) {
-            boardNodes.item(idx).style.display = "none"
-        }
-        document.getElementById("page-settings").style.transform = "translate(0%)"
-        var settingsNodes = document.getElementsByClassName("page-settings")
-        for(var idx in settingsNodes) {
-            settingsNodes.item(idx).style.display = "block"
-        }
-    }
-
-    function closeSettings(save) {
-        document.getElementById("page-settings").style.transform = "translate(110vw)"
-        var settingsNodes = document.getElementsByClassName("page-settings")
-        for(var idx in settingsNodes) {
-            settingsNodes.item(idx).style.display = "none"
-        }
-        document.getElementById("page-board").style.transform = "translate(0%)"
-        var boardNodes = document.getElementsByClassName("page-board")
-        for(var idx in boardNodes) {
-            boardNodes.item(idx).style.display = "block"
-        }
-        if(save) {
-            var select = document.getElementById("select-starting-life-total")
-            var selectedOption = select.options[select.selectedIndex].value
-            setStoredItem("startingLifeTotal", JSON.parse(selectedOption))
-        }
-    }
-
-    function openPlayerProperties(playerId) {
-        document.getElementById("page-player-properties-id").value = playerId
-        var player = getStoredItem("players")[playerId]
-        document.getElementById("input-player-life").value = player.lifeTotal
-        document.getElementById("input-player-name").value = player.name
-        document.getElementById("page-player-properties-color-preview").style.backgroundColor = player.color
-        document.getElementById("page-board").style.transform = "translate(-100%)"
-        var colorInputs = document.getElementsByClassName("input-color")
-        for(var idx in colorInputs) {
-            if(colorInputs[idx].value == player.color) {
-                colorInputs[idx].checked = true
-            } else {
-                colorInputs[idx].checked = false
+            View.closePlayerProperties()
+        },
+        openSettings: function() {
+            document.getElementById("page-board").style.transform = "translate(-100%)"
+            var boardNodes = document.getElementsByClassName("page-board")
+            for(var idx in boardNodes) {
+                boardNodes.item(idx).style.display = "none"
             }
-        }
-        var boardNodes = document.getElementsByClassName("page-board")
-        for(var idx in boardNodes) {
-            boardNodes.item(idx).style.display = "none"
-        }
-        document.getElementById("page-player-properties").style.transform = "translate(0%)"
-        var playerPropertiesNodes = document.getElementsByClassName("page-player-properties")
-        for(var idx in playerPropertiesNodes) {
-            playerPropertiesNodes.item(idx).style.display = "block"
+            document.getElementById("page-settings").style.transform = "translate(0%)"
+            var settingsNodes = document.getElementsByClassName("page-settings")
+            for(var idx in settingsNodes) {
+                settingsNodes.item(idx).style.display = "block"
+            }
+        },
+        closeSettings: function(save) {
+            document.getElementById("page-settings").style.transform = "translate(110vw)"
+            var settingsNodes = document.getElementsByClassName("page-settings")
+            for(var idx in settingsNodes) {
+                settingsNodes.item(idx).style.display = "none"
+            }
+            document.getElementById("page-board").style.transform = "translate(0%)"
+            var boardNodes = document.getElementsByClassName("page-board")
+            for(var idx in boardNodes) {
+                boardNodes.item(idx).style.display = "block"
+            }
+            if(save) {
+                var select = document.getElementById("select-starting-life-total")
+                var selectedOption = select.options[select.selectedIndex].value
+                Store.set("startingLifeTotal", JSON.parse(selectedOption))
+            }
+        },
+        openPlayerProperties: function(playerId) {
+            document.getElementById("page-player-properties-id").value = playerId
+            var player = Store.get("players")[playerId]
+            document.getElementById("input-player-life").value = player.lifeTotal
+            document.getElementById("input-player-name").value = player.name
+            document.getElementById("page-player-properties-color-preview").style.backgroundColor = player.color
+            document.getElementById("page-board").style.transform = "translate(-100%)"
+            var colorInputs = document.getElementsByClassName("input-color")
+            for(var idx in colorInputs) {
+                if(colorInputs[idx].value == player.color) {
+                    colorInputs[idx].checked = true
+                } else {
+                    colorInputs[idx].checked = false
+                }
+            }
+            var boardNodes = document.getElementsByClassName("page-board")
+            for(var idx in boardNodes) {
+                boardNodes.item(idx).style.display = "none"
+            }
+            document.getElementById("page-player-properties").style.transform = "translate(0%)"
+            var playerPropertiesNodes = document.getElementsByClassName("page-player-properties")
+            for(var idx in playerPropertiesNodes) {
+                playerPropertiesNodes.item(idx).style.display = "block"
+            }
+        },
+        closePlayerProperties: function(save) {
+            document.getElementById("page-player-properties").style.transform = "translate(110vw)"
+            var playerPropertiesNodes = document.getElementsByClassName("page-player-properties")
+            for(var idx in playerPropertiesNodes) {
+                playerPropertiesNodes.item(idx).style.display = "none"
+            }
+            document.getElementById("page-board").style.transform = "translate(0%)"
+            var boardNodes = document.getElementsByClassName("page-board")
+            for(var idx in boardNodes) {
+                boardNodes.item(idx).style.display = "block"
+            }
+            if(save) {
+                var playerId = JSON.parse(document.getElementById("page-player-properties-id").value)
+                var players = Store.get("players")
+                var colorInput = document.querySelector(".input-color:checked")
+                var storedColor = Store.get("players")[playerId].color
+                if(colorInput && colorInput.value != storedColor) {
+                    Service.updatePlayerProperty(playerId, "color", colorInput.value)
+                }
+                var lifeInput = document.getElementById("input-player-life")
+                var storedLifeTotal = Store.get("players")[playerId].lifeTotal
+                if(lifeInput && JSON.parse(lifeInput.value) != storedLifeTotal) {
+                    var lifeTotalDiff = JSON.parse(lifeInput.value) - storedLifeTotal
+                    Service.updatePlayerProperty(playerId, "lifeTotal", lifeTotalDiff)
+                }
+                var nameInput = document.getElementById("input-player-name")
+                var storedName = Store.get("players")[playerId].name
+                if(nameInput && nameInput.value != storedName) {
+                    Service.updatePlayerProperty(playerId, "name", nameInput.value)
+                }
+            }
+            document.getElementById("page-player-properties-id").value = null
         }
     }
 
-    function closePlayerProperties(save) {
-        var playerId = JSON.parse(document.getElementById("page-player-properties-id").value)
-        document.getElementById("page-player-properties").style.transform = "translate(110vw)"
-        var playerPropertiesNodes = document.getElementsByClassName("page-player-properties")
-        for(var idx in playerPropertiesNodes) {
-            playerPropertiesNodes.item(idx).style.display = "none"
-        }
-        document.getElementById("page-board").style.transform = "translate(0%)"
-        var boardNodes = document.getElementsByClassName("page-board")
-        for(var idx in boardNodes) {
-            boardNodes.item(idx).style.display = "block"
-        }
-        if(save) {
-            var players = getStoredItem("players")
-            var colorInput = document.querySelector(".input-color:checked")
-            if(colorInput) {
-                players[playerId].color = colorInput.value
-                document.getElementById("player-id-" + playerId).firstChild.style.backgroundColor = players[playerId].color
-            }
-            var lifeInput = document.getElementById("input-player-life")
-            if(lifeInput) {
-                players[playerId].lifeTotal = JSON.parse(lifeInput.value)
-                document.getElementById("player-id-" + playerId + "-life").innerText = players[playerId].lifeTotal
-            }
-            var nameInput = document.getElementById("input-player-name")
-            if(nameInput) {
-                players[playerId].name = nameInput.value
-                // document.getElementById("player-id-" + playerId).firstChild.firstChild.innerText = players[playerId].name
-            }
-            setStoredItem("players", players)
-        }
-        document.getElementById("page-player-properties-id").value = null
-    }
-
-    function resetEntireBoard() {
-        var players = getStoredItem("players")
-        for(var idx in players) {
-            removePlayerPanel(players[idx].id, 0)
-        }
-        closeSettings(true)
-        setStoredItem("players", {})
-        initLifeCounter()
-    }
-
-    var LifeCounter = {
+    var Service = {
         createNewPlayer: function() {
-            var players = getStoredItem("players")
+            var players = Store.get("players")
             if(Object.keys(players).length < 6) {
                 var maxId = -1
                 for(var idx in Object.keys(players)) {
                     maxId = Math.max(maxId, players[Object.keys(players)[idx]].id)
                 }
                 var newPlayerId = maxId+1
-                var lifeTotal = getStoredItem("startingLifeTotal")
-                players[newPlayerId] = Player({
+                var lifeTotal = Store.get("startingLifeTotal")
+                players[newPlayerId] = Store.Player({
                     id: newPlayerId,
                     lifeTotal: lifeTotal,
                     commanderDamage: {},
                     color: null,
                     name: null
                 })
-                setStoredItem("players", players)
+                Store.set("players", players)
                 return players[newPlayerId]
             } else {
                 return null
             }
         },
         removePlayer: function(id) {
-            var players = getStoredItem("players")
+            var players = Store.get("players")
             if(Object.keys(players).length > 1) {
-                removePlayerPanel(id, Object.keys(players).length - 1)
                 delete players[id]
-                setStoredItem("players", players)
+                Store.set("players", players)
             }
+            return Object.keys(players).length
         },
-        updateLife: function(id, amount, commanderDamagePlayerId) {
-            var players = getStoredItem("players")
-            if(players[id]) {
-                players[id].lifeTotal += amount
-                if(typeof commanderDamagePlayerId == "number" && amount < 0 && id != commanderDamagePlayerId) {
-                    players[id].commanderDamage[commanderDamagePlayerId] += amount
+        updatePlayerProperty: function(playerId, property, args) {
+            var availableProperties = Object.keys(Store.Player())
+            if(availableProperties.indexOf(property) < 0) {
+                return
+            } else {
+                switch(property) {
+                    case "id":
+                        break
+                    case "lifeTotal":
+                        if(typeof args == "number") {
+                            var players = Store.get("players")
+                            players[playerId].lifeTotal += args
+                            Store.set("players", players)
+                            document.getElementById("player-id-" + playerId + "-life").innerText = players[playerId].lifeTotal
+                            Store.set("players", players)
+                        }
+                        break
+                    case "commanderDamage":
+                        break
+                    case "color":
+                        if(typeof args == "string") {
+                            var players = Store.get("players")
+                            players[playerId].color = args
+                            document.getElementById("player-id-" + playerId).firstChild.style.backgroundColor = players[playerId].color
+                            Store.set("players", players)
+                        }
+                        break
+                    case "name":
+                        if(typeof args == "string") {
+                            var players = Store.get("players")
+                            players[playerId].name = args
+                            // document.getElementById("player-id-" + playerId).firstChild.firstChild.innerText = players[playerId].name
+                            Store.set("players", players)
+                        }
+                        break
+                    default:
+                        break
                 }
-                setStoredItem("players", players)
-                document.getElementById("player-id-" + id + "-life").innerText = players[id].lifeTotal
             }
         },
         resetAllPlayers: function() {
-            var players = getStoredItem("players")
+            var players = Store.get("players")
             for(var idx in Object.keys(players)) {
-                players[Object.keys(players)[idx]].lifeTotal = getStoredItem("startingLifeTotal")
+                players[Object.keys(players)[idx]].lifeTotal = Store.get("startingLifeTotal")
                 document.getElementById("player-id-" + players[Object.keys(players)[idx]].id + "-life").innerText = players[Object.keys(players)[idx]].lifeTotal
             }
-            setStoredItem("players", players)
+            Store.set("players", players)
+        },
+        resetEntireBoard: function() {
+            var players = Store.get("players")
+            for(var idx in players) {
+                View.removePlayer(players[idx].id)
+            }
+            View.closeSettings(true)
+            Store.set("players", {})
+            Service.initService()
+        },
+        initColors: function() {
+            var Colors = [
+                "#dddddd",
+                "#85302c",
+                "#ca5f61",
+                "#c4824d",
+                "#b6c758",
+                "#327c29",
+                "#3bb271",
+                "#6c7ece",
+                "#4cb6c3",
+                "#335198",
+                "#b17ad3",
+                "#5a2877",
+                "#c55290",
+                "#444444"
+            ]
+            var colorContainer = document.getElementById("page-player-properties-colors")
+            for(var idx in Colors) {
+                var input = document.createElement("input")
+                input.type = "radio"
+                input.name = "input-color"
+                input.className = "input-color"
+                input.value = Colors[idx]
+                input.style.backgroundColor = input.value
+                input.onchange = function(event) {
+                    document.getElementById("page-player-properties-color-preview").style.backgroundColor = event.target.value
+                }
+                colorContainer.appendChild(input)
+            }
+        },
+        initLocalStorage: function() {
+            if(Store.getFromLocalStorage("startingLifeTotal") == null) {
+                Store.set("startingLifeTotal", Store.RuntimeStorage.startingLifeTotal)
+            }
+            if(Store.getFromLocalStorage("players") == null) {
+                Store.set("players", {})
+            }
+        },
+        initService: function() {
+            View.createNewPlayerPanel()
         }
     }
 
-    function Player(args) {
-        return {
-            id: args ? args["id"] : null,
-            lifeTotal: args ? args["lifeTotal"] : null,
-            commanderDamage: args ? args["commanderDamage"] : null,
-            color: null,
-            name: null
+    var Store = {
+        Player: function(args) {
+            return {
+                id: args ? args["id"] : null,
+                lifeTotal: args ? args["lifeTotal"] : null,
+                commanderDamage: args ? args["commanderDamage"] : null,
+                color: null,
+                name: null
+            }
+        },
+        RuntimeStorage: {
+            startingLifeTotal: 20,
+            players: {}
+        },
+        get: function(itemName) {
+
+        },
+        getFromLocalStorage: function(itemName) {
+            var result = JSON.parse(localStorage.getItem(itemName))
+            if(!result) {
+                result = Store.getFromRuntimeStorage(itemName)
+                Store.set(itemName, result)
+            }
+            return result
+        },
+        getFromRuntimeStorage: function(itemName) {
+            return Store.RuntimeStorage[itemName]
+        },
+        set: function(itemName, itemValue) {
+
+        },
+        setLocalStorage: function(itemName, itemValue) {
+            localStorage.setItem(itemName, JSON.stringify(itemValue))
+        },
+        setRuntimeStorage: function(itemName, itemValue) {
+            Store.RuntimeStorage[itemName] = itemValue
+        },
+        restoreSession: function() {
+            var players = Store.get("players")
+            for(var idx in Object.keys(players)) {
+                View.createNewPlayerPanel(players[Object.keys(players)[idx]])
+            }
         }
-    }
-
-    var RuntimeStorage = {
-        startingLifeTotal: 20,
-        players: {}
-    }
-
-    function getStoredItem(itemName) {}
-    function getFromLocalStorage(itemName) {
-        var result = JSON.parse(localStorage.getItem(itemName))
-        if(!result) {
-            result = getFromRuntimeStorage(itemName)
-            setStoredItem(itemName, result)
-        }
-        return result
-    }
-    function getFromRuntimeStorage(itemName) {
-        return RuntimeStorage[itemName]
-    }
-
-    function setStoredItem(itemName, itemValue) {}
-    function setLocalStorage(itemName, itemValue) {
-        localStorage.setItem(itemName, JSON.stringify(itemValue))
-    }
-    function setRuntimeStorage(itemName, itemValue) {
-        RuntimeStorage[itemName] = itemValue
-    }
+    };
 
     (function() {
-        setTimeout(function() { window.scrollTo(0, 1) }, 100);
+        document.addEventListener("touchmove", function(e) {
+            e.preventDefault()
+        })
+        window.addEventListener("load", function() {
+            window. scrollTo(0, 1)
+        })
         if (typeof(Storage) !== "undefined") {
-            getStoredItem = getFromLocalStorage
-            setStoredItem = setLocalStorage
-            initLocalStorage()
+            Store.get = Store.getFromLocalStorage
+            Store.set = Store.setLocalStorage
+            Service.initLocalStorage()
         } else {
-            getStoredItem = getFromRuntimeStorage
-            setStoredItem = setRuntimeStorage
+            Store.get = Store.getFromRuntimeStorage
+            Store.set = Store.setRuntimeStorage
         }
-        initColors()
-        var players = getStoredItem("players")
+        Service.initColors()
+        var players = Store.get("players")
         if(players == null || Object.keys(players).length == 0) {
-            initLifeCounter()
+            Service.initService()
         } else {
-            restoreSession()
+            Store.restoreSession()
         }
     })()
-
-    function initColors() {
-        var Colors = [
-            "#dddddd",
-            "#85302c",
-            "#ca5f61",
-            "#c4824d",
-            "#b6c758",
-            "#327c29",
-            "#3bb271",
-            "#6c7ece",
-            "#4cb6c3",
-            "#335198",
-            "#b17ad3",
-            "#5a2877",
-            "#c55290",
-            "#444444"
-        ]
-        var colorContainer = document.getElementById("page-player-properties-colors")
-        for(var idx in Colors) {
-            var input = document.createElement("input")
-            input.type = "radio"
-            input.name = "input-color"
-            input.className = "input-color"
-            input.value = Colors[idx]
-            input.style.backgroundColor = input.value
-            input.onchange = function(event) {
-                document.getElementById("page-player-properties-color-preview").style.backgroundColor = event.target.value
-            }
-            colorContainer.appendChild(input)
-        }
-    }
-
-    function initLocalStorage() {
-        if(getFromLocalStorage("startingLifeTotal") == null) {
-            setStoredItem("startingLifeTotal", RuntimeStorage.startingLifeTotal)
-        }
-        if(getFromLocalStorage("players") == null) {
-            setStoredItem("players", {})
-        }
-    }
-
-    function initLifeCounter() {
-        newPlayerButtonClicked()
-    }
-
-    function restoreSession() {
-        var players = getStoredItem("players")
-        for(var idx in Object.keys(players)) {
-            createNewPlayerPanel(players[Object.keys(players)[idx]])
-        }
-    }
-
-    document.addEventListener("touchmove", function(e) { e.preventDefault() });
-    window.addEventListener("load", function() { window. scrollTo(0, 0); });
 </script>
 </html>
