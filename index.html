@@ -934,7 +934,9 @@ label + * {
 
     (function() {
         window.addEventListener("load",function() {
-            // document.body.requestFullscreen()
+            if(typeof document.body.requestFullscreen == "function") {
+                document.body.requestFullscreen()
+            }
         });
         window.addEventListener("orientationchange", function() {
             window.setTimeout(View.adjustContentSizeAll, 450)
