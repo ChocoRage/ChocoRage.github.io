@@ -17,7 +17,9 @@
 }
 body {
     font-family: Assistant;
-    height: 100vh;
+    height: -webkit-calc(100vh + 1px);
+    height: -moz-calc(100vh + 1px);
+    height: calc(100vh + 1px);
     width: 100vw;
     margin: 0;
     padding: 0;
@@ -914,7 +916,7 @@ label + * {
             window. scrollTo(0, 1)
         })
         window.addEventListener("orientationchange", function() {
-            window.setTimeout(View.adjustContentSizeAll, 400)
+            window.setTimeout(View.adjustContentSizeAll, 450)
         })
         if (typeof(Storage) !== "undefined") {
             Store.get = Store.getFromLocalStorage
