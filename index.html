@@ -538,6 +538,11 @@ label + * {
                     allElements.item(idx).style.pointerEvents = "none"
                 }
             }
+            document.addEventListener("keyup", function(e) {
+                if(e.keyCode == 13) {
+                    View.blurInput(input)
+                }
+            })
         },
         blurInput: function(e) {
             var allElements = document.querySelectorAll("*")
@@ -909,15 +914,7 @@ label + * {
     };
 
     (function() {
-        document.addEventListener("touchmove", function(e) {
-            e.preventDefault()
-        })
-        window.addEventListener("load", function() {
-            window.scrollTo(0, 1)
-        })
-        window.addEventListener("keyup", function(e) {
-            alert(e.keyCode)
-        })
+        window.scrollTo(0, 1)
         window.addEventListener("orientationchange", function() {
             window.setTimeout(View.adjustContentSizeAll, 450)
         })
