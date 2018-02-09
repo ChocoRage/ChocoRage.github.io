@@ -540,6 +540,7 @@ label + * {
             }
             document.addEventListener("keyup", function(e) {
                 if(e.keyCode == 13) {
+                    input.blur()
                     View.blurInput(input)
                 }
             })
@@ -914,7 +915,11 @@ label + * {
     };
 
     (function() {
-        window.scrollTo(0, 1)
+        window.addEventListener("load",function() {
+            setTimeout(function(){
+                window.scrollTo(0, 1);
+            }, 0);
+        });
         window.addEventListener("orientationchange", function() {
             window.setTimeout(View.adjustContentSizeAll, 450)
         })
