@@ -17,10 +17,11 @@
 }
 body {
     font-family: Assistant;
-    height: -webkit-calc(100vh + 1px);
-    height: -moz-calc(100vh + 1px);
-    height: calc(100vh + 1px);
-    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     margin: 0;
     padding: 0;
     border: 0;
@@ -35,6 +36,7 @@ body {
 #page-body {
     flex-grow: 1;
     z-index: 0;
+    font-size: 0;
 }
 #page-foot {
     display: flex;
@@ -80,7 +82,6 @@ body {
 }
 .player-panel-life span {
     vertical-align: middle;
-    /* transition: font-size 0.1s ease; */
 }
 .player-panel-up-button {
     top: 0;
@@ -127,9 +128,12 @@ body {
 }
 #page-board {
     height: 100%;
-    width: 100%;
     transform: translateX(0%);
     transition: transform 0.4s ease-in-out;
+}
+#page-board-player-panels {
+    display: inline-block;
+    vertical-align: top;
 }
 .page-settings,
 .page-player-properties {
@@ -237,16 +241,39 @@ label + * {
     z-index: 99;
     pointer-events: none;
 }
+#page-board-history {
+    display: inline-block;
+    vertical-align: top;
+    background-color: rgba(0, 0, 0, .2);
+}
+.history-entry-text {
+    color: #000;
+}
+.history-entry-panel {
+    background-color: rgba(255, 255, 255, .5);
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+}
+#history-entry-panels {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
 @media screen and (orientation: landscape) {
     #page-container {
         flex-direction: row;
     }
     #page-body {
-        width: 90%;
+        width: 90vw;
         height: 100%;
     }
+    #page-board-player-panels {
+        height: 100%;
+        width: 80vw;
+    }
     #page-foot {
-        width: 10%;
+        width: 10vw;
         flex-direction: column-reverse;
     }
     #page-foot div {
@@ -267,7 +294,7 @@ label + * {
         height: 50%;
     }
     .player-panel-life {
-        font-size: 25vh;
+        font-size: 20vh;
     }
     .player-count-2 .player-panel {
         height: 100%;
@@ -330,17 +357,44 @@ label + * {
         bottom: 0;
         color: #888888;
     }
+    #page-board-history {
+        width: 10vw;
+        height: 100%;
+    }
+    .history-entry-panel {
+        min-height: 8vw;
+        min-width: 8vw;
+        max-height: 8vw;
+        max-width: 8vw;
+        line-height: 8vw;
+        margin-top: 1vw;
+        margin-left: 1vw;
+        margin-right: 1vw;
+    }
+    .history-entry-panel:first-child {
+        margin-bottom: 1vw;
+    }
+    .history-entry-text {
+        font-size: 10vh;
+    }
+    #history-entry-panels {
+        flex-direction: column-reverse;
+    }
 }
 @media screen and (orientation: portrait) {
     #page-container {
         flex-direction: column;
     }
     #page-body {
-        height: 90%;
+        height: 90vh;
         width: 100%;
     }
+    #page-board-player-panels {
+        width: 100%;
+        height: 80vh;
+    }
     #page-foot {
-        height: 10%;
+        height: 10vh;
         flex-direction: row;
     }
     #page-foot div {
@@ -361,7 +415,7 @@ label + * {
         width: 50%;
     }
     .player-panel-life {
-        font-size: 25vw;
+        font-size: 20vw;
     }
     .player-count-2 .player-panel {
         width: 100%;
@@ -426,6 +480,29 @@ label + * {
         bottom: 0;
         color: #888888;
     }
+    #page-board-history {
+        height: 10vh;
+        width: 100%;
+    }
+    .history-entry-panel {
+        min-height: 8vh;
+        min-width: 8vh;
+        max-height: 8vh;
+        max-width: 8vh;
+        line-height: 8vh;
+        margin-top: 1vh;
+        margin-left: 1vh;
+        margin-bottom: 1vh;
+    }
+    .history-entry-panel:first-child {
+        margin-right: 1vh;
+    }
+    .history-entry-text {
+        font-size: 10vw;
+    }
+    #history-entry-panels {
+        flex-direction: row-reverse;
+    }
 }
 </style>
 <body>
@@ -433,6 +510,12 @@ label + * {
         <div id="page-body">
             <!-- =============== Board Body =============== -->
             <div id="page-board">
+                <div id="page-board-history" onclick="View.makeLastHistoryEntryFinal()">
+                    <div id="history-entry-panels">
+                    </div>
+                </div>
+                <div id="page-board-player-panels">
+                </div>
             </div>
             <!-- =============== Settings Body =============== -->
             <div id="page-settings">
@@ -622,7 +705,7 @@ label + * {
                 }
                 playerPropertiesButton.className = "player-panel-player-properties-button"
                 content.appendChild(playerPropertiesButton)
-                var board = document.getElementById("page-board")
+                var board = document.getElementById("page-board-player-panels")
                 board.appendChild(container)
                 var body = document.getElementById("page-body")
                 body.className = "player-count-" + Object.keys(Store.get("players")).length
@@ -630,7 +713,7 @@ label + * {
                 if(Object.keys(Store.get("players")).length == 6) {
                     document.getElementById("button-newplayer").disabled = true
                 }
-                setTimeout(View.adjustContentSizeAll, 400)
+                setTimeout(View.adjustFontSizeAll, 400)
             }
         },
         removePlayer: function(playerId) {
@@ -640,8 +723,9 @@ label + * {
             var body = document.getElementById("page-body")
             body.className = "player-count-" + remainingPlayerCount
             document.getElementById("button-newplayer").disabled = false
+            View.removeHistoryForPlayer(playerId)
             View.closePlayerProperties()
-            setTimeout(View.adjustContentSizeAll, 400)
+            setTimeout(View.adjustFontSizeAll, 400)
         },
         openSettings: function() {
             document.getElementById("page-board").style.transform = "translate(-100%)"
@@ -730,23 +814,86 @@ label + * {
             }
             document.getElementById("page-player-properties-id").value = null
         },
-        adjustContentSize: function(element) {
+        adjustFontSize: function(element, maxFontSize) {
             setTimeout(function() {
+                if(!element) {
+                    return
+                }
                 var parent = element.parentElement
                 var width = element.getBoundingClientRect().width
                 var parentWidth = parent.getBoundingClientRect().width
                 var factor = parentWidth / width
                 var fontSizeStr = element.style.fontSize ? element.style.fontSize : getComputedStyle(element).fontSize
-                var maxFontSize = Math.min(screen.width, screen.height) / 4
                 var fontSize = Math.min(parseFloat(fontSizeStr) * factor, maxFontSize)
                 var fontSizeUnit = /[^0-9.]+/.exec(fontSizeStr)
                 element.style.fontSize = "" + fontSize + fontSizeUnit[0]
             }, 100)
         },
-        adjustContentSizeAll: function() {
+        adjustFontSizeAll: function() {
             var lifeElements = document.querySelectorAll(".player-panel-life span")
+            var maxFontSizeLife = Store.get("maxFontSizeLife")
             for(var idx in lifeElements) {
-                View.adjustContentSize(lifeElements.item(idx))
+                View.adjustFontSize(lifeElements.item(idx), Store.get("maxFontSizeLife"))
+            }
+            var maxFontSizeHistory = Store.get("maxFontSizeHistory")
+            var historyElements = document.querySelectorAll(".history-entry-life span")
+            for(var idx in historyElements) {
+                View.adjustFontSize(historyElements.item(idx), Store.get("maxFontSizeHistory"))
+            }
+        },
+        updateLastHistoryEntry: function(historyEntry) {
+            var historyPanel = document.getElementById("history-entry-panels")
+            var lastHistoryEntry = historyPanel.lastChild
+            lastHistoryEntry.firstChild.innerText = historyEntry.amount > 0 ? "+" + historyEntry.amount : "" + historyEntry.amount
+            View.adjustFontSize(lastHistoryEntry.firstChild, Store.get("maxFontSizeHistory"))
+        },
+        needNewHistoryEntry: function(playerId) {
+            var historyPanel = document.getElementById("history-entry-panels")
+            if(parseInt(historyPanel.lastChild.attributes["data-player-id"].value) == playerId) {
+                return false
+            } else {
+                return true
+            }
+        },
+        addHistroryEntry: function(historyEntry, player) {
+            if(historyEntry.amount == 0) {
+                return
+            }
+            var historyPanel = document.getElementById("history-entry-panels")
+            var historyEntryPanel = document.createElement("div")
+            historyEntryPanel.className = "history-entry-panel"
+            historyEntryPanel.setAttribute("data-player-id", player.id)
+            historyEntryPanel.style.backgroundColor = player.color
+            historyPanel.appendChild(historyEntryPanel)
+            historyEntryText = document.createElement("span")
+            historyEntryText.className = "history-entry-text"
+            historyEntryText.innerText = historyEntry.amount > 0 ? "+" + historyEntry.amount : "" + historyEntry.amount
+            historyEntryPanel.appendChild(historyEntryText)
+            View.adjustFontSize(historyEntryText, Store.get("maxFontSizeHistory"))
+        },
+        removeHistoryForPlayer: function(playerId) {
+            var historyEntries = document.querySelectorAll(".history-entry-panel[data-player-id='" + playerId + "']")
+            if(historyEntries.length == 0) {
+                return
+            }
+            for(var idx in historyEntries) {
+                historyEntries.item(idx).remove()
+            }
+        },
+        clearHistoryPanel: function() {
+            var historyPanel = document.getElementById("history-entry-panels")
+            historyPanel.innerHTML = null
+        },
+        makeLastHistoryEntryFinal: function() {
+            Service.makeLastHistoryEntryFinal()
+        },
+        updateHistoryColor(player) {
+            var playerEntries = document.querySelectorAll(".history-entry-panel[data-player-id='" + player.id + "']")
+            if(playerEntries.length == 0) {
+                return
+            }
+            for(var idx in playerEntries) {
+                playerEntries.item(idx).style.backgroundColor = player.color
             }
         }
     }
@@ -774,12 +921,20 @@ label + * {
                 return null
             }
         },
-        removePlayer: function(id) {
+        removePlayer: function(playerId) {
             var players = Store.get("players")
             if(Object.keys(players).length > 1) {
-                delete players[id]
+                delete players[playerId]
                 Store.set("players", players)
             }
+            var history = Store.get("history")
+            var newHistory = []
+            for(var idx in history) {
+                if(history[idx].playerId != playerId) {
+                    newHistory.push(history[idx])
+                }
+            }
+            Store.set("history", newHistory)
             return Object.keys(players).length
         },
         updatePlayerProperty: function(playerId, property, args) {
@@ -797,8 +952,19 @@ label + * {
                             Store.set("players", players)
                             var playerLifePanel = document.getElementById("player-id-" + playerId + "-life")
                             playerLifePanel.innerText = players[playerId].lifeTotal
-                            View.adjustContentSize(playerLifePanel)
+                            View.adjustFontSize(playerLifePanel, Store.get("maxFontSizeLife"))
+                            var historyEntry = Store.HistoryEntry({playerId: playerId, amount: args})
+                            var history = Store.get("history")
+                            if(history.length == 0 || history[history.length-1].isFinal || (new Date().getTime() - new Date(history[history.length-1].lastUpdated).getTime()) > 5000 || View.needNewHistoryEntry(playerId)) {
+                                history.push(historyEntry)
+                                View.addHistroryEntry(historyEntry, players[playerId])
+                            } else {
+                                history[history.length-1].amount += args
+                                history[history.length-1].lastUpdated = new Date()
+                                View.updateLastHistoryEntry(history[history.length-1])
+                            }
                             Store.set("players", players)
+                            Store.set("history", history)
                         }
                         break
                     case "commanderDamage":
@@ -808,6 +974,7 @@ label + * {
                             var players = Store.get("players")
                             players[playerId].color = args
                             document.getElementById("player-id-" + playerId).firstChild.style.backgroundColor = players[playerId].color
+                            View.updateHistoryColor(players[playerId])
                             Store.set("players", players)
                         }
                         break
@@ -815,7 +982,9 @@ label + * {
                         if(typeof args == "string") {
                             var players = Store.get("players")
                             players[playerId].name = args
-                            // document.getElementById("player-id-" + playerId).firstChild.firstChild.innerText = players[playerId].name
+                            // var playerNamePanel = document.getElementById("player-id-" + playerId)
+                            // playerNamePanel.firstChild.firstChild.innerText = players[playerId].name
+                            // View.adjustFontSize(playerNamePanel, Store.get("maxFontSizeName"))
                             Store.set("players", players)
                         }
                         break
@@ -828,8 +997,8 @@ label + * {
             var players = Store.get("players")
             for(var idx in Object.keys(players)) {
                 Service.updatePlayerProperty(parseInt(Object.keys(players)[idx]), "lifeTotal", Store.get("startingLifeTotal") - players[Object.keys(players)[idx]].lifeTotal)
-                // document.getElementById("player-id-" + players[Object.keys(players)[idx]].id + "-life").innerText = players[Object.keys(players)[idx]].lifeTotal
-                // View.adjustContentSizeAll()
+                View.clearHistoryPanel()
+                Store.set("history", [])
             }
         },
         resetEntireBoard: function() {
@@ -838,7 +1007,9 @@ label + * {
                 View.removePlayer(players[idx].id)
             }
             View.closeSettings(true)
+            View.clearHistoryPanel()
             Store.set("players", {})
+            Store.set("history", [])
             Service.initService()
         },
         initColors: function() {
@@ -872,17 +1043,14 @@ label + * {
                 colorContainer.appendChild(input)
             }
         },
-        initLocalStorage: function() {
-            if(Store.getFromLocalStorage("startingLifeTotal") == null) {
-                Store.set("startingLifeTotal", Store.RuntimeStorage.startingLifeTotal)
-            }
-            if(Store.getFromLocalStorage("players") == null) {
-                Store.set("players", {})
-            }
-        },
         initService: function() {
             View.createNewPlayerPanel()
-            View.adjustContentSizeAll()
+            View.adjustFontSizeAll()
+        },
+        makeLastHistoryEntryFinal: function() {
+            var history = Store.get("history")
+            history[history.length-1].isFinal = true
+            Store.set("history", history)
         }
     }
 
@@ -896,9 +1064,21 @@ label + * {
                 name: null
             }
         },
+        HistoryEntry: function(args) {
+            return {
+                playerId: args ? args["playerId"] : null,
+                amount: args ? args["amount"] : null,
+                lastUpdated: new Date(),
+                isFinal: false
+            }
+        },
         RuntimeStorage: {
             startingLifeTotal: 20,
-            players: {}
+            players: {},
+            history: [],
+            maxFontSizeHistory: Math.min(screen.width, screen.height) / 10,
+            maxFontSizeLife: Math.min(screen.width, screen.height) / 5,
+            maxFontSizeName: Math.min(screen.width, screen.height) / 10
         },
         get: function(itemName) {
 
@@ -928,23 +1108,37 @@ label + * {
             for(var idx in Object.keys(players)) {
                 View.createNewPlayerPanel(players[Object.keys(players)[idx]])
             }
-            View.adjustContentSizeAll()
+            var history = Store.get("history")
+            for(var idx in history) {
+                View.addHistroryEntry(history[idx], players[history[idx].playerId])
+            }
+        },
+        initLocalStorage: function() {
+            if(Store.getFromLocalStorage("startingLifeTotal") == null) {
+                Store.set("startingLifeTotal", Store.RuntimeStorage.startingLifeTotal)
+            }
+            if(Store.getFromLocalStorage("players") == null) {
+                Store.set("players", {})
+            }
+            if(Store.getFromLocalStorage("history") == null) {
+                Store.set("history", [])
+            }
+        },
+        clearHistory: function() {
+            var players = Store.get("players")
+            View.clearHistoryPanel()
+            Store.set("history", [])
         }
     };
 
     (function() {
-        window.addEventListener("load",function() {
-            if(typeof document.body.requestFullscreen == "function") {
-                document.body.requestFullscreen()
-            }
-        });
         window.addEventListener("orientationchange", function() {
-            window.setTimeout(View.adjustContentSizeAll, 450)
+            window.setTimeout(View.adjustFontSizeAll, 450)
         })
         if (typeof(Storage) !== "undefined") {
             Store.get = Store.getFromLocalStorage
             Store.set = Store.setLocalStorage
-            Service.initLocalStorage()
+            Store.initLocalStorage()
         } else {
             Store.get = Store.getFromRuntimeStorage
             Store.set = Store.setRuntimeStorage
