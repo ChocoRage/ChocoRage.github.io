@@ -277,7 +277,9 @@ label + * {
     #page-foot div {
         padding: 2vh;
     }
-    #page-foot div.page-board,
+    #page-foot div.page-board {
+        height: 25%;
+    }
     #page-foot div.page-player-properties {
         height: 33.3333333%;
     }
@@ -398,9 +400,11 @@ label + * {
     #page-foot div {
         padding: 2vw;
     }
-    #page-foot div.page-board,
+    #page-foot div.page-board {
+        width: 25%;
+    }
     #page-foot div.page-player-properties {
-        width: 33.3333333%;
+        width: 33.333333%;
     }
     #page-foot div.page-settings {
         width: 50%;
@@ -532,7 +536,6 @@ label + * {
                                 <option value="40">40</option>
                             </select>
                             <br/><br/>
-                            <button id="button-reset-entrie-board-button" onclick="View.resetEntireBoard()">Reset Entire Board</button>
                         </div>
                     </div>
                 </div>
@@ -570,6 +573,11 @@ label + * {
         </div>
         <div id="page-foot">
             <!-- =============== Board Buttons =============== -->
+            <div class="page-board">
+                <button id="button-reset-entire-board" onclick="View.resetEntireBoard()">
+                    <i class="material-icons">fiber_new</i>
+                </button>
+            </div>
             <div class="page-board">
                 <button id="button-reset" onclick="View.resetAllPlayers()">
                     <i class="material-icons">settings_backup_restore</i>
@@ -614,7 +622,7 @@ label + * {
             </div>
         </div>
     </div>
-    <div id="version">v13021458</div>
+    <div id="version">v13021520</div>
 </body>
 <script>
     var View = {
@@ -769,6 +777,7 @@ label + * {
             for(var idx in settingsNodes) {
                 settingsNodes.item(idx).style.display = "block"
             }
+            document.querySelector("#select-starting-life-total option[value='" + Store.get("startingLifeTotal") + "']")
         },
         closeSettings: function(save) {
             document.getElementById("page-settings").style.transform = "translate(110vw)"
@@ -810,6 +819,11 @@ label + * {
             var playerPropertiesNodes = document.getElementsByClassName("page-player-properties")
             for(var idx in playerPropertiesNodes) {
                 playerPropertiesNodes.item(idx).style.display = "block"
+            }
+            if(Object.keys(Store.get("players")).length == 1) {
+                document.getElementById("button-properties-delete").disabled = true
+            } else {
+                document.getElementById("button-properties-delete").disabled = false
             }
         },
         closePlayerProperties: function(save) {
