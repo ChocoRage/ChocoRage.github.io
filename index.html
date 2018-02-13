@@ -245,6 +245,7 @@ label + * {
 }
 .history-entry-text {
     color: #000;
+    font-weight: 700;
 }
 .history-entry-panel {
     background-color: rgba(255, 255, 255, .5);
@@ -531,7 +532,7 @@ label + * {
                                 <option value="40">40</option>
                             </select>
                             <br/><br/>
-                            <button id="button-reset-entrie-board-button" onclick="Service.resetEntireBoard()">Reset Entire Board</button>
+                            <button id="button-reset-entrie-board-button" onclick="View.resetEntireBoard()">Reset Entire Board</button>
                         </div>
                     </div>
                 </div>
@@ -570,7 +571,7 @@ label + * {
         <div id="page-foot">
             <!-- =============== Board Buttons =============== -->
             <div class="page-board">
-                <button id="button-reset" onclick="Service.resetAllPlayers()">
+                <button id="button-reset" onclick="View.resetAllPlayers()">
                     <i class="material-icons">settings_backup_restore</i>
                 </button>
             </div>
@@ -677,9 +678,27 @@ label + * {
                 lifeTotal.innerText = player.lifeTotal
                 lifeTotalContainer.appendChild(lifeTotal)
                 var upButton = document.createElement("button")
-                upButton.onclick = function() {
+                var isTouchSupported = 'ontouchstart' in window;
+                var startEvent = isTouchSupported ? 'touchstart' : 'mousedown';
+                var endEvent = isTouchSupported ? 'touchend' : 'mouseup';
+                upButton.addEventListener(startEvent, function() {
+                    this.setAttribute("data-is-pressed", "1")
+                    setTimeout(function(element, playerId) {
+                        var loop = function(element, playerId, loop) {
+                            if(element.attributes["data-is-pressed"]) {
+                                Service.updatePlayerProperty(playerId, "lifeTotal", 1)
+                                setTimeout(function(element, playerId, loop) {
+                                    loop(element, playerId, loop)
+                                }.bind(null, element, playerId, loop), 100)
+                            }
+                        }
+                        loop(element, playerId, loop)
+                    }.bind(null, this, player.id), 500)
+                })
+                upButton.addEventListener(endEvent, function() {
                     Service.updatePlayerProperty(player.id, "lifeTotal", 1)
-                }
+                    this.removeAttribute("data-is-pressed")
+                })
                 upButton.className = "player-panel-up-button"
                 content.appendChild(upButton)
                 var upButtonIcon = document.createElement("i")
@@ -687,9 +706,24 @@ label + * {
                 upButtonIcon.innerText = "keyboard_arrow_up"
                 upButton.appendChild(upButtonIcon)
                 var downButton = document.createElement("button")
-                downButton.onclick = function() {
+                downButton.addEventListener(startEvent, function() {
+                    this.setAttribute("data-is-pressed", "1")
+                    setTimeout(function(element, playerId) {
+                        var loop = function(element, playerId, loop) {
+                            if(element.attributes["data-is-pressed"]) {
+                                Service.updatePlayerProperty(playerId, "lifeTotal", -1)
+                                setTimeout(function(element, playerId, loop) {
+                                    loop(element, playerId, loop)
+                                }.bind(null, element, playerId, loop), 100)
+                            }
+                        }
+                        loop(element, playerId, loop)
+                    }.bind(null, this, player.id), 500)
+                })
+                downButton.addEventListener(endEvent, function() {
                     Service.updatePlayerProperty(player.id, "lifeTotal", -1)
-                }
+                    this.removeAttribute("data-is-pressed")
+                })
                 downButton.className = "player-panel-down-button"
                 content.appendChild(downButton)
                 var downButtonIcon = document.createElement("i")
@@ -813,7 +847,7 @@ label + * {
         },
         adjustFontSize: function(element, maxFontSize) {
             setTimeout(function() {
-                if(!element) {
+                if(!element || !document.body.contains(element)) {
                     return
                 }
                 var parent = element.parentElement
@@ -896,6 +930,15 @@ label + * {
         updateView() {
             Store.initMaxFontSize()
             setTimeout(View.adjustFontSizeAll, 450)
+        },
+        resetAllPlayers() {
+            Service.resetAllPlayers()
+            View.clearHistoryPanel()
+        },
+        resetEntireBoard() {
+            Service.resetEntireBoard()
+            View.closeSettings(true)
+            View.clearHistoryPanel()
         }
     }
 
@@ -998,17 +1041,14 @@ label + * {
             var players = Store.get("players")
             for(var idx in Object.keys(players)) {
                 Service.updatePlayerProperty(parseInt(Object.keys(players)[idx]), "lifeTotal", Store.get("startingLifeTotal") - players[Object.keys(players)[idx]].lifeTotal)
-                View.clearHistoryPanel()
-                Store.set("history", [])
             }
+            Store.set("history", [])
         },
         resetEntireBoard: function() {
             var players = Store.get("players")
             for(var idx in players) {
                 View.removePlayer(players[idx].id)
             }
-            View.closeSettings(true)
-            View.clearHistoryPanel()
             Store.set("players", {})
             Store.set("history", [])
             Service.initService()
