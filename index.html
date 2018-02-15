@@ -622,7 +622,7 @@ label + * {
             </div>
         </div>
     </div>
-    <div id="version">v13021520</div>
+    <div id="version">v16020020</div>
 </body>
 <script>
     var View = {
@@ -686,9 +686,10 @@ label + * {
                 lifeTotal.innerText = player.lifeTotal
                 lifeTotalContainer.appendChild(lifeTotal)
                 var upButton = document.createElement("button")
-                var isTouchSupported = 'ontouchstart' in window;
-                var startEvent = isTouchSupported ? 'touchstart' : 'mousedown';
-                var endEvent = isTouchSupported ? 'touchend' : 'mouseup';
+                var isTouchSupported = 'ontouchstart' in window
+                var startEvent = isTouchSupported ? 'touchstart' : 'mousedown'
+                var leaveEvent = isTouchSupported ? 'touchleave' : 'mouseout'
+                var endEvent = isTouchSupported ? 'touchend' : 'mouseup'
                 upButton.addEventListener(startEvent, function() {
                     this.setAttribute("data-is-pressed", "1")
                     setTimeout(function(element, playerId) {
@@ -702,6 +703,9 @@ label + * {
                         }
                         loop(element, playerId, loop)
                     }.bind(null, this, player.id), 500)
+                })
+                upButton.addEventListener(leaveEvent, function() {
+                    this.removeAttribute("data-is-pressed")
                 })
                 upButton.addEventListener(endEvent, function() {
                     Service.updatePlayerProperty(player.id, "lifeTotal", 1)
@@ -727,6 +731,9 @@ label + * {
                         }
                         loop(element, playerId, loop)
                     }.bind(null, this, player.id), 500)
+                })
+                downButton.addEventListener(leaveEvent, function() {
+                    this.removeAttribute("data-is-pressed")
                 })
                 downButton.addEventListener(endEvent, function() {
                     Service.updatePlayerProperty(player.id, "lifeTotal", -1)
@@ -777,7 +784,7 @@ label + * {
             for(var idx in settingsNodes) {
                 settingsNodes.item(idx).style.display = "block"
             }
-            document.querySelector("#select-starting-life-total option[value='" + Store.get("startingLifeTotal") + "']")
+            document.querySelector("#select-starting-life-total").value = Store.get("startingLifeTotal")
         },
         closeSettings: function(save) {
             document.getElementById("page-settings").style.transform = "translate(110vw)"
@@ -1004,7 +1011,7 @@ label + * {
                     case "id":
                         break
                     case "lifeTotal":
-                        if(typeof args == "number") {
+                        if(typeof args == "number" && args != 0) {
                             var players = Store.get("players")
                             players[playerId].lifeTotal += args
                             Store.set("players", players)
