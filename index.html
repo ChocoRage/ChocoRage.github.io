@@ -14,6 +14,10 @@
 <style>
 * {
     transition: opacity 0.2s linear;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 body {
     font-family: Assistant;
@@ -113,10 +117,6 @@ body {
 }
 .player-name {
     text-align: left;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
     box-sizing: content-box;
 }
 .player-panel-up-button i.material-icons,
@@ -257,6 +257,9 @@ label + * {
     width: 100%;
     display: flex;
     justify-content: flex-end;
+}
+button i {
+    pointer-events: none;
 }
 @media screen and (orientation: landscape) {
     #page-container {
@@ -622,7 +625,7 @@ label + * {
             </div>
         </div>
     </div>
-    <div id="version">v16020020</div>
+    <div id="version">v20021300</div>
 </body>
 <script>
     var View = {
@@ -686,31 +689,8 @@ label + * {
                 lifeTotal.innerText = player.lifeTotal
                 lifeTotalContainer.appendChild(lifeTotal)
                 var upButton = document.createElement("button")
-                var isTouchSupported = 'ontouchstart' in window
-                var startEvent = isTouchSupported ? 'touchstart' : 'mousedown'
-                var leaveEvent = isTouchSupported ? 'touchleave' : 'mouseout'
-                var endEvent = isTouchSupported ? 'touchend' : 'mouseup'
-                upButton.addEventListener(startEvent, function() {
-                    this.setAttribute("data-is-pressed", "1")
-                    setTimeout(function(element, playerId) {
-                        var loop = function(element, playerId, loop) {
-                            if(element.attributes["data-is-pressed"]) {
-                                Service.updatePlayerProperty(playerId, "lifeTotal", 1)
-                                setTimeout(function(element, playerId, loop) {
-                                    loop(element, playerId, loop)
-                                }.bind(null, element, playerId, loop), 100)
-                            }
-                        }
-                        loop(element, playerId, loop)
-                    }.bind(null, this, player.id), 500)
-                })
-                upButton.addEventListener(leaveEvent, function() {
-                    this.removeAttribute("data-is-pressed")
-                })
-                upButton.addEventListener(endEvent, function() {
-                    Service.updatePlayerProperty(player.id, "lifeTotal", 1)
-                    this.removeAttribute("data-is-pressed")
-                })
+                upButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, upButton, player.id, 1))
+                upButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, player.id, 1))
                 upButton.className = "player-panel-up-button"
                 content.appendChild(upButton)
                 var upButtonIcon = document.createElement("i")
@@ -718,27 +698,8 @@ label + * {
                 upButtonIcon.innerText = "keyboard_arrow_up"
                 upButton.appendChild(upButtonIcon)
                 var downButton = document.createElement("button")
-                downButton.addEventListener(startEvent, function() {
-                    this.setAttribute("data-is-pressed", "1")
-                    setTimeout(function(element, playerId) {
-                        var loop = function(element, playerId, loop) {
-                            if(element.attributes["data-is-pressed"]) {
-                                Service.updatePlayerProperty(playerId, "lifeTotal", -1)
-                                setTimeout(function(element, playerId, loop) {
-                                    loop(element, playerId, loop)
-                                }.bind(null, element, playerId, loop), 100)
-                            }
-                        }
-                        loop(element, playerId, loop)
-                    }.bind(null, this, player.id), 500)
-                })
-                downButton.addEventListener(leaveEvent, function() {
-                    this.removeAttribute("data-is-pressed")
-                })
-                downButton.addEventListener(endEvent, function() {
-                    Service.updatePlayerProperty(player.id, "lifeTotal", -1)
-                    this.removeAttribute("data-is-pressed")
-                })
+                downButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, downButton, player.id, -1))
+                downButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, player.id, -1))
                 downButton.className = "player-panel-down-button"
                 content.appendChild(downButton)
                 var downButtonIcon = document.createElement("i")
@@ -1196,6 +1157,58 @@ label + * {
             View.clearHistoryPanel()
             Store.set("history", [])
         }
+    }
+
+    var Utils = {
+        getPlayerIdFromPanelElement: function(element) {
+            if(!element) {
+                return null
+            }
+            var e = element
+            while(!e.classList.contains("player-panel") && e != document.body) {
+                e = e.parentElement
+            }
+            return parseInt(e.id.substring(10))
+        },
+        getInputTypeForDevice: function(input) {
+            var isTouchSupported = 'ontouchstart' in window
+            return isTouchSupported ? Utils.inputEvents[input] : input
+        },
+        mouseDownCallback: function(element, playerId, amount) {
+            Utils.mouseDownElement = element
+            clearTimeout(Utils.mouseDownTimer)
+            Utils.mouseDownTimer = setTimeout(function(element, playerId, amount) {
+                var loop = function(element, playerId, loop, amount) {
+                    Service.updatePlayerProperty(playerId, "lifeTotal", amount)
+                    Utils.mouseDownTimer = setTimeout(function(element, playerId, loop, amount) {
+                        loop(element, playerId, loop, amount)
+                    }.bind(null, element, playerId, loop, amount), 100)
+                }
+                loop(element, playerId, loop, amount)
+            }.bind(this, element, playerId, amount), 500)
+        },
+        mouseMoveCallback: function(event) {
+            console.log(event.target != Utils.mouseDownElement)
+            if(!Utils.mouseDownElement || event.target != Utils.mouseDownElement) {
+                clearTimeout(Utils.mouseDownTimer)
+                Utils.mouseDownTimer = null
+                Utils.mouseDownElement = null
+            }
+        },
+        mouseUpCallback: function(playerId, amount, event) {
+            clearTimeout(Utils.mouseDownTimer)
+            Utils.mouseDownTimer = null
+            if(Utils.mouseDownElement && event.target == Utils.mouseDownElement) {
+                Service.updatePlayerProperty(playerId, "lifeTotal", amount)
+            }
+        },
+        inputEvents: {
+            "mousedown": "touchstart",
+            "mousemove": "touchmove",
+            "mouseup": "touchend"
+        },
+        mouseDownTimer: null,
+        mouseDownElement: null
     };
 
     (function() {
@@ -1208,6 +1221,7 @@ label + * {
             Store.set = Store.setRuntimeStorage
         }
         addEventListener("resize", View.updateView)
+        addEventListener(Utils.getInputTypeForDevice("mousemove"), Utils.mouseMoveCallback)
         addEventListener("orientationchange", View.updateView)
         Service.initColors()
         var players = Store.get("players")
