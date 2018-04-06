@@ -27,12 +27,13 @@ body {
     padding: 0;
     border: 0;
     overflow: hidden;
+    background-color: black;
 }
 #page-container {
     height: 100%;
     width: 100%;
     display: flex;
-    background-color: #aba49b;
+    box-shadow: 0 0 0 1000vh #aba49b inset;
 }
 #page-body {
     flex-grow: 1;
@@ -323,6 +324,14 @@ button i {
     .player-panel-content, .history-entry-panel {
         border-radius: 2vh;
     }
+    .player-panel-up-button {
+        border-top-left-radius: 2vh;
+        border-top-right-radius: 2vh;
+    }
+    .player-panel-down-button {
+        border-bottom-left-radius: 2vh;
+        border-bottom-right-radius: 2vh;
+    }
     .player-name {
         font-size: 10vh;
         padding-left: 2vh;
@@ -470,6 +479,14 @@ button i {
     }
     .player-panel-content, .history-entry-panel {
         border-radius: 2vw;
+    }
+    .player-panel-up-button {
+        border-top-left-radius: 2vw;
+        border-top-right-radius: 2vw;
+    }
+    .player-panel-down-button {
+        border-bottom-left-radius: 2vw;
+        border-bottom-right-radius: 2vw;
     }
     .player-name {
         font-size: 10vw;
@@ -719,8 +736,14 @@ button i {
                 lifeTotal.innerText = player.lifeTotal
                 lifeTotalContainer.appendChild(lifeTotal)
                 var upButton = document.createElement("button")
-                upButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, upButton, player.id, 1))
-                upButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, player.id, 1))
+                var upButtonMouseDownCallback = function() {
+                    Service.updatePlayerProperty(player.id, "lifeTotal", 1)
+                }
+                upButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, upButton, upButtonMouseDownCallback))
+                var upButtonMouseUpCallback = function() {
+                    Service.updatePlayerProperty(player.id, "lifeTotal", 1)
+                }
+                upButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, upButtonMouseUpCallback))
                 upButton.className = "player-panel-up-button"
                 content.appendChild(upButton)
                 var upButtonIcon = document.createElement("i")
@@ -728,8 +751,14 @@ button i {
                 upButtonIcon.innerText = "keyboard_arrow_up"
                 upButton.appendChild(upButtonIcon)
                 var downButton = document.createElement("button")
-                downButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, downButton, player.id, -1))
-                downButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, player.id, -1))
+                var downButtonMouseDownCallback = function() {
+                    Service.updatePlayerProperty(player.id, "lifeTotal", -1)
+                }
+                downButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, downButton, downButtonMouseDownCallback))
+                var downButtonMouseUpCallback = function() {
+                    Service.updatePlayerProperty(player.id, "lifeTotal", -1)
+                }
+                downButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, downButtonMouseUpCallback))
                 downButton.className = "player-panel-down-button"
                 content.appendChild(downButton)
                 var downButtonIcon = document.createElement("i")
@@ -737,9 +766,14 @@ button i {
                 downButtonIcon.innerText = "keyboard_arrow_down"
                 downButton.appendChild(downButtonIcon)
                 var playerPropertiesButton = document.createElement("button")
-                playerPropertiesButton.onclick = function() {
+                var dragStart = function(event) {
+                    console.log(event)
+                }
+                playerPropertiesButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(this, playerPropertiesButton, dragStart))
+                var playerPropertiesMouseDownCallback = function() {
                     View.openPlayerProperties(player.id)
                 }
+                playerPropertiesButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, playerPropertiesMouseDownCallback))
                 playerPropertiesButton.className = "player-panel-player-properties-button"
                 content.appendChild(playerPropertiesButton)
                 var board = document.getElementById("page-board-player-panels")
@@ -1216,18 +1250,18 @@ button i {
             var isTouchSupported = 'ontouchstart' in window
             return isTouchSupported ? Utils.inputEvents[input] : input
         },
-        mouseDownCallback: function(element, playerId, amount) {
+        mouseDownCallback: function(element, callback, event) {
             Utils.mouseDownElement = element
             clearTimeout(Utils.mouseDownTimer)
-            Utils.mouseDownTimer = setTimeout(function(element, playerId, amount) {
-                var loop = function(element, playerId, loop, amount) {
-                    Service.updatePlayerProperty(playerId, "lifeTotal", amount)
-                    Utils.mouseDownTimer = setTimeout(function(element, playerId, loop, amount) {
-                        loop(element, playerId, loop, amount)
-                    }.bind(null, element, playerId, loop, amount), 100)
+            Utils.mouseDownTimer = setTimeout(function(callback, event) {
+                var loop = function(callback, event, loop) {
+                    callback(event)
+                    Utils.mouseDownTimer = setTimeout(function(callback, event, loop) {
+                        loop(callback, event, loop)
+                    }.bind(null, callback, event, loop), 100)
                 }
-                loop(element, playerId, loop, amount)
-            }.bind(this, element, playerId, amount), 500)
+                loop(callback, event, loop)
+            }.bind(this, callback, event), 500)
         },
         mouseMoveCallback: function(event) {
             if(!Utils.mouseDownElement || event.target != Utils.mouseDownElement) {
@@ -1236,11 +1270,11 @@ button i {
                 Utils.mouseDownElement = null
             }
         },
-        mouseUpCallback: function(playerId, amount, event) {
+        mouseUpCallback: function(callback, event) {
             clearTimeout(Utils.mouseDownTimer)
             Utils.mouseDownTimer = null
             if(Utils.mouseDownElement && (event.target == Utils.mouseDownElement || event.target == Utils.mouseDownElement.firstChild)) {
-                Service.updatePlayerProperty(playerId, "lifeTotal", amount)
+                callback(event)
             }
         },
         inputEvents: {
