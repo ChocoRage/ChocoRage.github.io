@@ -625,7 +625,7 @@ button i {
             </div>
         </div>
     </div>
-    <div id="version">v20021300</div>
+    <div id="version">v06040341</div>
 </body>
 <script>
     var View = {
@@ -893,6 +893,9 @@ button i {
                 historyEntries.item(idx).remove()
             }
         },
+        removeLastHistoryEntry: function() {
+            document.getElementById("history-entry-panels").removeChild(document.getElementById("history-entry-panels").lastChild)
+        },
         clearHistoryPanel: function() {
             var historyPanel = document.getElementById("history-entry-panels")
             historyPanel.innerHTML = null
@@ -986,6 +989,10 @@ button i {
                                 View.addHistroryEntry(historyEntry, players[playerId])
                             } else {
                                 history[history.length-1].amount += args
+                                if(history[history.length-1].amount == 0) {
+                                    history.splice(history.length-1, 1)
+                                    View.removeLastHistoryEntry()
+                                }
                                 history[history.length-1].lastUpdated = new Date()
                                 View.updateLastHistoryEntry(history[history.length-1])
                             }
