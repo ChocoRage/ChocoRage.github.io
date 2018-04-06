@@ -65,7 +65,7 @@ body {
     display: inline-block;
     vertical-align: top;
     box-sizing: border-box;
-    transition: all 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out, height 0.4s ease-in-out, background-color 0.4s ease-in-out;
 }
 .player-panel .player-panel-content {
     background-color: rgba(255, 255, 255, .2);
@@ -97,6 +97,10 @@ body {
 .player-count-1 .player-panel {
     width: 100%;
     height: 100%;
+}
+.player-panel-up-button:active,
+.player-panel-down-button:active {
+    background-color: rgba(255, 255, 255, .2);
 }
 .player-panel-up-button,
 .player-panel-down-button,
@@ -316,6 +320,9 @@ button i {
     .player-panel-down-button i.material-icons {
         font-size: 15vh;
     }
+    .player-panel-content, .history-entry-panel {
+        border-radius: 2vh;
+    }
     .player-name {
         font-size: 10vh;
         padding-left: 2vh;
@@ -331,6 +338,12 @@ button i {
     #button-reset-entrie-board-button {
         font-size: 8vh;
     }
+    #page-player-properties-content label {
+        width: 25%;
+    }
+    #page-player-properties-content label + * {
+        width: 65%;
+    }
     .page-head {
         height: 15vh;
         font-size: 8vh;
@@ -341,7 +354,7 @@ button i {
         margin: 1vh;
     }
     .input-color:checked {
-        border: 1vh solid #000;
+        box-shadow: 0 0 0 1vh #000;
     }
     #page-player-properties-color-preview {
         height: 10vh;
@@ -382,6 +395,20 @@ button i {
     }
     #history-entry-panels {
         flex-direction: column-reverse;
+    }
+    .player-count-3 .player-panel:nth-child(1),
+    .player-count-3 .player-panel:nth-child(2),
+    .player-count-4 .player-panel:nth-child(1),
+    .player-count-4 .player-panel:nth-child(2) {
+        transform: rotate(180deg);
+    }
+    .player-count-5 .player-panel:nth-child(1),
+    .player-count-5 .player-panel:nth-child(2),
+    .player-count-5 .player-panel:nth-child(3),
+    .player-count-6 .player-panel:nth-child(1),
+    .player-count-6 .player-panel:nth-child(2),
+    .player-count-6 .player-panel:nth-child(3) {
+        transform: rotate(180deg);
     }
 }
 @media screen and (orientation: portrait) {
@@ -440,6 +467,9 @@ button i {
     .player-panel-up-button i.material-icons,
     .player-panel-down-button i.material-icons {
         font-size: 15vw;
+    }
+    .player-panel-content, .history-entry-panel {
+        border-radius: 2vw;
     }
     .player-name {
         font-size: 10vw;
@@ -625,7 +655,7 @@ button i {
             </div>
         </div>
     </div>
-    <div id="version">v06040341</div>
+    <div id="version">v06040512</div>
 </body>
 <script>
     var View = {
@@ -992,9 +1022,10 @@ button i {
                                 if(history[history.length-1].amount == 0) {
                                     history.splice(history.length-1, 1)
                                     View.removeLastHistoryEntry()
+                                } else {
+                                    history[history.length-1].lastUpdated = new Date()
+                                    View.updateLastHistoryEntry(history[history.length-1])
                                 }
-                                history[history.length-1].lastUpdated = new Date()
-                                View.updateLastHistoryEntry(history[history.length-1])
                             }
                             Store.set("players", players)
                             Store.set("history", history)
@@ -1044,20 +1075,24 @@ button i {
         },
         initColors: function() {
             var Colors = [
-                "#dddddd",
-                "#666666",
-                "#993633",
-                "#b84c3d",
-                "#c4824d",
-                "#b6c758",
-                "#b9943e",
-                "#32975c",
-                "#74c144",
-                "#6c7ece",
-                "#4cb6c3",
-                "#b17ad3",
-                "#864ec4",
-                "#c55290",
+                "rgba(40,40,40,.7)",
+                "rgba(255,255,255,.7)",
+                "rgba(142, 77, 37, 0.7)",
+                "rgba(193,0,1,.7)",
+                "rgba(252,51,28,.7)",
+                "rgba(255, 119, 0, 0.7)",
+                "rgba(255,210,33,.7)",
+                "rgba(199,224,0,.7)",
+                "rgba(82,224,0,.7)",
+                "rgba(0,178,44,.7)",
+                "rgba(26,147,145,.7)",
+                "rgba(14,172,189,.7)",
+                "rgba(0,196,218,.7)",
+                "rgba(70,67,187,.7)",
+                "rgba(97,12,140,.7)",
+                "rgba(152,15,183,.7)",
+                "rgba(210,35,254,.7)",
+                "rgba(179,3,71,.7)",
             ]
             var colorContainer = document.getElementById("page-player-properties-colors")
             for(var idx in Colors) {
@@ -1195,7 +1230,6 @@ button i {
             }.bind(this, element, playerId, amount), 500)
         },
         mouseMoveCallback: function(event) {
-            console.log(event.target != Utils.mouseDownElement)
             if(!Utils.mouseDownElement || event.target != Utils.mouseDownElement) {
                 clearTimeout(Utils.mouseDownTimer)
                 Utils.mouseDownTimer = null
@@ -1205,7 +1239,7 @@ button i {
         mouseUpCallback: function(playerId, amount, event) {
             clearTimeout(Utils.mouseDownTimer)
             Utils.mouseDownTimer = null
-            if(Utils.mouseDownElement && event.target == Utils.mouseDownElement) {
+            if(Utils.mouseDownElement && (event.target == Utils.mouseDownElement || event.target == Utils.mouseDownElement.firstChild)) {
                 Service.updatePlayerProperty(playerId, "lifeTotal", amount)
             }
         },
