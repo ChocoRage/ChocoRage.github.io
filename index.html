@@ -199,6 +199,7 @@ button.button-confirm i.material-icons {
     vertical-align: top;
     font-size: 0;
 }
+/*
 .input-color {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -208,6 +209,43 @@ button.button-confirm i.material-icons {
 }
 #page-player-properties-color-preview {
     width: 100%;
+}
+*/
+#page-player-properties-color-selection-hue {
+    height: 100px;
+    position: relative;
+    background: linear-gradient(to right, hsl(0,100%,50%), hsl(30,100%,50%), hsl(60,100%,50%), hsl(90,100%,50%), hsl(120,100%,50%), hsl(150,100%,50%), hsl(180,100%,50%), hsl(210,100%,50%), hsl(240,100%,50%), hsl(270,100%,50%), hsl(300,100%,50%), hsl(330,100%,50%), hsl(360,100%,50%));
+    overflow: visible;
+    z-index: 1;
+}
+
+#page-player-properties-color-selection-lightness {
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0), rgba(255,255,255,1))
+}
+
+#page-player-properties-color-selection-preview {
+    height: 50px;
+    position: relative;
+    margin-top: 10px;
+    background-color: red;
+}
+
+#page-player-properties-color-selection-cursor {
+    pointer-events: none;
+    z-index: 9999;
+    position: absolute;
+    box-shadow: 0 0 0 4px black, 0 0 0 10px white;
+    background-color: black;
+    height: 2px;
+    width: 2px;
+    border-radius: 100%;
 }
 #button-reset-entrie-board-button {
     background-color:#ccc;
@@ -612,8 +650,15 @@ button i {
                             <div class="page-content-form-line">
                                 <label>Color</label>
                                 <div id="page-player-properties-colors">
+                                    <!--
                                     <div id="page-player-properties-color-preview">
                                     </div>
+                                    -->
+                                    <div id="page-player-properties-color-selection-hue">
+                                        <div id="page-player-properties-color-selection-cursor"></div>
+                                        <div id="page-player-properties-color-selection-lightness"></div>
+                                    </div>
+                                    <div id="page-player-properties-color-selection-preview"></div>
                                 </div>
                             </div>
                         </div>
@@ -833,7 +878,7 @@ button i {
             var player = Store.get("players")[playerId]
             document.getElementById("input-player-life").value = player.lifeTotal
             document.getElementById("input-player-name").value = player.name
-            document.getElementById("page-player-properties-color-preview").style.backgroundColor = player.color
+            document.getElementById("page-player-properties-color-selection-preview").style.backgroundColor = player.color
             document.getElementById("page-board").style.transform = "translate(-100%)"
             var colorInputs = document.getElementsByClassName("input-color")
             for(var idx in colorInputs) {
@@ -872,10 +917,10 @@ button i {
             if(save) {
                 var playerId = JSON.parse(document.getElementById("page-player-properties-id").value)
                 var players = Store.get("players")
-                var colorInput = document.querySelector(".input-color:checked")
+                var colorInput = document.getElementById("page-player-properties-color-selection-preview").style.backgroundColor
                 var storedColor = Store.get("players")[playerId].color
-                if(colorInput && colorInput.value != storedColor) {
-                    Service.updatePlayerProperty(playerId, "color", colorInput.value)
+                if(colorInput && colorInput != storedColor) {
+                    Service.updatePlayerProperty(playerId, "color", colorInput)
                 }
                 var lifeInput = document.getElementById("input-player-life")
                 var storedLifeTotal = Store.get("players")[playerId].lifeTotal
@@ -988,6 +1033,15 @@ button i {
             Service.resetEntireBoard()
             View.closeSettings(true)
             View.clearHistoryPanel()
+        },
+        colorClick(el) {
+            var ratioH = el.layerX / el.target.getBoundingClientRect().width
+            var ratioL = el.layerY / el.target.getBoundingClientRect().height
+            var hue = ratioH * 360
+            var lightness = "" + (ratioL * 100) + "%"
+            document.getElementById("page-player-properties-color-selection-preview").style.backgroundColor = "hsl(" + hue + ",100%," + lightness + ")"
+            document.getElementById("page-player-properties-color-selection-cursor").style.top = "" + el.layerY + "px"
+            document.getElementById("page-player-properties-color-selection-cursor").style.left = "" + el.layerX + "px"
         }
     }
 
@@ -1107,6 +1161,7 @@ button i {
             Store.set("history", [])
             Service.initService()
         },
+        /*
         initColors: function() {
             var Colors = [
                 "rgba(40,40,40,.7)",
@@ -1142,6 +1197,7 @@ button i {
                 colorContainer.appendChild(input)
             }
         },
+        */
         initService: function() {
             View.createNewPlayerPanel()
             View.adjustFontSizeAll()
@@ -1285,7 +1341,6 @@ button i {
         mouseDownTimer: null,
         mouseDownElement: null
     };
-
     (function() {
         if (typeof(Storage) !== "undefined") {
             Store.get = Store.getFromLocalStorage
@@ -1295,10 +1350,11 @@ button i {
             Store.get = Store.getFromRuntimeStorage
             Store.set = Store.setRuntimeStorage
         }
+        document.getElementById("page-player-properties-color-selection-hue").addEventListener("click", View.colorClick.bind(this))
         addEventListener("resize", View.updateView)
         addEventListener(Utils.getInputTypeForDevice("mousemove"), Utils.mouseMoveCallback)
         addEventListener("orientationchange", View.updateView)
-        Service.initColors()
+        // Service.initColors()
         var players = Store.get("players")
         if(players == null || Object.keys(players).length == 0) {
             Service.initService()
