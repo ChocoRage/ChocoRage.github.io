@@ -717,7 +717,7 @@ button i {
             </div>
         </div>
     </div>
-    <div id="version">v06040512</div>
+    <div id="version">v21080032</div>
 </body>
 <script>
     var View = {
@@ -880,13 +880,14 @@ button i {
             document.getElementById("input-player-name").value = player.name
             document.getElementById("page-player-properties-color-selection-preview").style.backgroundColor = player.color
             document.getElementById("page-board").style.transform = "translate(-100%)"
-            var colorInputs = document.getElementsByClassName("input-color")
-            for(var idx in colorInputs) {
-                if(colorInputs[idx].value == player.color) {
-                    colorInputs[idx].checked = true
-                } else {
-                    colorInputs[idx].checked = false
+            if(player.color) {
+                var color = player.color.match(/(\d+)/g)
+                if(player.color.substr(0,3) == "rgb") {
+                    color = Utils.rgbToHsl(color[0], color[1], color[2])
                 }
+                var x = color[0]*100/360
+                var y = color[2]
+                View.adjustColorCursor(x, y)
             }
             var boardNodes = document.getElementsByClassName("page-board")
             for(var idx in boardNodes) {
@@ -1040,8 +1041,12 @@ button i {
             var hue = ratioH * 360
             var lightness = "" + (ratioL * 100) + "%"
             document.getElementById("page-player-properties-color-selection-preview").style.backgroundColor = "hsl(" + hue + ",100%," + lightness + ")"
-            document.getElementById("page-player-properties-color-selection-cursor").style.top = "" + el.layerY + "px"
-            document.getElementById("page-player-properties-color-selection-cursor").style.left = "" + el.layerX + "px"
+            View.adjustColorCursor(ratioH * 100, ratioL * 100)
+        },
+        adjustColorCursor(x, y) {
+            var cursor = document.getElementById("page-player-properties-color-selection-cursor")
+            cursor.style.left = "" + x + "%"
+            cursor.style.top = "" + y + "%"
         }
     }
 
@@ -1161,43 +1166,6 @@ button i {
             Store.set("history", [])
             Service.initService()
         },
-        /*
-        initColors: function() {
-            var Colors = [
-                "rgba(40,40,40,.7)",
-                "rgba(255,255,255,.7)",
-                "rgba(142, 77, 37, 0.7)",
-                "rgba(193,0,1,.7)",
-                "rgba(252,51,28,.7)",
-                "rgba(255, 119, 0, 0.7)",
-                "rgba(255,210,33,.7)",
-                "rgba(199,224,0,.7)",
-                "rgba(82,224,0,.7)",
-                "rgba(0,178,44,.7)",
-                "rgba(26,147,145,.7)",
-                "rgba(14,172,189,.7)",
-                "rgba(0,196,218,.7)",
-                "rgba(70,67,187,.7)",
-                "rgba(97,12,140,.7)",
-                "rgba(152,15,183,.7)",
-                "rgba(210,35,254,.7)",
-                "rgba(179,3,71,.7)",
-            ]
-            var colorContainer = document.getElementById("page-player-properties-colors")
-            for(var idx in Colors) {
-                var input = document.createElement("input")
-                input.type = "radio"
-                input.name = "input-color"
-                input.className = "input-color"
-                input.value = Colors[idx]
-                input.style.backgroundColor = input.value
-                input.onchange = function(event) {
-                    document.getElementById("page-player-properties-color-preview").style.backgroundColor = event.target.value
-                }
-                colorContainer.appendChild(input)
-            }
-        },
-        */
         initService: function() {
             View.createNewPlayerPanel()
             View.adjustFontSizeAll()
@@ -1332,6 +1300,36 @@ button i {
             if(Utils.mouseDownElement && (event.target == Utils.mouseDownElement || event.target == Utils.mouseDownElement.firstChild)) {
                 callback(event)
             }
+        },
+        rgbToHsl(r, g, b) {
+            r /= 255
+            g /= 255
+            b /= 255
+            var max = Math.max(r, g, b), min = Math.min(r, g, b)
+            var h, s, l = (max + min) / 2
+
+            if (max == min) {
+                h = s = 0
+            } else {
+                var d = max - min
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
+                switch (max) {
+                    case r:
+                        h = (g - b) / d + (g < b ? 6 : 0)
+                        break
+                    case g:
+                        h = (b - r) / d + 2
+                        break
+                    case b:
+                        h = (r - g) / d + 4
+                        break
+                }
+
+                h /= 6
+            }
+
+            return [h*360, s*100, l*100]
         },
         inputEvents: {
             "mousedown": "touchstart",
