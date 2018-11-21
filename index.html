@@ -6,9 +6,11 @@
     <!-- <meta name="apple-mobile-web-app-capable" content="yes"> -->
     <!-- <meta name="apple-mobile-web-app-status-barstyle" content="black-translucent"> -->
     <!-- <meta name="apple-mobile-web-app-title" content="Life Counter"> -->
-    <!-- <link rel="apple-touch-icon" href="icon-152.png"> -->
+    <!-- <link rel="apple-touch-icon" href="lifecounter-152.png"> -->
+
     <!-- <meta name="mobile-web-app-capable" content="yes"> -->
-    <!-- <link rel="shortcut icon" sizes="196x196" href="icon-196.png"> -->
+    <!-- <link rel="shortcut icon" sizes="192x192" href="lifecounter-192.png"> -->
+    <!-- <link rel="manifest" href="/manifest.json"> -->
     <link href="https://fonts.googleapis.com/css?family=Assistant|Rammetto+One|Material+Icons" rel="stylesheet">
 </head>
 <style>
@@ -67,9 +69,9 @@ body {
     vertical-align: top;
     box-sizing: border-box;
     transition: width 0.4s ease-in-out, height 0.4s ease-in-out, background-color 0.4s ease-in-out;
+    box-shadow: 0 0 1px #000 inset;
 }
 .player-panel .player-panel-content {
-    background-color: rgba(255, 255, 255, .2);
     text-align: center;
     height: 100%;
     width: 100%;
@@ -199,18 +201,6 @@ button.button-confirm i.material-icons {
     vertical-align: top;
     font-size: 0;
 }
-/*
-.input-color {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    outline: none;
-    border-radius: 100%;
-}
-#page-player-properties-color-preview {
-    width: 100%;
-}
-*/
 #page-player-properties-color-selection-hue {
     height: 100px;
     position: relative;
@@ -291,9 +281,9 @@ label + * {
     font-weight: 700;
 }
 .history-entry-panel {
-    background-color: rgba(255, 255, 255, .5);
     text-align: center;
     transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 1px #000 inset;
 }
 #history-entry-panels {
     height: 100%;
@@ -336,7 +326,6 @@ button i {
         font-size: 12vh;
     }
     .player-panel {
-        padding: 2vh;
         height: 50%;
     }
     .player-panel-life {
@@ -358,17 +347,6 @@ button i {
     .player-panel-up-button i.material-icons,
     .player-panel-down-button i.material-icons {
         font-size: 15vh;
-    }
-    .player-panel-content, .history-entry-panel {
-        border-radius: 2vh;
-    }
-    .player-panel-up-button {
-        border-top-left-radius: 2vh;
-        border-top-right-radius: 2vh;
-    }
-    .player-panel-down-button {
-        border-bottom-left-radius: 2vh;
-        border-bottom-right-radius: 2vh;
     }
     .player-name {
         font-size: 10vh;
@@ -395,14 +373,6 @@ button i {
         height: 15vh;
         font-size: 8vh;
     }
-    .input-color {
-        height: 10vh;
-        width: 10vh;
-        margin: 1vh;
-    }
-    .input-color:checked {
-        box-shadow: 0 0 0 1vh #000;
-    }
     #page-player-properties-color-preview {
         height: 10vh;
         margin: 1vh;
@@ -425,37 +395,17 @@ button i {
         height: 100%;
     }
     .history-entry-panel {
-        min-height: 8vw;
-        min-width: 8vw;
-        max-height: 8vw;
-        max-width: 8vw;
-        line-height: 8vw;
-        margin-top: 1vw;
-        margin-left: 1vw;
-        margin-right: 1vw;
-    }
-    .history-entry-panel:first-child {
-        margin-bottom: 1vw;
+        min-height: 10vw;
+        min-width: 10vw;
+        max-height: 10vw;
+        max-width: 10vw;
+        line-height: 10vw;
     }
     .history-entry-text {
         font-size: 10vh;
     }
     #history-entry-panels {
         flex-direction: column-reverse;
-    }
-    .player-count-3 .player-panel:nth-child(1),
-    .player-count-3 .player-panel:nth-child(2),
-    .player-count-4 .player-panel:nth-child(1),
-    .player-count-4 .player-panel:nth-child(2) {
-        transform: rotate(180deg);
-    }
-    .player-count-5 .player-panel:nth-child(1),
-    .player-count-5 .player-panel:nth-child(2),
-    .player-count-5 .player-panel:nth-child(3),
-    .player-count-6 .player-panel:nth-child(1),
-    .player-count-6 .player-panel:nth-child(2),
-    .player-count-6 .player-panel:nth-child(3) {
-        transform: rotate(180deg);
     }
 }
 @media screen and (orientation: portrait) {
@@ -490,7 +440,6 @@ button i {
         font-size: 12vw;
     }
     .player-panel {
-        padding: 2vw;
         width: 50%;
     }
     .player-panel-life {
@@ -514,17 +463,6 @@ button i {
     .player-panel-up-button i.material-icons,
     .player-panel-down-button i.material-icons {
         font-size: 15vw;
-    }
-    .player-panel-content, .history-entry-panel {
-        border-radius: 2vw;
-    }
-    .player-panel-up-button {
-        border-top-left-radius: 2vw;
-        border-top-right-radius: 2vw;
-    }
-    .player-panel-down-button {
-        border-bottom-left-radius: 2vw;
-        border-bottom-right-radius: 2vw;
     }
     .player-name {
         font-size: 10vw;
@@ -781,14 +719,11 @@ button i {
                 lifeTotal.innerText = player.lifeTotal
                 lifeTotalContainer.appendChild(lifeTotal)
                 var upButton = document.createElement("button")
-                var upButtonMouseDownCallback = function() {
+                var upButtonCallback = function() {
                     Service.updatePlayerProperty(player.id, "lifeTotal", 1)
                 }
-                upButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, upButton, upButtonMouseDownCallback))
-                var upButtonMouseUpCallback = function() {
-                    Service.updatePlayerProperty(player.id, "lifeTotal", 1)
-                }
-                upButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, upButtonMouseUpCallback))
+                upButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, upButton, upButtonCallback))
+                upButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, upButtonCallback))
                 upButton.className = "player-panel-up-button"
                 content.appendChild(upButton)
                 var upButtonIcon = document.createElement("i")
@@ -796,14 +731,11 @@ button i {
                 upButtonIcon.innerText = "keyboard_arrow_up"
                 upButton.appendChild(upButtonIcon)
                 var downButton = document.createElement("button")
-                var downButtonMouseDownCallback = function() {
+                var downButtonCallback = function() {
                     Service.updatePlayerProperty(player.id, "lifeTotal", -1)
                 }
-                downButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, downButton, downButtonMouseDownCallback))
-                var downButtonMouseUpCallback = function() {
-                    Service.updatePlayerProperty(player.id, "lifeTotal", -1)
-                }
-                downButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, downButtonMouseUpCallback))
+                downButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, downButton, downButtonCallback))
+                downButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, downButtonCallback))
                 downButton.className = "player-panel-down-button"
                 content.appendChild(downButton)
                 var downButtonIcon = document.createElement("i")
@@ -811,14 +743,56 @@ button i {
                 downButtonIcon.innerText = "keyboard_arrow_down"
                 downButton.appendChild(downButtonIcon)
                 var playerPropertiesButton = document.createElement("button")
+                var playerPropertiesMouseUpCallback = function(event) {
+                    // View.openPlayerProperties(player.id)
+                    dragStop(event)
+                }
+                var dragElementDimensions = null
                 var dragStart = function(event) {
-                    console.log(event)
+                }
+                var dragMove = function(event) {
+                    var dragElement = event.target.parentElement.parentElement
+                    if(!dragElementDimensions) {
+                        dragElementDimensions = {
+                            height: dragElement.getBoundingClientRect().height,
+                            width: dragElement.getBoundingClientRect().width
+                        }
+                    }
+                    var placeholderElement = document.getElementById("player-panel-placeholder")
+                    if(!placeholderElement) {
+                        placeholderElement = document.createElement("div")
+                        placeholderElement.className = "player-panel"
+                        placeholderElement.id = "player-panel-placeholder"
+                        dragElement.parentElement.insertBefore(placeholderElement, dragElement)
+                    }
+                    dragElement.style.transition = "all 0s"
+                    dragElement.style.position = "absolute"
+                    dragElement.style.height = dragElementDimensions.height + "px"
+                    dragElement.style.width = dragElementDimensions.width + "px"
+                    dragElement.style.top = event.touches[0].pageY + "px"
+                    dragElement.style.left = event.touches[0].pageX + "px"
+                    dragElement.style.transform = "translate(-50%, -50%)"
+                }
+                var dragStop = function(event) {
+                    var dragElement = event.target.parentElement.parentElement
+                    var placeholderElement = document.getElementById("player-panel-placeholder")
+                    if(placeholderElement && placeholderElement instanceof Element) {
+                        placeholderElement.parentElement.removeChild(placeholderElement)
+                    }
+                    dragElement.style.transition = null
+                    dragElement.style.height = null
+                    dragElement.style.width = null
+                    dragElement.style.position = null
+                    dragElement.style.transform = null
+                    dragElement.style.top = null
+                    dragElement.style.left = null
+                    dragElementDimensions = null
+                    var draggedPlayerId = Utils.getPlayerIdFromPanelElement(dragElement)
+                    View.rearrangePlayerPositions(draggedPlayerId, event.changedTouches[0].pageX, event.changedTouches[0].pageY)
                 }
                 playerPropertiesButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(this, playerPropertiesButton, dragStart))
-                var playerPropertiesMouseDownCallback = function() {
-                    View.openPlayerProperties(player.id)
-                }
-                playerPropertiesButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, playerPropertiesMouseDownCallback))
+                playerPropertiesButton.addEventListener(Utils.getInputTypeForDevice("mousemove"), Utils.mouseMoveCallback.bind(this, dragMove))
+                playerPropertiesButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, playerPropertiesMouseUpCallback))
                 playerPropertiesButton.className = "player-panel-player-properties-button"
                 content.appendChild(playerPropertiesButton)
                 var board = document.getElementById("page-board-player-panels")
@@ -831,6 +805,19 @@ button i {
                 }
                 setTimeout(View.adjustFontSizeAll, 400)
             }
+        },
+        rearrangePlayerPositions: function(swappingPlayerId, targetX, targetY) {
+            var newPosition = Utils.convertCoordinatesToPlayerPosition(targetX, targetY)
+            var swappedPlayerId = Utils.getPlayerFromPosition(newPosition).id
+            Service.swapPlayers(swappingPlayerId, swappedPlayerId)
+            View.fixPlayerPositions()
+        },
+        fixPlayerPositions: function() {
+            var playerIdsInPositioningOrder = Utils.getPlayerIdsInPositioningOrder()
+            playerIdsInPositioningOrder.map(function(id) {
+                var playerElement = document.getElementById("player-id-" + id)
+                playerElement.parentElement.appendChild(playerElement)
+            })
         },
         removePlayer: function(playerId) {
             var playerId = typeof playerId == "number" ? playerId : JSON.parse(document.getElementById("page-player-properties-id").value)
@@ -1060,12 +1047,14 @@ button i {
                 }
                 var newPlayerId = maxId+1
                 var lifeTotal = Store.get("startingLifeTotal")
+                var newPosition = Service.getNextPlayerPosition()
                 players[newPlayerId] = Store.Player({
                     id: newPlayerId,
                     lifeTotal: lifeTotal,
                     commanderDamage: {},
                     color: null,
-                    name: null
+                    name: null,
+                    position: newPosition
                 })
                 Store.set("players", players)
                 return players[newPlayerId]
@@ -1145,10 +1134,25 @@ button i {
                             Store.set("players", players)
                         }
                         break
+                    case "position":
+                        if(typeof args == "number") {
+                            var players = Store.get("players")
+                            players[playerId].position = args
+                            Store.set("players", players)
+                        }
                     default:
                         break
                 }
             }
+        },
+        swapPlayers: function(playerAId, playerBId) {
+            var players = Store.get("players")
+            var playerA = players[playerAId]
+            var playerAPosition = playerA.position
+            var playerB = players[playerBId]
+            players[playerAId].position = playerB.position
+            players[playerBId].position = playerAPosition
+            Store.set("players", players)
         },
         resetAllPlayers: function() {
             var players = Store.get("players")
@@ -1184,7 +1188,8 @@ button i {
                 lifeTotal: args ? args["lifeTotal"] : null,
                 commanderDamage: args ? args["commanderDamage"] : null,
                 color: null,
-                name: null
+                name: null,
+                position: args ? args["position"] : null,
             }
         },
         HistoryEntry: function(args) {
@@ -1236,6 +1241,7 @@ button i {
             for(var idx in Object.keys(players)) {
                 View.createNewPlayerPanel(players[Object.keys(players)[idx]])
             }
+            View.fixPlayerPositions()
             var history = Store.get("history")
             for(var idx in history) {
                 View.addHistroryEntry(history[idx], players[history[idx].playerId])
@@ -1274,6 +1280,14 @@ button i {
             var isTouchSupported = 'ontouchstart' in window
             return isTouchSupported ? Utils.inputEvents[input] : input
         },
+        getPlayerIdsInPositioningOrder: function() {
+            var orderedIds = Object.values(Store.get("players")).sort(function(playerA, playerB) {
+                return playerA.position > playerB.position
+            }).map(function(player) {
+                return player.id
+            })
+            return orderedIds
+        },
         mouseDownCallback: function(element, callback, event) {
             Utils.mouseDownElement = element
             clearTimeout(Utils.mouseDownTimer)
@@ -1287,7 +1301,10 @@ button i {
                 loop(callback, event, loop)
             }.bind(this, callback, event), 500)
         },
-        mouseMoveCallback: function(event) {
+        mouseMoveCallback: function(callback, event) {
+            if(callback instanceof Function) {
+                callback(event)
+            }
             if(!Utils.mouseDownElement || event.target != Utils.mouseDownElement) {
                 clearTimeout(Utils.mouseDownTimer)
                 Utils.mouseDownTimer = null
@@ -1331,6 +1348,25 @@ button i {
 
             return [h*360, s*100, l*100]
         },
+        convertCoordinatesToPlayerPosition: function(targetX, targetY) {
+            var playerCount = Object.keys(Store.get("players")).length
+            var playerPanelsContainerRect = document.getElementById("page-board-player-panels").getBoundingClientRect()
+            var relativeX = targetX - playerPanelsContainerRect.left
+            var relativeY = targetY - playerPanelsContainerRect.top
+            var colCount = playerCount > 4 ? 3 : 2
+            var column = Math.min(colCount - 1, Math.max(0, Math.floor(relativeX / (playerPanelsContainerRect.width / colCount))))
+            var row = Math.min(1, Math.max(0, Math.floor(relativeY / (playerPanelsContainerRect.height / 2))))
+            return column + row * colCount
+        },
+        getPlayerFromPosition: function(position) {
+            var players = Store.get("players")
+            for(var index of Object.keys(players)) {
+                if(players[index].position == position) {
+                    return players[index]
+                }
+            }
+            return null
+        },
         inputEvents: {
             "mousedown": "touchstart",
             "mousemove": "touchmove",
@@ -1350,9 +1386,7 @@ button i {
         }
         document.getElementById("page-player-properties-color-selection-hue").addEventListener("click", View.colorClick.bind(this))
         addEventListener("resize", View.updateView)
-        addEventListener(Utils.getInputTypeForDevice("mousemove"), Utils.mouseMoveCallback)
         addEventListener("orientationchange", View.updateView)
-        // Service.initColors()
         var players = Store.get("players")
         if(players == null || Object.keys(players).length == 0) {
             Service.initService()
