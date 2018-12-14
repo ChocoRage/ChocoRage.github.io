@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>Chocorage's Lifecounter App</title>
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, minimal-ui"/>
     <!-- <meta name="application-name" content="Life Counter"> -->
     <!-- <meta name="apple-mobile-web-app-capable" content="yes"> -->
@@ -8,23 +9,26 @@
     <!-- <meta name="apple-mobile-web-app-title" content="Life Counter"> -->
     <!-- <link rel="apple-touch-icon" href="lifecounter-152.png"> -->
 
-    <!-- <meta name="mobile-web-app-capable" content="yes"> -->
-    <!-- <link rel="shortcut icon" sizes="192x192" href="lifecounter-192.png"> -->
-    <!-- <link rel="manifest" href="/manifest.json"> -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="shortcut icon" sizes="192x192" href="lifecounter-192.png">
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css?family=Assistant|Rammetto+One|Material+Icons" rel="stylesheet">
 </head>
 <style>
 * {
-    transition: opacity 0.2s linear;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
 }
+html {
+    height: 100%;
+    width: 100%;
+}
 body {
     font-family: Assistant;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
     margin: 0;
     padding: 0;
     border: 0;
@@ -34,42 +38,42 @@ body {
 #page-container {
     height: 100%;
     width: 100%;
-    display: flex;
     box-shadow: 0 0 0 1000vh #aba49b inset;
 }
 #page-body {
-    flex-grow: 1;
-    z-index: 0;
-    font-size: 0;
-}
-#page-foot {
-    display: flex;
-    background-color: #000;
-    z-index: 1;
-}
-#page-foot div {
-    box-sizing: content-box;
-}
-#page-foot div button {
-    background-color: transparent;
-    color: #aaa;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    margin: 0;
     height: 100%;
     width: 100%;
-    outline: none;
-}
-#page-foot div button:disabled {
-    color: rgba(170, 170, 170, .5);
+    z-index: 0;
+    font-size: 0;
 }
 .player-panel {
     display: inline-block;
     vertical-align: top;
     box-sizing: border-box;
     transition: width 0.4s ease-in-out, height 0.4s ease-in-out, background-color 0.4s ease-in-out;
+}
+.player-panel-content {
     box-shadow: 0 0 1px #000 inset;
+}
+.player-count-1 .player-panel {
+    width: 100%;
+    height: 100%;
+}
+.player-count-2 .player-panel {
+    width: 50%;
+    height: 100%;
+}
+.player-count-3 .player-panel,
+.player-count-4 .player-panel {
+    width: 50%;
+    height: 50%;
+}
+.player-count-5 .player-panel,
+.player-count-6 .player-panel {
+    width: -webkit-calc(100% / 3);
+    width: -moz-calc(100% / 3);
+    width: calc(100% / 3);
+    height: 50%;
 }
 .player-panel .player-panel-content {
     text-align: center;
@@ -85,7 +89,7 @@ body {
     z-index: 0;
 }
 .player-panel-life span {
-    vertical-align: middle;
+    font-size: initial;
 }
 .player-panel-up-button {
     top: 0;
@@ -93,21 +97,12 @@ body {
 .player-panel-down-button {
     bottom: 0;
 }
-.player-panel-player-properties-button {
-    top: 33.3333333%;
-    left: 0;
-}
-.player-count-1 .player-panel {
-    width: 100%;
-    height: 100%;
-}
 .player-panel-up-button:active,
 .player-panel-down-button:active {
     background-color: rgba(255, 255, 255, .2);
 }
 .player-panel-up-button,
 .player-panel-down-button,
-.player-panel-player-properties-button,
 .player-name {
     width: 100%;
     position: absolute;
@@ -132,38 +127,23 @@ body {
 }
 #page-board {
     height: 100%;
-    transform: translateX(0%);
-    transition: transform 0.4s ease-in-out;
+    width: -webkit-calc(100% - 50px);
+    width: -moz-calc(100% - 50px);
+    width: calc(100% - 50px);
+    display: inline-block;
+    vertical-align: top;
 }
 #page-board-player-panels {
     display: inline-block;
     vertical-align: top;
-}
-.page-settings,
-.page-player-properties {
-    display: none;
-    text-align: center;
-}
-#page-settings,
-#page-player-properties {
-    text-align: center;
-    position: absolute;
-    top: 0;
-    transform: translateX(110vw);
-    transition: transform 0.4s ease-in-out;
+    height: 100%;
+    width: 100%;
 }
 #page-settings-content,
 #page-player-properties-content {
     display: flex;
     height: 100%;
     flex-direction: column;
-}
-.page-head {
-    background-color: rgba(0, 0, 0, .2);
-    color: rgba(0, 0, 0, .4);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 .page-content {
     flex-grow: 1;
@@ -208,7 +188,6 @@ button.button-confirm i.material-icons {
     overflow: visible;
     z-index: 1;
 }
-
 #page-player-properties-color-selection-lightness {
     z-index: 2;
     position: absolute;
@@ -219,14 +198,12 @@ button.button-confirm i.material-icons {
     pointer-events: none;
     background: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0), rgba(255,255,255,1))
 }
-
 #page-player-properties-color-selection-preview {
     height: 50px;
     position: relative;
     margin-top: 10px;
     background-color: red;
 }
-
 #page-player-properties-color-selection-cursor {
     pointer-events: none;
     z-index: 9999;
@@ -271,10 +248,12 @@ label + * {
     z-index: 99;
     pointer-events: none;
 }
-#page-board-history {
+#page-history {
     display: inline-block;
     vertical-align: top;
     background-color: rgba(0, 0, 0, .2);
+    width: 50px;
+    height: 100%;
 }
 .history-entry-text {
     color: #000;
@@ -286,372 +265,49 @@ label + * {
     box-shadow: 0 0 1px #000 inset;
 }
 #history-entry-panels {
-    height: 100%;
+    height: -webkit-calc(100% - 50px);
+    height: -moz-calc(100% - 50px);
+    height: calc(100% - 50px);
     width: 100%;
     display: flex;
     justify-content: flex-end;
 }
-button i {
+#settings-button {
+    height: 50px;
+    width: 50px;
+    background-color: #444;
+}
+.button {
+    all: unset;
+    height: 100%;
+    width: 100%;
+}
+.button i {
     pointer-events: none;
+    font-size: 40px;
+    padding-left: 5px;
+    color: #bbb;
 }
-@media screen and (orientation: landscape) {
-    #page-container {
-        flex-direction: row;
-    }
-    #page-body {
-        width: 90vw;
-        height: 100%;
-    }
-    #page-board-player-panels {
-        height: 100%;
-        width: 80vw;
-    }
-    #page-foot {
-        width: 10vw;
-        flex-direction: column-reverse;
-    }
-    #page-foot div {
-        padding: 2vh;
-    }
-    #page-foot div.page-board {
-        height: 25%;
-    }
-    #page-foot div.page-player-properties {
-        height: 33.3333333%;
-    }
-    #page-foot div.page-settings {
-        height: 50%;
-    }
-    #page-foot div button i {
-        font-size: 12vh;
-    }
-    .player-panel {
-        height: 50%;
-    }
-    .player-panel-life {
-        font-size: 20vh;
-    }
-    .player-count-2 .player-panel {
-        height: 100%;
-        width: 50%;
-    }
-    .player-count-3 .player-panel,
-    .player-count-4 .player-panel {
-        width: 50%;
-        height: 50%;
-    }
-    .player-count-5 .player-panel,
-    .player-count-6 .player-panel {
-        width: 33.33333%;
-    }
-    .player-panel-up-button i.material-icons,
-    .player-panel-down-button i.material-icons {
-        font-size: 15vh;
-    }
-    .player-name {
-        font-size: 10vh;
-        padding-left: 2vh;
-    }
-    #page-settings,
-    #page-player-properties {
-        width: 90vw;
-        height: 100%;
-    }
-    .page-content label,
-    .page-content select,
-    .page-content input,
-    #button-reset-entrie-board-button {
-        font-size: 8vh;
-    }
-    #page-player-properties-content label {
-        width: 25%;
-    }
-    #page-player-properties-content label + * {
-        width: 65%;
-    }
-    .page-head {
-        height: 15vh;
-        font-size: 8vh;
-    }
-    #page-player-properties-color-preview {
-        height: 10vh;
-        margin: 1vh;
-    }
-    #button-reset-entrie-board-button {
-        height: 10vh;
-        padding: 2vh;
-    }
-    .page-content-form-line {
-        margin-bottom: 3vh;
-    }
-    #version {
-        font-size: 3vh;
-        right: 0;
-        bottom: 0;
-        color: #888888;
-    }
-    #page-board-history {
-        width: 10vw;
-        height: 100%;
-    }
-    .history-entry-panel {
-        min-height: 10vw;
-        min-width: 10vw;
-        max-height: 10vw;
-        max-width: 10vw;
-        line-height: 10vw;
-    }
-    .history-entry-text {
-        font-size: 10vh;
-    }
-    #history-entry-panels {
-        flex-direction: column-reverse;
-    }
-}
-@media screen and (orientation: portrait) {
-    #page-container {
-        flex-direction: column;
-    }
-    #page-body {
-        height: 90vh;
-        width: 100%;
-    }
-    #page-board-player-panels {
-        width: 100%;
-        height: 80vh;
-    }
-    #page-foot {
-        height: 10vh;
-        flex-direction: row;
-    }
-    #page-foot div {
-        padding: 2vw;
-    }
-    #page-foot div.page-board {
-        width: 25%;
-    }
-    #page-foot div.page-player-properties {
-        width: 33.333333%;
-    }
-    #page-foot div.page-settings {
-        width: 50%;
-    }
-    #page-foot div button i {
-        font-size: 12vw;
-    }
-    .player-panel {
-        width: 50%;
-    }
-    .player-panel-life {
-        font-size: 20vw;
-    }
-    .player-count-2 .player-panel {
-        width: 100%;
-        height: 50%;
-    }
-    .player-count-3 .player-panel {
-        width: 100%;
-        height: 33.33333%;
-    }
-    .player-count-4 .player-panel {
-        height: 50%;
-    }
-    .player-count-5 .player-panel,
-    .player-count-6 .player-panel {
-        height: 33.33333%;
-    }
-    .player-panel-up-button i.material-icons,
-    .player-panel-down-button i.material-icons {
-        font-size: 15vw;
-    }
-    .player-name {
-        font-size: 10vw;
-        padding-left: 2vw;
-    }
-    #page-settings,
-    #page-player-properties {
-        height: 90vh;
-        width: 100%;
-    }
-    .page-content label,
-    .page-content select,
-    .page-content input,
-    #button-reset-entrie-board-button {
-        font-size: 8vw;
-    }
-    .page-head {
-        height: 15vw;
-        font-size: 8vw;
-    }
-    .input-color {
-        height: 10vw;
-        width: 10vw;
-        margin: 1vw;
-    }
-    .input-color:checked {
-        border: 1vw solid #000;
-    }
-    #page-player-properties-color-preview {
-        height: 10vw;
-        margin: 1vw;
-    }
-    #button-reset-entrie-board-button {
-        height: 10vw;
-        padding: 2vw;
-    }
-    .page-content-form-line {
-        margin-bottom: 3vw;
-    }
-    #version {
-        font-size: 3vw;
-        left: 0;
-        bottom: 0;
-        color: #888888;
-    }
-    #page-board-history {
-        height: 10vh;
-        width: 100%;
-    }
-    .history-entry-panel {
-        min-height: 8vh;
-        min-width: 8vh;
-        max-height: 8vh;
-        max-width: 8vh;
-        line-height: 8vh;
-        margin-top: 1vh;
-        margin-left: 1vh;
-        margin-bottom: 1vh;
-    }
-    .history-entry-panel:first-child {
-        margin-right: 1vh;
-    }
-    .history-entry-text {
-        font-size: 10vw;
-    }
-    #history-entry-panels {
-        flex-direction: row-reverse;
-    }
+.dragging {
+    position: absolute !important;
+    transform: translate(-50%, -50%) scale(0.75);
 }
 </style>
 <body>
     <div id="page-container">
         <div id="page-body">
-            <!-- =============== Board Body =============== -->
-            <div id="page-board">
-                <div id="page-board-history" onclick="View.makeLastHistoryEntryFinal()">
-                    <div id="history-entry-panels">
-                    </div>
+            <div id="page-history" onclick="View.makeLastHistoryEntryFinal()">
+                <div id="history-entry-panels">
                 </div>
+                <div id="settings-button">
+                    <button class="button" type="button">
+                        <i class="material-icons">settings</i>
+                    </button>
+                </div>
+            </div>
+            <div id="page-board">
                 <div id="page-board-player-panels">
                 </div>
-            </div>
-            <!-- =============== Settings Body =============== -->
-            <div id="page-settings">
-                <div id="page-settings-content">
-                    <div class="page-head">
-                        <div>
-                            Settings
-                        </div>
-                    </div>
-                    <div class="page-content">
-                        <div class="page-content-form">
-                            <label for="select-starting-life-total">Starting Life Total</label>
-                            <select id="select-starting-life-total">
-                                <option value="20">20</option>
-                                <option value="30">30</option>
-                                <option value="40">40</option>
-                            </select>
-                            <br/><br/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- =============== Player Properties Body =============== -->
-            <div id="page-player-properties">
-                <div id="page-player-properties-content">
-                    <div class="page-head">
-                        <div>
-                            Player Properties
-                        </div>
-                    </div>
-                    <div class="page-content">
-                        <div class="page-content-form">
-                            <input type="hidden" id="page-player-properties-id"/>
-                            <div class="page-content-form-line">
-                                <label id="input-player-name-label" for="input-player-name">Name</label>
-                                <input type="text" id="input-player-name" onfocus="View.focusInput(this)" onblur="View.blurInput(this)"/>
-                            </div>
-                            <div class="page-content-form-line">
-                                <label id="input-player-life-label" for="input-player-life">Life Total</label>
-                                <input type="number" pattern="[0-9]*" id="input-player-life" onfocus="View.focusInput(this)" onblur="View.blurInput(this)"/>
-                            </div>
-                            <div class="page-content-form-line">
-                                <label>Color</label>
-                                <div id="page-player-properties-colors">
-                                    <!--
-                                    <div id="page-player-properties-color-preview">
-                                    </div>
-                                    -->
-                                    <div id="page-player-properties-color-selection-hue">
-                                        <div id="page-player-properties-color-selection-cursor"></div>
-                                        <div id="page-player-properties-color-selection-lightness"></div>
-                                    </div>
-                                    <div id="page-player-properties-color-selection-preview"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="page-foot">
-            <!-- =============== Board Buttons =============== -->
-            <div class="page-board">
-                <button id="button-reset-entire-board" onclick="View.resetEntireBoard()">
-                    <i class="material-icons">fiber_new</i>
-                </button>
-            </div>
-            <div class="page-board">
-                <button id="button-reset" onclick="View.resetAllPlayers()">
-                    <i class="material-icons">settings_backup_restore</i>
-                </button>
-            </div>
-            <div class="page-board">
-                <button id="button-settings" onclick="View.openSettings()">
-                    <i class="material-icons">settings</i>
-                </button>
-            </div>
-            <div class="page-board">
-                <button id="button-newplayer" onclick="View.createNewPlayerPanel()">
-                    <i class="material-icons">person_add</i>
-                </button>
-            </div>
-            <!-- =============== Settings Buttons =============== -->
-            <div class="page-settings">
-                <button id="button-settings-cancel" class="button-cancel" onclick="View.closeSettings()">
-                    <i class="material-icons">close</i>
-                </button>
-            </div>
-            <div class="page-settings">
-                <button id="button-settings-confirm" class="button-confirm" onclick="View.closeSettings(true)">
-                    <i class="material-icons">check</i>
-                </button>
-            </div>
-            <!-- =============== Player Properties Buttons =============== -->
-            <div class="page-player-properties">
-                <button id="button-properties-cancel" class="button-cancel" onclick="View.closePlayerProperties()">
-                    <i class="material-icons">close</i>
-                </button>
-            </div>
-            <div class="page-player-properties">
-                <button id="button-properties-delete" class="button-delete" onclick="View.removePlayer()">
-                    <i class="material-icons">delete</i>
-                </button>
-            </div>
-            <div class="page-player-properties">
-                <button id="button-properties-confirm" class="button-confirm" onclick="View.closePlayerProperties(true)">
-                    <i class="material-icons">check</i>
-                </button>
             </div>
         </div>
     </div>
@@ -710,14 +366,6 @@ button i {
                 nameTag.className = "player-name"
                 nameTag.innerText = player.name
                 // content.appendChild(nameTag)
-                var lifeTotalContainer = document.createElement("div")
-                lifeTotalContainer.className = "player-panel-life"
-                content.appendChild(lifeTotalContainer)
-                var lifeTotal = document.createElement("span")
-                lifeTotal.id = "player-id-" + player.id + "-life"
-                // lifeTotal.className = "player-panel-life"
-                lifeTotal.innerText = player.lifeTotal
-                lifeTotalContainer.appendChild(lifeTotal)
                 var upButton = document.createElement("button")
                 var upButtonCallback = function() {
                     Service.updatePlayerProperty(player.id, "lifeTotal", 1)
@@ -734,6 +382,13 @@ button i {
                 var downButtonCallback = function() {
                     Service.updatePlayerProperty(player.id, "lifeTotal", -1)
                 }
+                var lifeTotalContainer = document.createElement("div")
+                lifeTotalContainer.className = "player-panel-life"
+                content.appendChild(lifeTotalContainer)
+                var lifeTotal = document.createElement("span")
+                lifeTotal.id = "player-id-" + player.id + "-life"
+                lifeTotal.innerText = player.lifeTotal
+                lifeTotalContainer.appendChild(lifeTotal)
                 downButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(null, downButton, downButtonCallback))
                 downButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, downButtonCallback))
                 downButton.className = "player-panel-down-button"
@@ -742,7 +397,7 @@ button i {
                 downButtonIcon.className = "material-icons"
                 downButtonIcon.innerText = "keyboard_arrow_down"
                 downButton.appendChild(downButtonIcon)
-                var playerPropertiesButton = document.createElement("button")
+                // var playerPropertiesButton = document.createElement("button")
                 var playerPropertiesMouseUpCallback = function(event) {
                     // View.openPlayerProperties(player.id)
                     dragStop(event)
@@ -758,43 +413,37 @@ button i {
                             width: dragElement.getBoundingClientRect().width
                         }
                     }
-                    var placeholderElement = document.getElementById("player-panel-placeholder")
-                    if(!placeholderElement) {
-                        placeholderElement = document.createElement("div")
-                        placeholderElement.className = "player-panel"
-                        placeholderElement.id = "player-panel-placeholder"
-                        dragElement.parentElement.insertBefore(placeholderElement, dragElement)
-                    }
-                    dragElement.style.transition = "all 0s"
-                    dragElement.style.position = "absolute"
+                    // var placeholderElement = document.getElementById("player-panel-placeholder")
+                    // if(!placeholderElement) {
+                    //     placeholderElement = document.createElement("div")
+                    //     placeholderElement.className = "player-panel"
+                    //     placeholderElement.id = "player-panel-placeholder"
+                    //     dragElement.parentElement.parentElement.insertBefore(placeholderElement, dragElement.parentElement)
+                    // }
+                    dragElement.classList.contains("dragging") ? null : dragElement.classList.add("dragging")
                     dragElement.style.height = dragElementDimensions.height + "px"
                     dragElement.style.width = dragElementDimensions.width + "px"
                     dragElement.style.top = event.touches[0].pageY + "px"
                     dragElement.style.left = event.touches[0].pageX + "px"
-                    dragElement.style.transform = "translate(-50%, -50%)"
                 }
                 var dragStop = function(event) {
                     var dragElement = event.target.parentElement.parentElement
-                    var placeholderElement = document.getElementById("player-panel-placeholder")
-                    if(placeholderElement && placeholderElement instanceof Element) {
-                        placeholderElement.parentElement.removeChild(placeholderElement)
-                    }
-                    dragElement.style.transition = null
-                    dragElement.style.height = null
-                    dragElement.style.width = null
-                    dragElement.style.position = null
-                    dragElement.style.transform = null
+                    // var placeholderElement = document.getElementById("player-panel-placeholder")
+                    // if(placeholderElement && placeholderElement instanceof Element) {
+                    //     placeholderElement.parentElement.removeChild(placeholderElement)
+                    // }
+                    dragElement.classList.remove("dragging")
                     dragElement.style.top = null
                     dragElement.style.left = null
                     dragElementDimensions = null
                     var draggedPlayerId = Utils.getPlayerIdFromPanelElement(dragElement)
                     View.rearrangePlayerPositions(draggedPlayerId, event.changedTouches[0].pageX, event.changedTouches[0].pageY)
                 }
-                playerPropertiesButton.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(this, playerPropertiesButton, dragStart))
-                playerPropertiesButton.addEventListener(Utils.getInputTypeForDevice("mousemove"), Utils.mouseMoveCallback.bind(this, dragMove))
-                playerPropertiesButton.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, playerPropertiesMouseUpCallback))
-                playerPropertiesButton.className = "player-panel-player-properties-button"
-                content.appendChild(playerPropertiesButton)
+                lifeTotal.addEventListener(Utils.getInputTypeForDevice("mousedown"), Utils.mouseDownCallback.bind(this, lifeTotal, dragStart))
+                lifeTotal.addEventListener(Utils.getInputTypeForDevice("mousemove"), Utils.mouseMoveCallback.bind(this, dragMove))
+                lifeTotal.addEventListener(Utils.getInputTypeForDevice("mouseup"), Utils.mouseUpCallback.bind(this, playerPropertiesMouseUpCallback))
+                // playerPropertiesButton.className = "player-panel-player-properties-button"
+                // content.appendChild(playerPropertiesButton)
                 var board = document.getElementById("page-board-player-panels")
                 board.appendChild(container)
                 var body = document.getElementById("page-body")
@@ -814,10 +463,16 @@ button i {
         },
         fixPlayerPositions: function() {
             var playerIdsInPositioningOrder = Utils.getPlayerIdsInPositioningOrder()
-            playerIdsInPositioningOrder.map(function(id) {
+            var playerPanels = document.getElementsByClassName("player-panel")
+            for(var playerPanel of playerPanels) {
+                window.setTimeout(function() {
+                    document.body.appendChild(playerPanel)
+                }, 100)
+            }
+            for(var id of playerIdsInPositioningOrder) {
                 var playerElement = document.getElementById("player-id-" + id)
-                playerElement.parentElement.appendChild(playerElement)
-            })
+                document.getElementById("page-board-player-panels").appendChild(playerElement)
+            }
         },
         removePlayer: function(playerId) {
             var playerId = typeof playerId == "number" ? playerId : JSON.parse(document.getElementById("page-player-properties-id").value)
@@ -941,15 +596,13 @@ button i {
         },
         adjustFontSizeAll: function() {
             var lifeElements = document.querySelectorAll(".player-panel-life span")
-            var maxFontSizeLife = Store.get("maxFontSizeLife")
-            for(var idx in lifeElements) {
-                View.adjustFontSize(lifeElements.item(idx), Store.get("maxFontSizeLife"))
+            for(var lifeElement of lifeElements) {
+                View.adjustFontSize(lifeElement, Store.get("maxFontSizeLife"))
             }
-            var maxFontSizeHistory = Store.get("maxFontSizeHistory")
-            var historyElements = document.querySelectorAll(".history-entry-panel span")
-            for(var idx in historyElements) {
-                View.adjustFontSize(historyElements.item(idx), Store.get("maxFontSizeHistory"))
-            }
+            // var historyElements = document.querySelectorAll(".history-entry-panel span")
+            // for(var historyElement of historyElements) {
+            //     View.adjustFontSize(historyElement, Store.get("maxFontSizeHistory"))
+            // }
         },
         updateLastHistoryEntry: function(historyEntry) {
             var historyPanel = document.getElementById("history-entry-panels")
@@ -1062,6 +715,16 @@ button i {
                 return null
             }
         },
+        getNextPlayerPosition: function() {
+            var players = Store.get("players")
+            var nextPosition = -1
+            if(players && Object.keys(players).length > 0) {
+                for(var player of Object.values(players)) {
+                    nextPosition = Math.max(nextPosition, player.position)
+                }
+            }
+            return nextPosition + 1
+        },
         removePlayer: function(playerId) {
             var players = Store.get("players")
             if(Object.keys(players).length > 1) {
@@ -1171,6 +834,10 @@ button i {
             Service.initService()
         },
         initService: function() {
+            View.createNewPlayerPanel()
+            View.createNewPlayerPanel()
+            View.createNewPlayerPanel()
+            View.createNewPlayerPanel()
             View.createNewPlayerPanel()
             View.adjustFontSizeAll()
         },
@@ -1384,15 +1051,16 @@ button i {
             Store.get = Store.getFromRuntimeStorage
             Store.set = Store.setRuntimeStorage
         }
-        document.getElementById("page-player-properties-color-selection-hue").addEventListener("click", View.colorClick.bind(this))
+        // document.getElementById("page-player-properties-color-selection-hue").addEventListener("click", View.colorClick.bind(this))
         addEventListener("resize", View.updateView)
         addEventListener("orientationchange", View.updateView)
-        var players = Store.get("players")
-        if(players == null || Object.keys(players).length == 0) {
+        Store.set("players", {})
+        // var players = Store.get("players")
+        // if(players == null || Object.keys(players).length == 0) {
             Service.initService()
-        } else {
-            Store.restoreSession()
-        }
+        // } else {
+        //     Store.restoreSession()
+        // }
     })()
 </script>
 </html>
