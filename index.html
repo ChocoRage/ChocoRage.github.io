@@ -67,6 +67,7 @@ body {
     vertical-align: top;
     box-sizing: border-box;
     transition: width 0.4s ease-in-out, height 0.4s ease-in-out, background-color 0.4s ease-in-out;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.2) inset;
 }
 .player-panel .player-panel-content {
     background-color: rgba(255, 255, 255, .2);
@@ -84,6 +85,7 @@ body {
 }
 .player-panel-life span {
     vertical-align: middle;
+    text-shadow: 0 0 5px rgba(255,255,255,.6);
 }
 .player-panel-up-button {
     top: 0;
@@ -92,7 +94,8 @@ body {
     bottom: 0;
 }
 .player-panel-player-properties-button {
-    top: 33.3333333%;
+    height: 20%;
+    top: 40%;
     left: 0;
 }
 .player-count-1 .player-panel {
@@ -110,7 +113,6 @@ body {
     width: 100%;
     position: absolute;
     left: 0;
-    height: 33.333333%;
     z-index: 1;
     background-color: transparent;
     border: none;
@@ -119,6 +121,10 @@ body {
     margin: 0;
     text-align: center;
     outline: none;
+}
+.player-panel-up-button,
+.player-panel-down-button {
+    height: 40%;
 }
 .player-name {
     text-align: left;
@@ -289,6 +295,7 @@ label + * {
 .history-entry-text {
     color: #000;
     font-weight: 700;
+    text-shadow: 0 0 5px rgba(255,255,255,.3);
 }
 .history-entry-panel {
     background-color: rgba(255, 255, 255, .5);
@@ -336,7 +343,6 @@ button i {
         font-size: 12vh;
     }
     .player-panel {
-        padding: 2vh;
         height: 50%;
     }
     .player-panel-life {
@@ -358,9 +364,6 @@ button i {
     .player-panel-up-button i.material-icons,
     .player-panel-down-button i.material-icons {
         font-size: 15vh;
-    }
-    .player-panel-content, .history-entry-panel {
-        border-radius: 2vh;
     }
     .player-panel-up-button {
         border-top-left-radius: 2vh;
@@ -425,14 +428,11 @@ button i {
         height: 100%;
     }
     .history-entry-panel {
-        min-height: 8vw;
-        min-width: 8vw;
-        max-height: 8vw;
-        max-width: 8vw;
-        line-height: 8vw;
-        margin-top: 1vw;
-        margin-left: 1vw;
-        margin-right: 1vw;
+        min-height: 10vw;
+        min-width: 10vw;
+        max-height: 10vw;
+        max-width: 10vw;
+        line-height: 10vw;
     }
     .history-entry-panel:first-child {
         margin-bottom: 1vw;
@@ -514,9 +514,6 @@ button i {
     .player-panel-up-button i.material-icons,
     .player-panel-down-button i.material-icons {
         font-size: 15vw;
-    }
-    .player-panel-content, .history-entry-panel {
-        border-radius: 2vw;
     }
     .player-panel-up-button {
         border-top-left-radius: 2vw;
@@ -979,7 +976,7 @@ button i {
             }
         },
         addHistroryEntry: function(historyEntry, player) {
-            if(historyEntry.amount == 0) {
+            if(!player || historyEntry.amount == 0) {
                 return
             }
             var historyPanel = document.getElementById("history-entry-panels")
@@ -1293,6 +1290,7 @@ button i {
                 Utils.mouseDownTimer = null
                 Utils.mouseDownElement = null
             }
+            console.log(event.target)
         },
         mouseUpCallback: function(callback, event) {
             clearTimeout(Utils.mouseDownTimer)
